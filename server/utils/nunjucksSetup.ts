@@ -1,20 +1,25 @@
 /* eslint-disable no-param-reassign */
+import path from 'path'
+
 import nunjucks from 'nunjucks'
 import express from 'express'
-import path from 'path'
-import { initialiseName } from './utils'
-import { ApplicationInfo } from '../applicationInfo'
 
-const production = process.env.NODE_ENV === 'production'
+import { ApplicationInfo } from '../applicationInfo'
+import config from '../config'
+import { initialiseName } from './utils'
 
 export default function nunjucksSetup(app: express.Express, applicationInfo: ApplicationInfo): void {
   app.set('view engine', 'njk')
 
   app.locals.asset_path = '/assets/'
-  app.locals.applicationName = 'HMPPS Non Associations'
+  app.locals.applicationName = 'Non-associations'
+  app.locals.environment = config.environment
+
+  app.locals.dpsUrl = config.dpsUrl
+  app.locals.supportUrl = config.supportUrl
 
   // Cachebusting version string
-  if (production) {
+  if (config.production) {
     // Version only changes with new commits
     app.locals.version = applicationInfo.gitShortHash
   } else {

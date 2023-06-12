@@ -4,13 +4,13 @@ import { Readable } from 'stream'
 
 import logger from '../../logger'
 import sanitiseError from '../sanitisedError'
-import { ApiConfig } from '../config'
+import type { ApiConfig } from '../config'
 import type { UnsanitisedError } from '../sanitisedError'
 import { restClientMetricsMiddleware } from './restClientMetricsMiddleware'
 
 interface GetRequest {
   path?: string
-  query?: string
+  query?: object | string
   headers?: Record<string, string>
   responseType?: string
   raw?: boolean
@@ -46,7 +46,13 @@ export default class RestClient {
     return this.config.timeout
   }
 
-  async get({ path = null, query = '', headers = {}, responseType = '', raw = false }: GetRequest): Promise<unknown> {
+  async get<Response = unknown>({
+    path = null,
+    query = {},
+    headers = {},
+    responseType = '',
+    raw = false,
+  }: GetRequest): Promise<Response> {
     logger.info(`Get using user credentials: calling ${this.name}: ${path} ${query}`)
     try {
       const result = await superagent
@@ -54,7 +60,7 @@ export default class RestClient {
         .agent(this.agent)
         .use(restClientMetricsMiddleware)
         .retry(2, (err, res) => {
-          if (err) logger.info(`Retry handler found API error with ${err.code} ${err.message}`)
+          if (err) logger.info(`Retry handler found ${this.name} API error with ${err.code} ${err.message}`)
           return undefined // retry handler only for logging retries, not to influence retry logic
         })
         .query(query)
@@ -71,14 +77,14 @@ export default class RestClient {
     }
   }
 
-  async post({
+  async post<Response = unknown>({
     path = null,
     headers = {},
     responseType = '',
     data = {},
     raw = false,
     retry = false,
-  }: PostRequest = {}): Promise<unknown> {
+  }: PostRequest = {}): Promise<Response> {
     logger.info(`Post using user credentials: calling ${this.name}: ${path}`)
     try {
       const result = await superagent
@@ -106,7 +112,42 @@ export default class RestClient {
     }
   }
 
-  async stream({ path = null, headers = {} }: StreamRequest = {}): Promise<unknown> {
+  async patch<Response = unknown>({
+    path = null,
+    headers = {},
+    responseType = '',
+    data = {},
+    raw = false,
+    retry = false,
+  }: PostRequest = {}): Promise<Response> {
+    logger.info(`Patch using user credentials: calling ${this.name}: ${path}`)
+    try {
+      const result = await superagent
+        .patch(`${this.apiUrl()}${path}`)
+        .send(data)
+        .agent(this.agent)
+        .use(restClientMetricsMiddleware)
+        .retry(2, (err, res) => {
+          if (retry === false) {
+            return false
+          }
+          if (err) logger.info(`Retry handler found API error with ${err.code} ${err.message}`)
+          return undefined // retry handler only for logging retries, not to influence retry logic
+        })
+        .auth(this.token, { type: 'bearer' })
+        .set(headers)
+        .responseType(responseType)
+        .timeout(this.timeoutConfig())
+
+      return raw ? result : result.body
+    } catch (error) {
+      const sanitisedError = sanitiseError(error)
+      logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'PATCH'`)
+      throw sanitisedError
+    }
+  }
+
+  async stream({ path = null, headers = {} }: StreamRequest = {}): Promise<Readable> {
     logger.info(`Get using user credentials: calling ${this.name}: ${path}`)
     return new Promise((resolve, reject) => {
       superagent
@@ -115,7 +156,7 @@ export default class RestClient {
         .auth(this.token, { type: 'bearer' })
         .use(restClientMetricsMiddleware)
         .retry(2, (err, res) => {
-          if (err) logger.info(`Retry handler found API error with ${err.code} ${err.message}`)
+          if (err) logger.info(`Retry handler found ${this.name} API error with ${err.code} ${err.message}`)
           return undefined // retry handler only for logging retries, not to influence retry logic
         })
         .timeout(this.timeoutConfig())

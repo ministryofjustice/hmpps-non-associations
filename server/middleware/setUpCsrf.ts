@@ -1,5 +1,5 @@
-import { Router } from 'express'
 import csurf from 'csurf'
+import { Router } from 'express'
 
 const testMode = process.env.NODE_ENV === 'test'
 

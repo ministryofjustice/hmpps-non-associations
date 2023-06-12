@@ -1,0 +1,16 @@
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
+
+<div class="dps-caseload-bar">
+  {% if environment != "production" %}
+    {{ govukTag({
+      text: environment,
+      classes: "govuk-!-margin-right-1 govuk-tag--red"
+    }) }}
+  {% endif %}
+  <span class="dps-caseload-bar__location" data-test="active-location">
+    {{ user.activeCaseload.name }}
+  </span>
+  {% if user.caseloads.length > 1 %}
+    <a class="dps-caseload-bar__link" href="{{ dpsUrl }}/change-caseload" data-test="change-location-link">Change your location</a>
+  {% endif %}
+</div>

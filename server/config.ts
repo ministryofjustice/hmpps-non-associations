@@ -1,6 +1,10 @@
 const production = process.env.NODE_ENV === 'production'
 
-function get<T>(name: string, fallback: T, options = { requireInProduction: false }): T | string {
+type EnvOptions = { requireInProduction: boolean }
+const requiredInProduction: EnvOptions = { requireInProduction: true }
+const notRequiredInProduction: EnvOptions = { requireInProduction: false }
+
+function get<T>(name: string, fallback: T, options: EnvOptions = notRequiredInProduction): T | string {
   if (process.env[name]) {
     return process.env[name]
   }
@@ -9,8 +13,6 @@ function get<T>(name: string, fallback: T, options = { requireInProduction: fals
   }
   throw new Error(`Missing env var ${name}`)
 }
-
-const requiredInProduction = { requireInProduction: true }
 
 export class AgentConfig {
   timeout: number
@@ -30,8 +32,9 @@ export interface ApiConfig {
 }
 
 export default {
-  buildNumber: get('BUILD_NUMBER', '1_0_0', requiredInProduction),
-  gitRef: get('GIT_REF', 'xxxxxxxxxxxxxxxxxxx', requiredInProduction),
+  buildNumber: get('BUILD_NUMBER', '2023-05-18.1.39b1b24', requiredInProduction),
+  gitRef: get('GIT_REF', 'unknown', requiredInProduction),
+  environment: process.env.ENVIRONMENT || 'local',
   production,
   https: production,
   staticResourceCacheDuration: '1h',
@@ -68,6 +71,29 @@ export default {
       agent: new AgentConfig(Number(get('TOKEN_VERIFICATION_API_TIMEOUT_RESPONSE', 5000))),
       enabled: get('TOKEN_VERIFICATION_ENABLED', 'false') === 'true',
     },
+    nomisUserRolesApi: {
+      url: get('NOMIS_USER_ROLES_API_URL', 'http://localhost:8081', requiredInProduction),
+      externalUrl: get('NOMIS_USER_ROLES_API_EXTERNAL_URL', get('NOMIS_USER_ROLES_API_URL', 'http://localhost:8081')),
+      timeout: {
+        response: Number(get('NOMIS_USER_ROLES_API_TIMEOUT_RESPONSE', 8000)),
+        deadline: Number(get('NOMIS_USER_ROLES_API_TIMEOUT_DEADLINE', 8000)),
+      },
+      agent: new AgentConfig(Number(get('NOMIS_USER_ROLES_API_TIMEOUT_RESPONSE', 8000))),
+    },
+    hmppsNonAssociationsApi: {
+      url: get('HMPPS_NON_ASSOCIATIONS_API_URL', 'http://localhost:2999', requiredInProduction),
+      externalUrl: get(
+        'HMPPS_NON_ASSOCIATIONS_API_EXTERNAL_URL',
+        get('HMPPS_NON_ASSOCIATIONS_API_URL', 'http://localhost:2999'),
+      ),
+      timeout: {
+        response: Number(get('HMPPS_NON_ASSOCIATIONS_API_TIMEOUT_RESPONSE', 60000)),
+        deadline: Number(get('HMPPS_NON_ASSOCIATIONS_API_TIMEOUT_DEADLINE', 60000)),
+      },
+      agent: new AgentConfig(Number(get('HMPPS_NON_ASSOCIATIONS_API_TIMEOUT_RESPONSE', 60000))),
+    },
   },
   domain: get('INGRESS_URL', 'http://localhost:3000', requiredInProduction),
+  dpsUrl: get('DPS_URL', 'http://localhost:3000', requiredInProduction),
+  supportUrl: get('SUPPORT_URL', 'http://localhost:3000', requiredInProduction),
 }

@@ -1,7 +1,8 @@
 import { convertToTitleCase } from '../utils/utils'
 import type HmppsAuthClient from '../data/hmppsAuthClient'
+import { NomisUserRolesApi, type UserCaseloads } from '../data/nomisUserRolesApi'
 
-interface UserDetails {
+export interface UserDetails extends UserCaseloads {
   name: string
   displayName: string
 }
@@ -10,7 +11,15 @@ export default class UserService {
   constructor(private readonly hmppsAuthClient: HmppsAuthClient) {}
 
   async getUser(token: string): Promise<UserDetails> {
+    const nomisUserRolesApi = new NomisUserRolesApi(token)
+
     const user = await this.hmppsAuthClient.getUser(token)
-    return { ...user, displayName: convertToTitleCase(user.name) }
+    const userCaseloads = await nomisUserRolesApi.getUserCaseloads()
+
+    return {
+      ...user,
+      ...userCaseloads,
+      displayName: convertToTitleCase(user.name),
+    }
   }
 }

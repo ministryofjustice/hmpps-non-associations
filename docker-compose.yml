@@ -1,11 +1,13 @@
-version: '3.1'
+# Runs the application and full suite of services it depends on
+version: '3.9'
+
 services:
 
   redis:
-    image: 'redis:7.0'
+    image: redis:7.0
     networks:
       - hmpps
-    container_name: redis
+    container_name: nona-redis
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
@@ -15,11 +17,11 @@ services:
     image: quay.io/hmpps/hmpps-auth:latest
     networks:
       - hmpps
-    container_name: hmpps-auth
+    container_name: nona-hmpps-auth
     ports:
-      - "9090:8080"
+      - '9090:8080'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/auth/health']
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
@@ -28,9 +30,11 @@ services:
     build: .
     networks:
       - hmpps
-    depends_on: [redis]
+    depends_on:
+      - redis
+      - hmpps-auth
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - REDIS_HOST=redis
       - HMPPS_AUTH_EXTERNAL_URL=http://localhost:9090/auth

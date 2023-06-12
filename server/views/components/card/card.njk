@@ -1,0 +1,15 @@
+{% macro card(params) %}
+  <div class="dps-card {% if params.clickable %}dps-card--clickable{% endif %}" data-test="{{ params.id }}">
+    <h2 class="govuk-heading-m dps-card__heading">
+      {%- if params.href %}
+        <a class="dps-card__link" href="{{ params.href }}">{{ params.heading | safe }}</a>
+      {%- else %}
+        {{ params.heading }}
+      {%- endif %}
+    </h2>
+
+    {%- if params.description %}
+      <p class="govuk-body dps-card__description">{{ params.description | safe }}</p>
+    {%- endif %}
+  </div>
+{% endmacro %}

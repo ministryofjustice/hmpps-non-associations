@@ -1,11 +1,11 @@
-export type PageElement = Cypress.Chainable<JQuery>
+export type PageElement<TElement = HTMLElement> = Cypress.Chainable<JQuery<TElement>>
 
 export default abstract class Page {
-  static verifyOnPage<T>(constructor: new () => T): T {
-    return new constructor()
+  static verifyOnPage<T extends Page>(constructor: new (...args: unknown[]) => T, ...args: unknown[]): T {
+    return new constructor(...args)
   }
 
-  constructor(private readonly title: string) {
+  constructor(protected readonly title: string) {
     this.checkOnPage()
   }
 
@@ -13,7 +13,35 @@ export default abstract class Page {
     cy.get('h1').contains(this.title)
   }
 
-  signOut = (): PageElement => cy.get('[data-qa=signOut]')
+  get headerUserName(): PageElement<HTMLSpanElement> {
+    return cy.get('[data-qa=header-user-name]')
+  }
 
-  manageDetails = (): PageElement => cy.get('[data-qa=manageDetails]')
+  get signOut(): PageElement<HTMLAnchorElement> {
+    return cy.get('[data-qa=signOut]')
+  }
+
+  get manageDetails(): PageElement<HTMLAnchorElement> {
+    return cy.get('[data-qa=manageDetails]')
+  }
+
+  get breadcrumbs(): PageElement<HTMLDivElement> {
+    return cy.get('.govuk-breadcrumbs')
+  }
+
+  get messages(): PageElement<HTMLDivElement> {
+    return cy.get('.moj-banner')
+  }
+
+  get errorSummary(): PageElement<HTMLDivElement> {
+    return cy.get('.govuk-error-summary')
+  }
+
+  get errorSummaryTitle(): PageElement<HTMLHeadingElement> {
+    return this.errorSummary.find('.govuk-error-summary__title')
+  }
+
+  get errorSummaryItems(): PageElement<HTMLLIElement> {
+    return this.errorSummary.find('.govuk-error-summary__list li')
+  }
 }

@@ -12,7 +12,11 @@
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non major NPM dependencies",
       "groupSlug": "all-npm-minor-patch",
-      "stabilityDays": 5
+      "stabilityDays": 3
+    },
+    {
+      "matchDepTypes": ["engines"],
+      "enabled": false
     },
     {
       "matchPackageNames": ["typescript", "govuk-frontend"],

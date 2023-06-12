@@ -1,0 +1,39 @@
+{% extends "../partials/layout.njk" %}
+
+{% set pageTitle = applicationName + " – Page not found" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">Page not found</h1>
+
+      <p>If you typed the web address, check it is correct.</p>
+      <p>If you pasted the web address, check you copied the entire address.</p>
+
+    </div>
+  </div>
+
+  {% if not production and (error.message or error.stack) %}
+    <details class="govuk-details" data-module="govuk-details">
+      <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+          Error details
+        </span>
+      </summary>
+
+      <div class="govuk-details__text">
+        {% if error.message %}
+          <p class="govuk-body-l">{{ error.message }}</p>
+        {% endif %}
+        <p>Status: {{ status }}</p>
+        {% if error.stack %}
+          <pre class="app-error-stack">
+            {{- error.stack -}}
+          </pre>
+        {% endif %}
+      </div>
+    </details>
+  {% endif %}
+
+{% endblock %}

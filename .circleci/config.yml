@@ -7,14 +7,11 @@ orbs:
 parameters:
   alerts-slack-channel:
     type: string
-    # Normally team specific alert channel e.g. hmpps_tech_alerts, syscon-alerts, dps_sed_alerts
-    # This is to avoid a general alert dumping ground that no-one then monitors
-    default: hmpps_typescript_notifications
+    default: dps_alerts_security
 
   releases-slack-channel:
     type: string
-    # Normally dps-releases for most teams / projects
-    default: hmpps_typescript_notifications
+    default: dps-releases
 
   node-version:
     type: string
@@ -33,7 +30,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
-          name: Install Dependencies
+          name: Install dependencies
           command: npm ci --no-audit
       - save_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
@@ -41,8 +38,8 @@ jobs:
             - node_modules
             - ~/.cache
       - run:
-          command: |
-            npm run build
+          name: Build application
+          command: npm run build
       - run: # Run linter after build because the integration test code depend on compiled typescript...
           name: Linter check
           command: npm run lint
@@ -63,7 +60,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
-          name: unit tests
+          name: Run unit tests
           command: npm run test:ci
       - store_test_results:
           path: test_results
@@ -99,7 +96,7 @@ jobs:
           name: Wait for node app to start
           command: sleep 5
       - run:
-          name: integration tests
+          name: Run integration tests
           command: npm run int-test
       - store_test_results:
           path: test_results

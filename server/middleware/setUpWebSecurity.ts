@@ -30,8 +30,14 @@ export default function setUpWebSecurity(): Router {
           formAction: [`'self' ${config.apis.hmppsAuth.externalUrl}`],
         },
       },
-      crossOriginEmbedderPolicy: true,
+      crossOriginEmbedderPolicy: { policy: 'require-corp' },
     }),
   )
+
+  // cf. https://security-guidance.service.justice.gov.uk/implement-security-txt/
+  router.get('/.well-known/security.txt', (req, res) =>
+    res.redirect(301, 'https://security-guidance.service.justice.gov.uk/.well-known/security.txt'),
+  )
+
   return router
 }
