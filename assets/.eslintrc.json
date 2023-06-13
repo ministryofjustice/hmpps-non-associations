@@ -4,6 +4,6 @@
     "browser": true,
     "node": false,
     "jest": false,
-    "jquery": false
+    "jquery": true
   }
 }
