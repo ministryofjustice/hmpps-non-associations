@@ -4,6 +4,8 @@ context('Healthcheck', () => {
       cy.task('reset')
       cy.task('stubAuthPing')
       cy.task('stubTokenVerificationPing')
+      cy.task('stubNomisUserRolesApiPing')
+      cy.task('stubNonAssociationsApiPing')
     })
 
     it('Health check page is visible', () => {

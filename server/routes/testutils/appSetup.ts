@@ -1,13 +1,14 @@
-import express, { Express } from 'express'
+import express, { type Express } from 'express'
 import cookieSession from 'cookie-session'
-import createError from 'http-errors'
+import { NotFound } from 'http-errors'
 
-import routes from '../index'
 import nunjucksSetup from '../../utils/nunjucksSetup'
 import errorHandler from '../../errorHandler'
 import * as auth from '../../authentication/auth'
-import type { Services } from '../../services'
+
+import routes from '../index'
 import type { ApplicationInfo } from '../../applicationInfo'
+import type { Services } from '../../services'
 
 const testAppInfo: ApplicationInfo = {
   applicationName: 'test',
@@ -32,8 +33,6 @@ export const flashProvider = jest.fn()
 function appSetup(services: Services, production: boolean, userSupplier: () => Express.User): Express {
   const app = express()
 
-  app.set('view engine', 'njk')
-
   nunjucksSetup(app, testAppInfo)
   app.use(cookieSession({ keys: [''] }))
   app.use((req, res, next) => {
@@ -46,7 +45,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
   app.use(routes(services))
-  app.use((req, res, next) => next(createError(404, 'Not found')))
+  app.use((req, res, next) => next(new NotFound()))
   app.use(errorHandler(production))
 
   return app

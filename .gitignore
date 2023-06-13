@@ -120,6 +120,7 @@ dist
 assets/stylesheets/*.css
 .idea
 .vscode
+.DS_Store
 dist/
 test_results/
 integration_tests/videos/
