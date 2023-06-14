@@ -35,7 +35,7 @@ export default {
   buildNumber: get('BUILD_NUMBER', '2023-05-18.1.39b1b24', requiredInProduction),
   gitRef: get('GIT_REF', 'unknown', requiredInProduction),
   environment: process.env.ENVIRONMENT || 'local',
-  production,
+  production, // NB: this is true in _all_ deployed environments
   https: production,
   staticResourceCacheDuration: '1h',
   redis: {
