@@ -20,7 +20,7 @@ $card-border-color: lighten($card-border-hover-color, 15%);
     margin-bottom: 0;
   }
 
-  .dps-card--clickable {
+  &.dps-card--clickable {
     border-bottom-width: $card-border-bottom-width;
 
     &:hover, &:active {
