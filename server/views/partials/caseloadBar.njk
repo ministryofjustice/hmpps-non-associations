@@ -1,7 +1,7 @@
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 
 <div class="dps-caseload-bar">
-  {% if environment != "production" %}
+  {% if environment != "prod" %}
     {{ govukTag({
       text: environment,
       classes: "govuk-!-margin-right-1 govuk-tag--red"

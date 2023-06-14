@@ -13,6 +13,7 @@ export default function nunjucksSetup(app: express.Express, applicationInfo: App
 
   app.locals.asset_path = '/assets/'
   app.locals.applicationName = 'Non-associations'
+  app.locals.production = config.production
   app.locals.environment = config.environment
 
   app.locals.dpsUrl = config.dpsUrl
