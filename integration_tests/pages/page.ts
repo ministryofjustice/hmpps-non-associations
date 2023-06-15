@@ -25,6 +25,10 @@ export default abstract class Page {
     return cy.get('[data-qa=manageDetails]')
   }
 
+  get activeCaseload(): PageElement<HTMLSpanElement> {
+    return cy.get('[data-test=active-location]')
+  }
+
   get breadcrumbs(): PageElement<HTMLDivElement> {
     return cy.get('.govuk-breadcrumbs')
   }
@@ -43,5 +47,9 @@ export default abstract class Page {
 
   get errorSummaryItems(): PageElement<HTMLLIElement> {
     return this.errorSummary.find('.govuk-error-summary__list li')
+  }
+
+  get footerLinks(): PageElement<HTMLLIElement> {
+    return cy.get('footer.govuk-footer .govuk-footer__inline-list li')
   }
 }
