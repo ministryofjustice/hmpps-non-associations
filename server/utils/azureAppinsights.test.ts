@@ -1,4 +1,4 @@
-import { DataTelemetry, EnvelopeTelemetry, RequestData } from 'applicationinsights/out/Declarations/Contracts'
+import { RequestData, type DataTelemetry, type EnvelopeTelemetry } from 'applicationinsights/out/Declarations/Contracts'
 
 import { addUserDataToRequests, ignorePathsProcessor, type ContextObject } from './azureAppInsights'
 

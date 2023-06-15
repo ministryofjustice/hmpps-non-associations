@@ -1,5 +1,5 @@
-import { Contracts, setup, defaultClient, TelemetryClient, DistributedTracingModes } from 'applicationinsights'
-import { EnvelopeTelemetry } from 'applicationinsights/out/Declarations/Contracts'
+import { defaultClient, setup, Contracts, DistributedTracingModes, type TelemetryClient } from 'applicationinsights'
+import type { EnvelopeTelemetry } from 'applicationinsights/out/Declarations/Contracts'
 
 import type { ApplicationInfo } from '../applicationInfo'
 
