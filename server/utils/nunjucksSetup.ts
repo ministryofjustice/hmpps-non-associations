@@ -19,6 +19,8 @@ export default function nunjucksSetup(app: express.Express, applicationInfo: App
   app.locals.dpsUrl = config.dpsUrl
   app.locals.supportUrl = config.supportUrl
 
+  app.locals.googleAnalyticsMeasurementId = config.googleAnalyticsMeasurementId
+
   // Cachebusting version string
   if (config.production) {
     // Version only changes with new commits
