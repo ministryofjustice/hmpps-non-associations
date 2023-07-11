@@ -4,6 +4,7 @@ import { NotFound } from 'http-errors'
 
 import nunjucksSetup from '../../utils/nunjucksSetup'
 import errorHandler from '../../errorHandler'
+import breadcrumbs from '../../middleware/breadcrumbs'
 import * as auth from '../../authentication/auth'
 
 import routes from '../index'
@@ -44,7 +45,10 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   })
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
+
+  app.use(breadcrumbs())
   app.use(routes(services))
+
   app.use((req, res, next) => next(new NotFound()))
   app.use(errorHandler(production))
 

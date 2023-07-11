@@ -5,6 +5,7 @@ import nunjucksSetup from './utils/nunjucksSetup'
 import errorHandler from './errorHandler'
 import { metricsMiddleware } from './monitoring/metricsApp'
 import authorisationMiddleware from './middleware/authorisationMiddleware'
+import breadcrumbs from './middleware/breadcrumbs'
 import setUpAuthentication from './middleware/setUpAuthentication'
 import setUpCsrf from './middleware/setUpCsrf'
 import setUpCurrentUser from './middleware/setUpCurrentUser'
@@ -37,6 +38,7 @@ export default function createApp(services: Services): express.Application {
   app.use(setUpCsrf())
   app.use(setUpCurrentUser(services))
 
+  app.use(breadcrumbs())
   app.use(routes(services))
 
   app.use((req, res, next) => next(new NotFound()))
