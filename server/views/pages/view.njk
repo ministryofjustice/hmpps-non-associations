@@ -1,6 +1,6 @@
 {% extends "../partials/layout.njk" %}
 
-{% set pageTitle = prisonerName + " non-associations" %}
+{% set pageTitle = prisonerName | possessiveName + " non-associations" %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -8,7 +8,7 @@
 
       <span class="govuk-caption-l">Non-associations</span>
       <h1 class="govuk-heading-l">
-        {{ prisonerName }} non-associations
+        {{ prisonerName | possessiveName}} non-associations
       </h1>
 
     </div>
