@@ -6,6 +6,7 @@ import express from 'express'
 
 import { ApplicationInfo } from '../applicationInfo'
 import config from '../config'
+import format from './format'
 import { initialiseName } from './utils'
 
 export default function nunjucksSetup(app: express.Express, applicationInfo: ApplicationInfo): void {
@@ -47,5 +48,11 @@ export default function nunjucksSetup(app: express.Express, applicationInfo: App
     },
   )
 
+  // name formatting
   njkEnv.addFilter('initialiseName', initialiseName)
+
+  // date & number formatting
+  njkEnv.addFilter('dateAndTime', format.dateAndTime)
+  njkEnv.addFilter('date', format.date)
+  njkEnv.addFilter('thousands', format.thousands)
 }

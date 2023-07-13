@@ -1,0 +1,30 @@
+const notNumber = (n: unknown): n is number => typeof n !== 'number' || Number.isNaN(n)
+
+export default {
+  dateAndTime(date: Date) {
+    const formatted = date.toLocaleDateString('en-GB', {
+      hour: '2-digit',
+      hour12: false,
+      minute: '2-digit',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/London',
+    })
+    return formatted.replace(' at ', ', ')
+  },
+
+  date(date: Date) {
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/London',
+    })
+  },
+
+  thousands(integer: number) {
+    if (notNumber(integer)) return '?'
+    return Math.round(integer).toLocaleString('en-GB')
+  },
+}
