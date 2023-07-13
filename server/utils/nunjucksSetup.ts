@@ -50,6 +50,7 @@ export default function nunjucksSetup(app: express.Express, applicationInfo: App
 
   // name formatting
   njkEnv.addFilter('initialiseName', initialiseName)
+  njkEnv.addFilter('possessiveName', format.possessiveName)
 
   // date & number formatting
   njkEnv.addFilter('dateAndTime', format.dateAndTime)

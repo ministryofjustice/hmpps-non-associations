@@ -69,7 +69,20 @@ describe.each([
   [undefined, '?'],
   [null, '?'],
 ])('Format integers with thousands separator', (n: number, expected: string) => {
-  it(`${n} fornats as ${expected}`, () => {
+  it(`${n} formats as ${expected}`, () => {
     expect(format.thousands(n)).toEqual(expected)
+  })
+})
+
+describe.each([
+  ['David', 'David’s'],
+  ['Jones', 'Jones’'],
+  ['DAVID', 'DAVID’s'],
+  ['JONES', 'JONES’'],
+  ['David Jones', 'David Jones’'],
+  ['DAVID JONES', 'DAVID JONES’'],
+])('Format possessive forms of names', (name: string, expected: string) => {
+  it(`${name} becomes ${expected}`, () => {
+    expect(format.possessiveName(name)).toEqual(expected)
   })
 })
