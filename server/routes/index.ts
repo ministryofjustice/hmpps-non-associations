@@ -10,15 +10,17 @@ export default function routes(services: Services): Router {
   const router = Router()
   const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
-  get('/', (req, res, next) => {
+  const urlTemplates = services.routeUrls.templates
+
+  get(urlTemplates.home, (req, res) => {
     res.render('pages/index')
   })
 
-  router.use('/prisoner/:prisonerNumber/non-associations/add/search-prisoner', prisonerSearchRoutes(services))
+  router.use(urlTemplates.view, viewRoutes(services))
 
-  router.use('/prisoner/:prisonerNumber/non-associations/add/with-prisoner/:otherPrisonerNumber', addRoutes(services))
+  router.use(urlTemplates.prisonerSearch, prisonerSearchRoutes(services))
 
-  router.use('/prisoner/:prisonerNumber/non-associations', viewRoutes(services))
+  router.use(urlTemplates.add, addRoutes(services))
 
   return router
 }

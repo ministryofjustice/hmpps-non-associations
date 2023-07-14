@@ -8,15 +8,8 @@ import breadcrumbs from '../../middleware/breadcrumbs'
 import * as auth from '../../authentication/auth'
 
 import routes from '../index'
-import type { ApplicationInfo } from '../../applicationInfo'
 import type { Services } from '../../services'
-
-const testAppInfo: ApplicationInfo = {
-  applicationName: 'test',
-  buildNumber: '1',
-  gitRef: 'long ref',
-  gitShortHash: 'short ref',
-}
+import routeUrls from '../../services/routeUrls'
 
 export const user = {
   firstName: 'first',
@@ -34,7 +27,7 @@ export const flashProvider = jest.fn()
 function appSetup(services: Services, production: boolean, userSupplier: () => Express.User): Express {
   const app = express()
 
-  nunjucksSetup(app, testAppInfo)
+  nunjucksSetup(app, services)
   app.use(cookieSession({ keys: [''] }))
   app.use((req, res, next) => {
     req.user = userSupplier()
@@ -65,5 +58,7 @@ export function appWithAllRoutes({
   userSupplier?: () => Express.User
 }): Express {
   auth.default.authenticationMiddleware = () => (req, res, next) => next()
+  // eslint-disable-next-line no-param-reassign
+  services.routeUrls = routeUrls
   return appSetup(services as Services, production, userSupplier)
 }

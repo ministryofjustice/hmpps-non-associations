@@ -4,12 +4,12 @@ import path from 'path'
 import nunjucks from 'nunjucks'
 import express from 'express'
 
-import { ApplicationInfo } from '../applicationInfo'
 import config from '../config'
+import type { Services } from '../services'
 import format from './format'
 import { initialiseName } from './utils'
 
-export default function nunjucksSetup(app: express.Express, applicationInfo: ApplicationInfo): void {
+export default function nunjucksSetup(app: express.Express, services: Services): void {
   app.set('view engine', 'njk')
 
   app.locals.asset_path = '/assets/'
@@ -19,13 +19,14 @@ export default function nunjucksSetup(app: express.Express, applicationInfo: App
 
   app.locals.dpsUrl = config.dpsUrl
   app.locals.supportUrl = config.supportUrl
+  app.locals.routeUrls = services.routeUrls
 
   app.locals.googleAnalyticsMeasurementId = config.googleAnalyticsMeasurementId
 
   // Cachebusting version string
   if (config.production) {
     // Version only changes with new commits
-    app.locals.version = applicationInfo.gitShortHash
+    app.locals.version = services.applicationInfo.gitShortHash
   } else {
     // Version changes every request
     app.use((req, res, next) => {
