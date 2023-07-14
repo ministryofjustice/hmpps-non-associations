@@ -4,6 +4,7 @@ import { resetStubs } from './integration_tests/mockApis/wiremock'
 import auth from './integration_tests/mockApis/auth'
 import tokenVerification from './integration_tests/mockApis/tokenVerification'
 import nomisUserRolesApi from './integration_tests/mockApis/nomisUserRolesApi'
+import offenderSearchApi from './integration_tests/mockApis/offenderSearchApi'
 import nonAssociationsApi from './integration_tests/mockApis/nonAssociationsApi'
 
 export default defineConfig({
@@ -24,6 +25,7 @@ export default defineConfig({
         ...auth,
         ...tokenVerification,
         ...nomisUserRolesApi,
+        ...offenderSearchApi,
         ...nonAssociationsApi,
       })
     },
