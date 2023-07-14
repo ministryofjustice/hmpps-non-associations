@@ -84,7 +84,6 @@ export abstract class BaseForm<Data extends BaseData> {
     // @ts-ignore
     return new Proxy(this, {
       get(target: BaseForm<Data>, field: string) {
-        target.requireSubmission()
         const fieldDetails: {
           value: Data[string]
           error?: string

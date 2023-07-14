@@ -25,8 +25,12 @@ describe('Form handling', () => {
       expect(form.submitted).toBeFalsy()
     })
 
-    it('will not allow reading field or error information', () => {
-      expect(() => form.fields.query).toThrow('Form has not been submitted')
+    it('will allow reading field information', () => {
+      expect(form.fields.query.value).toBeUndefined()
+      expect(form.fields.query.error).toBeUndefined()
+    })
+
+    it('will not allow reading error information', () => {
       expect(() => form.hasErrors).toThrow('Form has not been submitted')
       expect(() => form.errors).toThrow('Form has not been submitted')
       expect(() => form.errorSummary).toThrow('Form has not been submitted')
