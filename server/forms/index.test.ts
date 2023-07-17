@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import { BaseForm, type BaseData } from './index'
 
 describe('Form handling', () => {
@@ -117,6 +118,33 @@ describe('Form handling', () => {
         expect(form.fields.missingField.value).toBeUndefined()
         expect(form.fields.missingField.error).toBeUndefined()
       })
+    })
+  })
+
+  describe('with non-string data', () => {
+    interface NonStringData extends BaseData {
+      n: number
+      b: boolean
+    }
+
+    class NonStringForm extends BaseForm<NonStringData> {
+      protected validate(): void {
+        this.data.n = parseInt(this.data.n as unknown as string, 10)
+        if (Number.isNaN(this.data.n) || this.data.n < 1) {
+          this.addError('n', 'Not a number')
+          delete this.data.n
+        }
+
+        this.data.b = (this.data.b as unknown) === 'true'
+      }
+    }
+
+    it('allows conversion from string inputs', () => {
+      const form = new NonStringForm()
+      form.submit({ n: '123', b: 'true' })
+      expect(form.hasErrors).toBeFalsy()
+      expect(form.fields.n.value).toEqual(123)
+      expect(form.fields.b.value).toEqual(true)
     })
   })
 })

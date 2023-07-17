@@ -1,4 +1,4 @@
-export type BaseData = Record<string, string>
+export type BaseData = Record<string, unknown>
 
 /**
  * Base form providing simple validation extension points and per-field error messages
@@ -26,10 +26,12 @@ export abstract class BaseForm<Data extends BaseData> {
   /**
    * Set the submitted/POSTed form data triggering validation
    */
-  public submit(data: Partial<Data>): void {
+  public submit(data: { [K in keyof Data]?: string }): void {
     if (this.submitted) {
       throw new Error('Form has already been submitted')
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore because data has not yet been validated and turned into the expected type
     this.data = data
     this.validate()
   }
