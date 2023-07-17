@@ -8,7 +8,7 @@ describe('Form handling', () => {
 
   class SimpleForm extends BaseForm<SimpleData> {
     protected validate(): void {
-      if (!this.data?.query) {
+      if (!this.data.query) {
         this.addError('query', 'No query was submitted')
       }
     }
@@ -17,6 +17,18 @@ describe('Form handling', () => {
   it('forms know their name', () => {
     const form = new SimpleForm()
     expect(`${form}`).toEqual('[SimpleForm]')
+  })
+
+  it('forms require object as submitted payload', () => {
+    const invalidPayloads: unknown[] = [undefined, null, true, '', () => {}]
+    invalidPayloads.forEach(payload => {
+      const form = new SimpleForm()
+      expect(() => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        form.submit(payload)
+      }).toThrow('Submitted data must be an object')
+    })
   })
 
   describe('unsubmitted form', () => {

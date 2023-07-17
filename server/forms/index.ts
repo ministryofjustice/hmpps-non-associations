@@ -30,6 +30,9 @@ export abstract class BaseForm<Data extends BaseData> {
     if (this.submitted) {
       throw new Error('Form has already been submitted')
     }
+    if (!data || typeof data !== 'object') {
+      throw new Error('Submitted data must be an object')
+    }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because data has not yet been validated and turned into the expected type
     this.data = data
