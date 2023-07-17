@@ -1,4 +1,5 @@
 import { dataAccess } from '../data'
+import routeUrls from './routeUrls'
 import UserService from './userService'
 
 export const services = () => {
@@ -9,6 +10,7 @@ export const services = () => {
   return {
     applicationInfo,
     userService,
+    routeUrls,
   }
 }
 
