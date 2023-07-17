@@ -24,6 +24,8 @@ export type FormRequestHandler<
   {
     forms: Forms
     submittedForm: Forms[keyof Forms] | null
+  } & {
+    user: Express.User
   } & Locals
 >
 
