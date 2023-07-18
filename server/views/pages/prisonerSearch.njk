@@ -1,5 +1,8 @@
 {% extends "../partials/layout.njk" %}
 
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
 {% set pageTitle = "Search for a prisoner" %}
 
 {% block content %}
@@ -8,6 +11,31 @@
 
       <span class="govuk-caption-l">Non-associations</span>
       <h1 class="govuk-heading-l">Search for a prisoner</h1>
+
+      <form method="get" novalidate>
+        <div class="app-field-and-button-group">
+          {{ govukInput({
+            label: {
+              text: "Enter name or prison number",
+              classes: "govuk-label--m"
+            }
+          }) }}
+
+          <div class="govuk-button-group">
+            {{ govukButton({
+              text: "Search",
+              preventDoubleClick: true
+            }) }}
+
+            {{ govukButton({
+              text: "Cancel",
+              classes: "govuk-button--secondary",
+              element: "a",
+              href: routeUrls.view(prisonerNumber)
+            }) }}
+          </div>
+        </div>
+      </form>
 
     </div>
   </div>

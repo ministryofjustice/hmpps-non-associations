@@ -1,0 +1,16 @@
+@include govuk-media-query($from: 1000px) {
+  .app-field-and-button-group {
+    display: flex;
+    flex-direction: row;
+
+    .govuk-form-group {
+      flex: 2;
+    }
+
+    .govuk-button-group {
+      flex: 1;
+      align-self: end;
+      padding-left: govuk-spacing(3);
+    }
+  }
+}
