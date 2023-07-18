@@ -1,8 +1,8 @@
 import express, { Router, type Express, type RequestHandler } from 'express'
 import request, { type Response } from 'supertest'
 
-import { BaseForm } from '../forms'
-import formRoute from './formRoute'
+import { BaseForm } from '../../forms'
+import formPostRoute from './post'
 
 type SampleData = {
   name: string
@@ -26,7 +26,7 @@ function makeApp(handler: RequestHandler): Express {
   const app = express()
   app.use(express.json())
   const router = Router()
-  formRoute(
+  formPostRoute(
     router,
     '/',
     {
@@ -38,8 +38,9 @@ function makeApp(handler: RequestHandler): Express {
   return app
 }
 
-describe('Form routes', () => {
-  it.each(['put', 'patch', 'delete'])('disallows %s http method', (method: 'put' | 'patch' | 'delete') => {
+describe('formPostRoute', () => {
+  const methods = ['put', 'patch', 'delete'] as const
+  it.each(methods)('disallows %s http method', method => {
     const app = makeApp((req, res) => {
       res.send('DONE')
     })
@@ -72,9 +73,20 @@ describe('Form routes', () => {
       })
   })
 
-  describe('allows handler to access submitted form', () => {
-    it('only allows POST with known formId', () => {})
+  it('only allows submission with known formId', () => {
+    const app = makeApp((req, res) => {
+      res.send('DONE')
+    })
+    return request(app)
+      .post('/')
+      .send({ formId: 'wrong-form', surname: 'Davies' })
+      .expect(400)
+      .expect((res: Response) => {
+        expect(res.text).not.toEqual('DONE')
+      })
+  })
 
+  describe('allows handler to access submitted form', () => {
     it('when payload was valid', () => {
       let submittedForm: unknown
       const app = makeApp((req, res) => {

@@ -2,12 +2,12 @@ import type { Router, RequestHandler, NextFunction } from 'express'
 import type { ParamsDictionary, PathParams, Query } from 'express-serve-static-core'
 import { BadRequest, MethodNotAllowed } from 'http-errors'
 
-import type { BaseData, BaseForm } from '../forms'
+import type { BaseData, BaseForm } from '../../forms'
 
 /**
  * Extends express’ normal RequestHandler to be aware that forms are added to locals object
  */
-export type FormRequestHandler<
+export type FormGetRequestHandler<
   Forms extends Record<string, BaseForm<BaseData>>,
   Params = ParamsDictionary,
   ResBody = unknown,
@@ -30,28 +30,28 @@ export type FormRequestHandler<
 >
 
 /**
- * Instantiates the form stored in `res.locals.forms` under it’s own `formId`.
- * Submits the form if the request method was a POST,
- * calling the formValid callback on valid forms and formInvalid otherwise.
+ * Adds request handlers to the router for processing forms submitted via GET query parameters.
+ * All forms are constructed and the one whose formId matches is submitted
+ * and is available from `res.locals.submittedForm`.
  */
-export default function formRoute<Forms extends Record<string, BaseForm<BaseData>>>(
+export default function formGetRoute<Forms extends Record<string, BaseForm<BaseData>>>(
   router: Router,
   path: PathParams,
   formConstructors: {
     [Name in keyof Forms]: () => Forms[Name]
   },
-  ...handlers: readonly FormRequestHandler<Forms>[]
+  ...handlers: readonly FormGetRequestHandler<Forms>[]
 ): void {
   router.all(path, makeSubmissionHandler(formConstructors), ...handlers)
 }
 
 function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>(formConstructors: {
   [Name in keyof Forms]: () => Forms[Name]
-}): FormRequestHandler<Forms> {
+}): FormGetRequestHandler<Forms> {
   return (req, res, next: NextFunction): void => {
-    // limit request methods to GET or POST
-    if (req.method !== 'GET' && req.method !== 'POST') {
-      next(new MethodNotAllowed('Only GET or POST methods are allowed'))
+    // limit request methods to GET
+    if (req.method !== 'GET') {
+      next(new MethodNotAllowed('Only GET method is allowed'))
       return
     }
 
@@ -65,23 +65,25 @@ function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>
       res.locals.forms[formId as keyof Forms] = constructor()
     }
 
-    // if not a POST, skip to next handler
-    if (req.method !== 'POST') {
+    // if no formId submitted, skip to next handler
+    if (!req.query?.formId) {
       next()
       return
     }
 
     // if submitted with invalid formId, propagate 400 error
-    if (!req?.body?.formId || !Object.keys(formConstructors).some(formId => formId === req.body.formId)) {
-      next(new BadRequest(`POST with invalid formId: "${req.body.formId}"`))
+    if (!Object.keys(formConstructors).some(formId => formId === req.query.formId)) {
+      next(new BadRequest(`Submitted with invalid formId: "${req.query.formId}"`))
       return
     }
 
     // submit form which triggers validation
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because typescript cannot know that the right formId-to-class pairing is used
-    res.locals.submittedForm = res.locals.forms[req.body.formId]
-    res.locals.submittedForm.submit(req.body)
+    res.locals.submittedForm = res.locals.forms[req.query.formId]
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore because express typing does not allow overriding what the query type is
+    res.locals.submittedForm.submit(req.query)
 
     // handle valid or invalid form
     next()
