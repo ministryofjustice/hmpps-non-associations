@@ -9,6 +9,8 @@ export default function prisonerSearchRoutes(service: Services): Router {
   const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get('/', (req, res) => {
+    res.locals.breadcrumbs.addItems({ text: 'Non-associations', href: req.originalUrl })
+
     res.render('pages/prisonerSearch.njk')
   })
 
