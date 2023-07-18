@@ -21,6 +21,18 @@ export class OffenderSearchClient extends RestClient {
     super('Offender Search API', config.apis.offenderSearchApi, token)
   }
 
+  /**
+   * Find a single person by prisoner number
+   */
+  getPrisoner(prisonerNumber: string): Promise<OffenderSearchResult> {
+    return this.get<OffenderSearchResult>({
+      path: `/prisoner/${encodeURIComponent(prisonerNumber)}`,
+    })
+  }
+
+  /**
+   * Search for people in a given prison using a search term (which works with names and prisoner numbers)
+   */
   search(prisonId: string, term: string, page: number = 0): Promise<OffenderSearchResults> {
     return this.get<OffenderSearchResults>({
       path: `/prison/${encodeURIComponent(prisonId)}/prisoners`,

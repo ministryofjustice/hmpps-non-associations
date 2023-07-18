@@ -18,6 +18,20 @@ export default {
     })
   },
 
+  stubOffenderSearchGetPrisonerResult(prisonerNumber: string, result: OffenderSearchResult): SuperAgentRequest {
+    return stubFor({
+      request: {
+        method: 'GET',
+        urlPattern: `/offenderSearchApi/prisoner/${encodeURIComponent(prisonerNumber)}`,
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: result,
+      },
+    })
+  },
+
   stubOffenderSearchResults(
     prisonId: string,
     term: string,
