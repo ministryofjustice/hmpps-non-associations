@@ -48,6 +48,7 @@ describe('Search for a prisoner page', () => {
       .expect(404)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
+        expect(offenderSearchClient.getPrisoner.mock.calls).toHaveLength(1)
       })
   })
 

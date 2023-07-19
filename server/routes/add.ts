@@ -15,11 +15,12 @@ export default function addRoutes(service: Services): Router {
   const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get('/', async (req, res) => {
-    const { prisonerNumber } = req.params
+    const { prisonerNumber, otherPrisonerNumber } = req.params
 
     const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+    const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
 
     res.locals.breadcrumbs.addItems(
       { text: reversedNameOfPrisoner(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
@@ -28,6 +29,8 @@ export default function addRoutes(service: Services): Router {
     res.render('pages/add.njk', {
       prisonerNumber,
       prisonerName: nameOfPrisoner(prisoner),
+      otherPrisonerNumber,
+      otherPrisonerName: nameOfPrisoner(otherPrisoner),
     })
   })
 
