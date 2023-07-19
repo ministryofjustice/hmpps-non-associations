@@ -2,6 +2,7 @@ import flash from 'connect-flash'
 import { type RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
 
+import config from '../config'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import type { Services } from '../services'
 import PrisonApi from '../data/prisonApi'
@@ -27,7 +28,11 @@ export default function routes(services: Services): Router {
   const urlTemplates = services.routeUrls.templates
 
   get(urlTemplates.home, (req, res) => {
-    res.render('pages/index')
+    if (process.env.NO_HOME_REDIRECT) {
+      res.send('')
+      return
+    }
+    res.redirect(config.dpsUrl)
   })
 
   get(urlTemplates.prisonerPhoto, async (req, res) => {

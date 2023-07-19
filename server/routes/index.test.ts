@@ -13,13 +13,14 @@ beforeEach(() => {
   app = appWithAllRoutes({ services: { applicationInfo: applicationInfo() } })
 })
 
-describe('GET /', () => {
-  it('should render index page', () => {
+describe('site root', () => {
+  it('redirects to DPS home page', () => {
     return request(app)
       .get('/')
-      .expect('Content-Type', /html/)
+      .expect(302)
       .expect(res => {
-        expect(res.text).toContain('This site is under construction...')
+        expect(res.redirect).toBeTruthy()
+        expect(res.headers.location).toBe('http://localhost:3000')
       })
   })
 })

@@ -1,6 +1,7 @@
 import Page from '../pages/page'
-import IndexPage from '../pages/index'
 import AuthSignInPage from '../pages/authSignIn'
+import ListPage from '../pages/nonAssociations/list'
+import { davidJones } from '../../server/data/testData/offenderSearch'
 
 context('SignIn', () => {
   beforeEach(() => {
@@ -27,40 +28,38 @@ context('SignIn', () => {
     cy.get('body').should('contain.text', 'Authorisation Error')
   })
 
-  it('User name visible in header', () => {
-    cy.signIn()
-    const indexPage = Page.verifyOnPage(IndexPage)
-    indexPage.headerUserName.should('contain.text', 'J. Smith')
-  })
+  context('After successful login…', () => {
+    let listPage: ListPage
 
-  it('User can log out', () => {
-    cy.signIn()
-    const indexPage = Page.verifyOnPage(IndexPage)
-    indexPage.signOut.click()
-    Page.verifyOnPage(AuthSignInPage)
-  })
+    beforeEach(() => {
+      cy.navigateToDavidJonesNonAssociations().then(result => {
+        listPage = result
+      })
+    })
 
-  it('Token verification failure takes user to sign in page', () => {
-    cy.signIn()
-    Page.verifyOnPage(IndexPage)
-    cy.task('stubVerifyToken', false)
+    it('User can log out', () => {
+      listPage.signOut.click()
+      Page.verifyOnPage(AuthSignInPage)
+    })
 
-    // can't do a visit here as cypress requires only one domain
-    cy.request('/').its('body').should('contain', 'Sign in')
-  })
+    it('Token verification failure takes user to sign in page', () => {
+      cy.task('stubVerifyToken', false)
 
-  it('Token verification failure clears user session', () => {
-    cy.signIn()
-    const indexPage = Page.verifyOnPage(IndexPage)
-    cy.task('stubVerifyToken', false)
+      // can't do a visit here as cypress requires only one domain
+      cy.request(`/prisoner/${davidJones.prisonerNumber}/non-associations`).its('body').should('contain', 'Sign in')
+    })
 
-    // can't do a visit here as cypress requires only one domain
-    cy.request('/').its('body').should('contain', 'Sign in')
+    it('Token verification failure clears user session', () => {
+      cy.task('stubVerifyToken', false)
 
-    cy.task('stubVerifyToken', true)
-    cy.task('stubAuthUser', { name: 'bobby brown' })
-    cy.signIn()
+      // can't do a visit here as cypress requires only one domain
+      cy.request(`/prisoner/${davidJones.prisonerNumber}/non-associations`).its('body').should('contain', 'Sign in')
 
-    indexPage.headerUserName.contains('B. Brown')
+      cy.task('stubVerifyToken', true)
+      cy.task('stubAuthUser', { name: 'bobby brown' })
+      cy.signIn()
+
+      listPage.headerUserName.contains('B. Brown')
+    })
   })
 })
