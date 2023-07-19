@@ -56,6 +56,7 @@ const apiChecks = [
     `${config.apis.nomisUserRolesApi.url}/health/ping`,
     config.apis.nomisUserRolesApi.agent,
   ),
+  service('offenderSearchApi', `${config.apis.offenderSearchApi.url}/health/ping`, config.apis.offenderSearchApi.agent),
   service(
     'hmppsNonAssociationsApi',
     `${config.apis.hmppsNonAssociationsApi.url}/health/ping`,
