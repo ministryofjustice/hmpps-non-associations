@@ -21,3 +21,17 @@ export const initialiseName = (fullName?: string): string | null => {
   const array = fullName.split(' ')
   return `${array[0][0]}. ${array.reverse()[0]}`
 }
+
+/**
+ * Normal display form of a prisoner’s name
+ * { "firstName": "DAVID", "lastName": "JONES", … } → "David Jones"
+ */
+export const nameOfPrisoner = (prisoner: { firstName: string; lastName: string }): string =>
+  `${convertToTitleCase(prisoner.firstName)} ${convertToTitleCase(prisoner.lastName)}`
+
+/**
+ * Display form of a prisoner’s name for lists and tables
+ * { "firstName": "DAVID", "lastName": "JONES", … } → "Jones, David"
+ */
+export const reversedNameOfPrisoner = (prisoner: { firstName: string; lastName: string }): string =>
+  `${convertToTitleCase(prisoner.lastName)}, ${convertToTitleCase(prisoner.firstName)}`
