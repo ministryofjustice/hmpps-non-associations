@@ -1,10 +1,10 @@
 import type { ResponseError } from 'superagent'
 
-export interface SanitisedError extends Error {
+export interface SanitisedError<Data = unknown> extends Error {
   text?: string
   status?: number
   headers?: unknown
-  data?: unknown
+  data?: Data
   stack: string
   message: string
 }

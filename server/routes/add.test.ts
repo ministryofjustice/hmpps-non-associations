@@ -1,10 +1,10 @@
 import type { Express } from 'express'
 import request from 'supertest'
 
-import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { OffenderSearchClient } from '../data/offenderSearch'
+import { SanitisedError } from '../sanitisedError'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/offenderSearch')
@@ -18,6 +18,9 @@ const prisoner = {
   firstName: 'DAVID',
   lastName: 'JONES',
 }
+
+// mock "other" prisoner
+const otherPrisonerNumber = 'A1235EF'
 
 let app: Express
 let offenderSearchClient: jest.Mocked<OffenderSearchClient>
@@ -33,7 +36,7 @@ afterEach(() => {
   jest.resetAllMocks()
 })
 
-describe('Non-associations list page', () => {
+describe('Add non-association details page', () => {
   it('should return 404 if prisoner is not found', () => {
     const error: SanitisedError = {
       name: 'Error',
@@ -44,7 +47,7 @@ describe('Non-associations list page', () => {
     offenderSearchClient.getPrisoner.mockRejectedValue(error)
 
     return request(app)
-      .get(routeUrls.view(prisonerNumber))
+      .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
       .expect(404)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
@@ -53,7 +56,7 @@ describe('Non-associations list page', () => {
 
   it('should render breadcrumbs', () => {
     return request(app)
-      .get(routeUrls.view(prisonerNumber))
+      .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
       .expect(200)
       .expect('Content-Type', /html/)
       .expect(res => {
