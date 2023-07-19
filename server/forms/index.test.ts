@@ -46,7 +46,7 @@ describe('Form handling', () => {
     it('will not allow reading error information', () => {
       expect(() => form.hasErrors).toThrow('Form has not been submitted')
       expect(() => form.errors).toThrow('Form has not been submitted')
-      expect(() => form.errorSummary).toThrow('Form has not been submitted')
+      expect(() => form.getErrorSummary()).toThrow('Form has not been submitted')
     })
   })
 
@@ -71,7 +71,7 @@ describe('Form handling', () => {
     })
 
     it('has empty error summary', () => {
-      expect(form.errorSummary).toEqual([])
+      expect(form.getErrorSummary()).toEqual([])
     })
 
     it('allows retrieving known field information', () => {
@@ -111,10 +111,16 @@ describe('Form handling', () => {
       })
 
       it('has non-empty error summary', () => {
-        expect(form.errorSummary).toEqual([
+        expect(form.getErrorSummary()).toEqual([
           {
             text: 'No query was submitted',
             href: '#query',
+          },
+        ])
+        expect(form.getErrorSummary('helpForm')).toEqual([
+          {
+            text: 'No query was submitted',
+            href: '#helpForm-query',
           },
         ])
       })

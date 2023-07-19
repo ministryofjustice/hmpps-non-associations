@@ -115,13 +115,14 @@ export abstract class BaseForm<Data extends BaseData> {
   /**
    * Used for the `errorList` property of the GOV.UK error summary component
    */
-  public get errorSummary(): {
+  public getErrorSummary(formId?: string): {
     readonly text: string
     readonly href: string
   }[] {
     const errorsList = Object.entries(this.errors) as [keyof Data, string][]
     return errorsList.map(([field, error]) => {
-      return { text: error, href: `#${field.toString()}` }
+      const href = formId ? `#${formId}-${field.toString()}` : `#${field.toString()}`
+      return { text: error, href }
     })
   }
 }
