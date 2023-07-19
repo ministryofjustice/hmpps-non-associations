@@ -7,7 +7,7 @@ import addRoutes from './add'
 import viewRoutes from './view'
 
 export default function routes(services: Services): Router {
-  const router = Router()
+  const router = Router({ mergeParams: true })
   const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   const urlTemplates = services.routeUrls.templates
