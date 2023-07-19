@@ -1,6 +1,6 @@
 import { type RequestHandler, Router } from 'express'
 
-import { nameOfPrisoner } from '../utils/utils'
+import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
 import { OffenderSearchClient } from '../data/offenderSearch'
@@ -10,7 +10,6 @@ import type { Services } from '../services'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function addRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })
   const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
@@ -22,8 +21,10 @@ export default function addRoutes(service: Services): Router {
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
 
-    res.locals.breadcrumbs.addItems({ text: 'Non-associations', href: req.originalUrl })
-
+    res.locals.breadcrumbs.addItems(
+      { text: reversedNameOfPrisoner(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
+      { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
+    )
     res.render('pages/add.njk', {
       prisonerNumber,
       prisonerName: nameOfPrisoner(prisoner),

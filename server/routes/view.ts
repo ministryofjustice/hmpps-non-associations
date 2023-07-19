@@ -1,6 +1,6 @@
 import { type RequestHandler, Router } from 'express'
 
-import { nameOfPrisoner } from '../utils/utils'
+import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
 import { OffenderSearchClient } from '../data/offenderSearch'
@@ -35,6 +35,10 @@ export default function viewRoutes(service: Services): Router {
       },
     ]
 
+    res.locals.breadcrumbs.addItems({
+      text: reversedNameOfPrisoner(prisoner),
+      href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}`,
+    })
     res.render('pages/view.njk', {
       prisonerNumber,
       prisonerName: nameOfPrisoner(prisoner),
