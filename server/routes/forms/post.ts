@@ -3,6 +3,7 @@ import type { ParamsDictionary, PathParams, Query } from 'express-serve-static-c
 import { BadRequest, MethodNotAllowed } from 'http-errors'
 
 import type { BaseData, BaseForm } from '../../forms'
+import type { AppLocals } from './index'
 
 /**
  * Extends express’ normal RequestHandler to be aware that forms are added to locals object
@@ -10,10 +11,12 @@ import type { BaseData, BaseForm } from '../../forms'
 export type FormPostRequestHandler<
   Forms extends Record<string, BaseForm<BaseData>>,
   Params = ParamsDictionary,
-  ResBody = unknown,
-  ReqBody = unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ResBody = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ReqBody = any,
   ReqQuery = Query,
-  Locals extends Record<string, unknown> = Record<string, unknown>,
+  Locals extends AppLocals = AppLocals,
 > = RequestHandler<
   Params,
   ResBody,
@@ -24,8 +27,6 @@ export type FormPostRequestHandler<
   {
     forms: Forms
     submittedForm: Forms[keyof Forms] | null
-  } & {
-    user: Express.User
   } & Locals
 >
 

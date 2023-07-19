@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 
-type Breadcrumb = { href: string } & ({ text: string } | { html: string })
+export type Breadcrumb = { href: string } & ({ text: string } | { html: string })
 
-class Breadcrumbs {
+export class Breadcrumbs {
   breadcrumbs: Breadcrumb[]
 
   constructor(res: Response) {
