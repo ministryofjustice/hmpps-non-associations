@@ -7,9 +7,10 @@ $govuk-page-width: $moj-page-width;
 @import 'govuk/all';
 @import 'moj/all';
 
-@import './components/header';
-@import './components/caseload-bar';
 @import './components/card';
+@import './components/caseload-bar';
 @import './components/error-pages';
+@import './components/header';
+@import './components/sortable-table';
 
 @import './local';
