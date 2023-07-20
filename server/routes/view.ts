@@ -2,7 +2,6 @@ import { type RequestHandler, Router } from 'express'
 
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import type { Services } from '../services'
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function viewRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })

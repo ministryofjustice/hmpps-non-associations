@@ -6,8 +6,7 @@
 {% set pageTitle = prisonerName | possessiveName + " non-associations" %}
 
 {% block content %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column">
+
 
       <span class="govuk-caption-l">Non-associations</span>
       <h1 class="govuk-heading-l">
@@ -39,6 +38,10 @@
             {{ nonAssociation.reason}}
           {% endset %}
 
+          {% set role %}
+            {{ nonAssociation.role}}
+          {% endset %}
+
           {% set whereToKeepApart %}
             {{ nonAssociation.whereToKeepApart}}
           {% endset %}
@@ -51,13 +54,10 @@
             {{ nonAssociation.dateAdded}}
           {% endset %}
 
-
-
-
           {% set tableRows = (tableRows.push([
-            {html: otherPrisonerName},
             {html: otherPrisonerProfileLink},
             {html: reason},
+            {html: role},
             {html: whereToKeepApart},
             {html: comments},
             {html: dateAdded}
@@ -67,16 +67,22 @@
         {% set caption -%}
          Non Associations for  {{ prisonerName }}
         {%- endset %}
-        <div class="app-sortable-table">
+        <div class="app-sortable-table-container">
           {{ govukTable({
             caption: caption,
             captionClasses: "govuk-visually-hidden",
-            classes: "app-sortable-table-container",
-            head: tableHead,
+            classes: "app-sortable-table",
+            head: [
+              {html: 'Name'},
+              {html: 'Reason'},
+              {html: 'Role'},
+              {html: 'Where to be kept apart'},
+              {html: 'Comments'},
+              {html: 'Date added'}
+            ],
             rows: tableRows
           }) }}
         </div>
 
-    </div>
-  </div>
+
 {% endblock %}
