@@ -80,6 +80,15 @@ export default {
       },
       agent: new AgentConfig(Number(get('NOMIS_USER_ROLES_API_TIMEOUT_RESPONSE', 8000))),
     },
+    hmppsPrisonApi: {
+      url: get('HMPPS_PRISON_API_URL', 'http://localhost:8080', requiredInProduction),
+      externalUrl: get('HMPPS_PRISON_API_EXTERNAL_URL', get('HMPPS_PRISON_API_URL', 'http://localhost:8080')),
+      timeout: {
+        response: Number(get('HMPPS_PRISON_API_TIMEOUT_RESPONSE', 10000)),
+        deadline: Number(get('HMPPS_PRISON_API_TIMEOUT_DEADLINE', 10000)),
+      },
+      agent: new AgentConfig(Number(get('HMPPS_PRISON_API_TIMEOUT_RESPONSE', 10000))),
+    },
     offenderSearchApi: {
       url: get('OFFENDER_SEARCH_API_URL', 'http://localhost:8082', requiredInProduction),
       externalUrl: get('OFFENDER_SEARCH_API_EXTERNAL_URL', get('OFFENDER_SEARCH_API_URL', 'http://localhost:8082')),
