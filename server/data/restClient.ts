@@ -14,6 +14,7 @@ interface GetRequest {
   headers?: Record<string, string>
   responseType?: string
   raw?: boolean
+  handle404?: boolean
 }
 
 interface PostRequest {
@@ -52,6 +53,7 @@ export default class RestClient {
     headers = {},
     responseType = '',
     raw = false,
+    handle404 = false,
   }: GetRequest): Promise<Response> {
     logger.info(`Get using user credentials: calling ${this.name}: ${path} ${query}`)
     try {
@@ -72,6 +74,9 @@ export default class RestClient {
       return raw ? result : result.body
     } catch (error) {
       const sanitisedError = sanitiseError(error)
+      if (handle404 === true && error?.response?.status === 404) {
+        return null
+      }
       logger.warn({ ...sanitisedError, query }, `Error calling ${this.name}, path: '${path}', verb: 'GET'`)
       throw sanitisedError
     }

@@ -1,6 +1,7 @@
 export default {
   templates: {
     home: '/',
+    prisonerPhoto: '/prisoner/:prisonerNumber/photo.jpeg',
     view: '/prisoner/:prisonerNumber/non-associations',
     prisonerSearch: '/prisoner/:prisonerNumber/non-associations/add/search-prisoner',
     add: '/prisoner/:prisonerNumber/non-associations/add/with-prisoner/:otherPrisonerNumber',
@@ -10,6 +11,10 @@ export default {
 
   home(): string {
     return this.templates.home
+  },
+
+  prisonerPhoto(prisonerNumber: string): string {
+    return this.templates.prisonerPhoto.replace(':prisonerNumber', prisonerNumber)
   },
 
   view(prisonerNumber: string): string {

@@ -18,7 +18,13 @@ export default {
     })
   },
 
-  stubOffenderSearchGetPrisonerResult(prisonerNumber: string, result: OffenderSearchResult): SuperAgentRequest {
+  stubOffenderSearchGetPrisonerResult({
+    prisonerNumber,
+    result,
+  }: {
+    prisonerNumber: string
+    result: OffenderSearchResult
+  }): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -32,13 +38,19 @@ export default {
     })
   },
 
-  stubOffenderSearchResults(
-    prisonId: string,
-    term: string,
-    results: OffenderSearchResult[],
-    page: number = 0,
-    totalElements: number | undefined = undefined,
-  ): SuperAgentRequest {
+  stubOffenderSearchResults({
+    prisonId,
+    term,
+    results,
+    page = 0,
+    totalElements = undefined,
+  }: {
+    prisonId: string
+    term: string
+    results: OffenderSearchResult[]
+    page: number
+    totalElements: number | undefined
+  }): SuperAgentRequest {
     const query = `term=${encodeURIComponent(term)}&size=${OffenderSearchClient.PAGE_SIZE}&page=${page}`
     return stubFor({
       request: {
