@@ -8,81 +8,80 @@
 {% block content %}
 
 
-      <span class="govuk-caption-l">Non-associations</span>
-      <h1 class="govuk-heading-l">
-        {{ prisonerName | possessiveName}} non-associations
-      </h1>
-      <p class="govuk-!-text-align-right">
-      {{ govukButton({
-        text: "Add new non-association",
-        element: "a",
-        href: routeUrls.prisonerSearch(prisonerNumber)
-      }) }}
-      </p>
+  <span class="govuk-caption-l">Non-associations</span>
+  <h1 class="govuk-heading-l">
+    {{ prisonerName | possessiveName}} non-associations
+  </h1>
+  <p class="govuk-!-text-align-right">
+    {{ govukButton({
+    text: "Add new non-association",
+    element: "a",
+    href: routeUrls.prisonerSearch(prisonerNumber)
+    }) }}
+  </p>
 
-        {% set tableRows = [] %}
-        {% for nonAssociation in nonAssociations %}
+  {% set tableRows = [] %}
+  {% for nonAssociation in nonAssociations %}
 
-          {% set otherPrisonerProfileLink %}
-          <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerNumber }}" data-ga-category="Reviews table > Clicked on link" data-ga-action="prisoner name">
-           <span class="govuk-visually-hidden">
-                    View prisoner profile for
-                  </span>
-            <strong>{{ nonAssociation.otherPrisonerName }}</strong>
-            <br />
-            {{ nonAssociation.otherPrisonerNumber }}
-            </a>
-          {% endset %}
+    {% set otherPrisonerProfileLink %}
+     <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerNumber }}">
+      <span class="govuk-visually-hidden"> View prisoner profile for </span>
+       <strong>{{ nonAssociation.otherPrisonerName }}</strong>
+       <br />
+      {{ nonAssociation.otherPrisonerNumber }}
+     </a>
+    {% endset %}
 
-          {% set reason %}
-            {{ nonAssociation.reason}}
-          {% endset %}
+    {% set reason %}
+      {{ nonAssociation.reason}}
+    {% endset %}
 
-          {% set role %}
-            {{ nonAssociation.role}}
-          {% endset %}
+    {% set role %}
+      {{ nonAssociation.role}}
+    {% endset %}
 
-          {% set whereToKeepApart %}
-            {{ nonAssociation.whereToKeepApart}}
-          {% endset %}
+    {% set whereToKeepApart %}
+      {{ nonAssociation.whereToKeepApart}}
+    {% endset %}
 
-          {% set comments %}
-            {{ nonAssociation.comments}}
-          {% endset %}
+    {% set comments %}
+      {{ nonAssociation.comments}}
+    {% endset %}
 
-          {% set dateAdded %}
-            {{ nonAssociation.dateAdded}}
-          {% endset %}
+    {% set dateAdded %}
+      {{ nonAssociation.dateAdded}}
+    {% endset %}
 
-          {% set tableRows = (tableRows.push([
-            {html: otherPrisonerProfileLink},
-            {html: reason},
-            {html: role},
-            {html: whereToKeepApart},
-            {html: comments},
-            {html: dateAdded}
-          ]), tableRows) %}
-        {% endfor %}
+    {% set tableRows = (tableRows.push([
+      {html: otherPrisonerProfileLink},
+      {html: reason},
+      {html: role},
+      {html: whereToKeepApart},
+      {html: comments},
+      {html: dateAdded}
+    ]), tableRows) %}
+  {% endfor %}
 
-        {% set caption -%}
-         Non Associations for  {{ prisonerName }}
-        {%- endset %}
-        <div class="app-sortable-table-container">
-          {{ govukTable({
-            caption: caption,
-            captionClasses: "govuk-visually-hidden",
-            classes: "app-sortable-table",
-            head: [
-              {html: 'Name'},
-              {html: 'Reason'},
-              {html: 'Role'},
-              {html: 'Where to be kept apart'},
-              {html: 'Comments'},
-              {html: 'Date added'}
-            ],
-            rows: tableRows
-          }) }}
-        </div>
+  {% set caption -%}
+    Non Associations for  {{ prisonerName }}
+  {%- endset %}
+
+  <div class="app-sortable-table-container">
+    {{ govukTable({
+      caption: caption,
+      captionClasses: "govuk-visually-hidden",
+      classes: "app-sortable-table",
+      head: [
+        {html: 'Name'},
+        {html: 'Reason'},
+        {html: 'Role'},
+        {html: 'Where to be kept apart'},
+        {html: 'Comments'},
+        {html: 'Date added'}
+      ],
+      rows: tableRows
+    }) }}
+  </div>
 
 
 {% endblock %}
