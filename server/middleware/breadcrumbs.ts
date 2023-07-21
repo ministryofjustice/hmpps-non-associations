@@ -11,10 +11,6 @@ export class Breadcrumbs {
         text: 'Digital Prison Services',
         href: res.app.locals.dpsUrl,
       },
-      {
-        text: 'Jones, David',
-        href: `${res.app.locals.dpsUrl}/prisoner/A8469DY`,
-      },
     ]
   }
 

@@ -1,4 +1,4 @@
-import { convertToTitleCase, initialiseName } from './utils'
+import { convertToTitleCase, initialiseName, nameOfPrisoner, reversedNameOfPrisoner } from './utils'
 
 describe('convert to title case', () => {
   it.each([
@@ -26,5 +26,20 @@ describe('initialise name', () => {
     ['Double barrelled', 'Robert-John Smith-Jones-Wilson', 'R. Smith-Jones-Wilson'],
   ])('%s initialiseName(%s, %s)', (_: string, a: string, expected: string) => {
     expect(initialiseName(a)).toEqual(expected)
+  })
+})
+
+describe('display of prisoner names', () => {
+  const prisoner = {
+    firstName: 'DAVID',
+    lastName: 'JONES',
+  }
+
+  it('normal', () => {
+    expect(nameOfPrisoner(prisoner)).toEqual('David Jones')
+  })
+
+  it('reversed', () => {
+    expect(reversedNameOfPrisoner(prisoner)).toEqual('Jones, David')
   })
 })
