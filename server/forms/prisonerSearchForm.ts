@@ -8,7 +8,7 @@ export type PrisonerSearchData = {
 export default class PrisonerSearchForm extends BaseForm<PrisonerSearchData> {
   protected validate(): void {
     if (!this.data.q || /^\s*$/.test(this.data.q)) {
-      this.addError('q', 'Enter a name or prisoner number')
+      this.addError('q', 'Enter a name or prison number')
     } else {
       this.data.q = this.data.q.trim()
     }

@@ -2,6 +2,8 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 
 {% set pageTitle = "Search for a prisoner" %}
 
@@ -9,16 +11,24 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
+      {% include "../partials/formErrorSummary.njk" %}
+
       <span class="govuk-caption-l">Non-associations</span>
       <h1 class="govuk-heading-l">Search for a prisoner</h1>
 
       <form method="get" novalidate>
         <div class="app-field-and-button-group">
+          {% set fieldId = "q" %}
+          {% set field = form.fields[fieldId] %}
           {{ govukInput({
             label: {
               text: "Enter name or prison number",
               classes: "govuk-label--m"
-            }
+            },
+            id: formId + "-" + fieldId,
+            name: fieldId,
+            value: field.value,
+            errorMessage: { text: field.error } if field.error else undefined
           }) }}
 
           <div class="govuk-button-group">
@@ -35,7 +45,69 @@
             }) }}
           </div>
         </div>
+
+        <input type="hidden" name="page" value="1" /> {#- a new search should always start on first page #}
+        <input type="hidden" name="formId" value="{{ formId }}">
       </form>
+
+      {% if form.submitted and not form.hasErrors %}
+        {% if searchResults.content.length > 0 %}
+
+          <p class="govuk-!-text-align-right govuk-!-font-weight-bold">
+            Prisoners listed: {{ searchResults.totalElements }}
+          </p>
+
+          {% set tableRows = [] %}
+          {% for result in searchResults.content %}
+            {% set photo %}
+              <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPrisoner }}" class="app-prisoner-photo" />
+            {% endset %}
+
+            {% set link %}
+              <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
+                Select prisoner
+              </a>
+            {% endset %}
+
+            {% set tableRows = (tableRows.push([
+              {html: photo},
+              {html: result | reversedNameOfPrisoner, classes: "govuk-!-padding-top-8"},
+              {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
+              {text: result.cellLocation, classes: "govuk-!-padding-top-8"},
+              {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
+            ]), tableRows) %}
+          {% endfor %}
+
+          <div class="app-sortable-table-container">
+            {{ govukTable({
+              caption: "Prisoner search results",
+              captionClasses: "govuk-visually-hidden",
+              classes: "app-sortable-table",
+              head: [
+                {html: "<span class=\"govuk-visually-hidden\">Photo</span>"},
+                {text: "Name"},
+                {text: "Prison number"},
+                {text: "Location"},
+                {html: "<span class=\"govuk-visually-hidden\">Select prisoner</span>"}
+              ],
+              rows: tableRows
+            }) }}
+          </div>
+
+          {% if paginationParams %}
+            <div class="app-pagination-right-aligned">
+              {{ govukPagination(paginationParams) }}
+            </div>
+          {% endif %}
+
+        {% else %}
+
+          <p>
+            0 results found for “{{ form.fields.q.value }}”.
+          </p>
+
+        {% endif %}
+      {% endif %}
 
     </div>
   </div>

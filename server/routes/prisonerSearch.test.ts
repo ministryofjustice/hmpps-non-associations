@@ -56,4 +56,108 @@ describe('Search for a prisoner page', () => {
         expect(res.text).toContain('Jones, David')
       })
   })
+
+  it('should not display search results when loaded', () => {
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .expect(200)
+      .expect(res => {
+        // no table
+        expect(res.text).not.toContain('app-sortable-table')
+        // no "nothing found" message
+        expect(res.text).not.toContain('0 results found')
+        // search not performed
+        expect(offenderSearchClient.search.mock.calls).toHaveLength(0)
+      })
+  })
+
+  it('should display search results when a query is entered', () => {
+    offenderSearchClient.search.mockResolvedValue(sampleOffenderSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        q: 'Smith',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // shows table
+        expect(res.text).toContain('app-sortable-table')
+        expect(res.text).toContain('Mills, Fred')
+        expect(res.text).toContain('A1235EF')
+        expect(res.text).toContain('Jones, Oscar')
+        expect(res.text).toContain('A1236CS')
+        // no "nothing found" message
+        expect(res.text).not.toContain('0 results found')
+        // search performed
+        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+      })
+  })
+
+  it('should display a message if no results were returned', () => {
+    offenderSearchClient.search.mockResolvedValue({ content: [], totalElements: 0 })
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        q: 'Smith',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // no table
+        expect(res.text).not.toContain('app-sortable-table')
+        // shows "nothing found" message
+        expect(res.text).toContain('0 results found for “Smith”')
+        // search performed
+        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+      })
+  })
+
+  it('should display an error if an empty query is submitted', () => {
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        q: '',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // error summary shows
+        expect(res.text).toContain('There is a problem')
+        // no table
+        expect(res.text).not.toContain('app-sortable-table')
+        // no "nothing found" message
+        expect(res.text).not.toContain('0 results found')
+        // search not performed
+        expect(offenderSearchClient.search.mock.calls).toHaveLength(0)
+      })
+  })
+
+  it('should show pagination when there are many results', () => {
+    offenderSearchClient.search.mockResolvedValue({ content: sampleOffenderSearchResults.content, totalElements: 100 })
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        q: 'Smith',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // pagination shows
+        expect(res.text).toContain('govuk-pagination__list')
+        // shows table
+        expect(res.text).toContain('app-sortable-table')
+        // no "nothing found" message
+        expect(res.text).not.toContain('0 results found')
+        // search performed
+        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+      })
+  })
 })
