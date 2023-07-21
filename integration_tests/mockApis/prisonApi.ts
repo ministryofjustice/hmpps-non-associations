@@ -1,8 +1,9 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 
 import type { SuperAgentRequest } from 'superagent'
 
+import applicationInfo from '../../server/applicationInfo'
 import { stubFor } from './wiremock'
 
 export default {
@@ -21,7 +22,7 @@ export default {
   },
 
   stubPrisonApiGetPhoto: (): SuperAgentRequest => {
-    const imagePath = path.join(__dirname, '..', '..', 'assets', 'images', 'prisoner.jpeg')
+    const imagePath = path.join(applicationInfo().packageJsonPath, 'assets', 'images', 'prisoner.jpeg')
     const imageContents = fs.readFileSync(imagePath, { encoding: 'base64' })
 
     return stubFor({

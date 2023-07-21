@@ -1,6 +1,7 @@
 import type { Express } from 'express'
 import request from 'supertest'
 
+import applicationInfo from '../applicationInfo'
 import PrisonApi from '../data/prisonApi'
 import { appWithAllRoutes } from './testutils/appSetup'
 
@@ -9,7 +10,7 @@ jest.mock('../data/prisonApi')
 let app: Express
 
 beforeEach(() => {
-  app = appWithAllRoutes({})
+  app = appWithAllRoutes({ services: { applicationInfo: applicationInfo() } })
 })
 
 describe('GET /', () => {
