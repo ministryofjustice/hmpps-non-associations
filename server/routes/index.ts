@@ -5,6 +5,8 @@ import type { Services } from '../services'
 import PrisonApi from '../data/prisonApi'
 import prisonerSearchRoutes from './prisonerSearch'
 import addRoutes from './add'
+import closeRoutes from './close'
+import updateRoutes from './update'
 import viewRoutes from './view'
 
 export default function routes(services: Services): Router {
@@ -39,6 +41,10 @@ export default function routes(services: Services): Router {
   router.use(urlTemplates.prisonerSearch, prisonerSearchRoutes(services))
 
   router.use(urlTemplates.add, addRoutes(services))
+
+  router.use(urlTemplates.close, closeRoutes(services))
+
+  router.use(urlTemplates.update, updateRoutes(services))
 
   return router
 }
