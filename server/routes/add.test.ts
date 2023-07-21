@@ -1,33 +1,22 @@
 import type { Express } from 'express'
 import request from 'supertest'
 
+import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { OffenderSearchClient } from '../data/offenderSearch'
-import { SanitisedError } from '../sanitisedError'
+import { davidJones, fredMills } from '../data/testData/offenderSearch'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/offenderSearch')
 
 // mock "key" prisoner
-const prisonerNumber = 'A1234BC'
-const prisoner = {
-  prisonId: 'MDI',
-  bookingId: 12345,
-  prisonerNumber,
-  firstName: 'DAVID',
-  lastName: 'JONES',
-}
+const { prisonerNumber } = davidJones
+const prisoner = davidJones
 
 // mock "other" prisoner
-const otherPrisonerNumber = 'A1235EF'
-const otherPrisoner = {
-  prisonId: 'MDI',
-  bookingId: 12346,
-  prisonerNumber: otherPrisonerNumber,
-  firstName: 'FRED',
-  lastName: 'MILLS',
-}
+const { prisonerNumber: otherPrisonerNumber } = fredMills
+const otherPrisoner = fredMills
 
 let app: Express
 let offenderSearchClient: jest.Mocked<OffenderSearchClient>

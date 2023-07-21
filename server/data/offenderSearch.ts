@@ -7,11 +7,12 @@ export type OffenderSearchResult = {
   prisonerNumber: string
   firstName: string
   lastName: string
+  cellLocation: string
 }
 
 export type OffenderSearchResults = {
-  readonly content: ReadonlyArray<OffenderSearchResult>
-  readonly totalElements: number
+  content: OffenderSearchResult[]
+  totalElements: number
 }
 
 export class OffenderSearchClient extends RestClient {
