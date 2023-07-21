@@ -11,6 +11,11 @@ import routes from '../index'
 import type { Services } from '../../services'
 import routeUrls from '../../services/routeUrls'
 
+const activeCaseload = {
+  id: 'MDI',
+  name: 'Moorland (HMP & YOI)',
+}
+
 export const user = {
   firstName: 'first',
   lastName: 'last',
@@ -19,6 +24,8 @@ export const user = {
   username: 'user1',
   displayName: 'First Last',
   activeCaseLoadId: 'MDI',
+  activeCaseload,
+  caseloads: [activeCaseload],
   authSource: 'NOMIS',
 }
 
