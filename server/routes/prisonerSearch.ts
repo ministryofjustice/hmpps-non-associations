@@ -44,6 +44,15 @@ export default function prisonerSearchRoutes(service: Services): Router {
           const pageCount = Math.ceil(response.totalElements / OffenderSearchClient.PAGE_SIZE)
           const urlPrefix = `?q=${encodeURIComponent(searchTerms)}&formId=${formId}&`
           paginationParams = pagination(page, pageCount, urlPrefix)
+
+          // NB: there's no way to exclude results in offender search so have to hack it; it shouldn't be noticeable
+          response.content = response.content.filter(result => {
+            if (result.prisonerNumber !== prisonerNumber) {
+              return true
+            }
+            response.totalElements -= 1
+            return false
+          })
         }
         searchResults = response
       }
