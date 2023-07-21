@@ -8,6 +8,7 @@ describe('Healthcheck', () => {
     buildNumber: '1',
     gitRef: 'long ref',
     gitShortHash: 'short ref',
+    packageJsonPath: '../..',
   }
 
   it('Healthcheck reports healthy', done => {
