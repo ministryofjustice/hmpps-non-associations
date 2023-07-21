@@ -10,7 +10,10 @@ $govuk-page-width: $moj-page-width;
 @import './components/card';
 @import './components/caseload-bar';
 @import './components/error-pages';
+@import './components/field-and-button-group';
 @import './components/header';
+@import './components/pagination';
+@import './components/prisoner-photo';
 @import './components/sortable-table';
 
 @import './local';
