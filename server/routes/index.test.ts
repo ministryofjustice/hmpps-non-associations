@@ -59,7 +59,7 @@ describe('prisoner photos', () => {
         expect(prisonApi.getPhoto).toBeCalledWith(prisonerNumber)
 
         expect(res.headers['cache-control']).toEqual('private, max-age=86400')
-        expect(res.body).toHaveLength(2008) // file size of assets/images/prisoner.jpeg
+        expect(res.body).toHaveLength(3165) // file size of assets/images/prisoner.jpeg
       })
   })
 })
