@@ -14,22 +14,26 @@
   </h1>
   <p class="govuk-!-text-align-right">
     {{ govukButton({
-    text: "Add new non-association",
-    element: "a",
-    href: routeUrls.prisonerSearch(prisonerNumber)
+      text: "Add new non-association",
+      element: "a",
+      href: routeUrls.prisonerSearch(prisonerNumber)
     }) }}
   </p>
 
   {% set tableRows = [] %}
   {% for nonAssociation in nonAssociations %}
 
+    {% set otherPrisonerPhoto %}
+      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerNumber) }}" alt="Photo of {{ nonAssocociation.otherPrisonerName }}" class="app-prisoner-photo" />
+    {% endset %}
+
     {% set otherPrisonerProfileLink %}
-     <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerNumber }}">
-      <span class="govuk-visually-hidden"> View prisoner profile for </span>
-       <strong>{{ nonAssociation.otherPrisonerName }}</strong>
-       <br />
-      {{ nonAssociation.otherPrisonerNumber }}
-     </a>
+      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerNumber }}">
+        <span class="govuk-visually-hidden"> View prisoner profile for </span>
+        <strong>{{ nonAssociation.otherPrisonerName }}</strong>
+        <br />
+        {{ nonAssociation.otherPrisonerNumber }}
+      </a>
     {% endset %}
 
     {% set reason %}
@@ -53,6 +57,7 @@
     {% endset %}
 
     {% set tableRows = (tableRows.push([
+      {html: otherPrisonerPhoto},
       {html: otherPrisonerProfileLink},
       {html: reason},
       {html: role},
@@ -72,6 +77,7 @@
       captionClasses: "govuk-visually-hidden",
       classes: "app-sortable-table",
       head: [
+        {html: ''},
         {html: 'Name'},
         {html: 'Reason'},
         {html: 'Role'},
