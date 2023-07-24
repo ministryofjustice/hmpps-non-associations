@@ -68,6 +68,9 @@ describe('Search for a prisoner page', () => {
       .get(routeUrls.prisonerSearch(prisonerNumber))
       .expect(200)
       .expect(res => {
+        // heading
+        expect(res.text).toContain('Search for a prisoner')
+        expect(res.text).not.toContain('Select a prisoner')
         // no table
         expect(res.text).not.toContain('app-sortable-table')
         // no "nothing found" message
@@ -89,6 +92,9 @@ describe('Search for a prisoner page', () => {
       })
       .expect(200)
       .expect(res => {
+        // heading
+        expect(res.text).not.toContain('Search for a prisoner')
+        expect(res.text).toContain('Select a prisoner')
         // show result count
         expect(res.text).toContain('Prisoners listed: 2')
         // shows table
@@ -122,6 +128,9 @@ describe('Search for a prisoner page', () => {
       })
       .expect(200)
       .expect(res => {
+        // heading
+        expect(res.text).not.toContain('Search for a prisoner')
+        expect(res.text).toContain('Select a prisoner')
         // no table
         expect(res.text).not.toContain('app-sortable-table')
         // shows "nothing found" message
@@ -141,6 +150,9 @@ describe('Search for a prisoner page', () => {
       })
       .expect(200)
       .expect(res => {
+        // heading
+        expect(res.text).toContain('Search for a prisoner')
+        expect(res.text).not.toContain('Select a prisoner')
         // error summary shows
         expect(res.text).toContain('There is a problem')
         // no table
