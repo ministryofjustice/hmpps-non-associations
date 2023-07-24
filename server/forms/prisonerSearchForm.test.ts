@@ -1,4 +1,5 @@
-import PrisonerSearchForm, { sortOptions, orderOptions } from './prisonerSearchForm'
+import { sortOptions, orderOptions } from '../data/offenderSearch'
+import PrisonerSearchForm from './prisonerSearchForm'
 
 describe('PrisonerSearchForm', () => {
   it.each([

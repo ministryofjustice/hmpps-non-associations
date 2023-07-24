@@ -1,8 +1,5 @@
+import { sortOptions, orderOptions } from '../data/offenderSearch'
 import { BaseForm } from './index'
-
-export const sortOptions = ['lastName', 'firstName', 'prisonerNumber'] as const
-
-export const orderOptions = ['ASC', 'DESC'] as const
 
 export type PrisonerSearchData = {
   q: string

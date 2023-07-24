@@ -39,10 +39,22 @@ export default function prisonerSearchRoutes(service: Services): Router {
       if (form && !form.hasErrors) {
         const page = form.fields.page.value
         const searchTerms = form.fields.q.value
-        const response = await offenderSearchClient.search(prisonId, searchTerms, page - 1)
+        const sort = form.fields.sort.value
+        const order = form.fields.order.value
+
+        const response = await offenderSearchClient.search(prisonId, searchTerms, page - 1, sort, order)
+
         if (response.totalElements > 0) {
           const pageCount = Math.ceil(response.totalElements / OffenderSearchClient.PAGE_SIZE)
-          const urlPrefix = `?q=${encodeURIComponent(searchTerms)}&formId=${formId}&`
+          const urlParams = Object.entries({
+            q: searchTerms,
+            formId,
+            sort,
+            order,
+          }).map(([param, value]) => {
+            return `${param}=${encodeURIComponent(value)}`
+          })
+          const urlPrefix = `?${urlParams.join('&')}&`
           paginationParams = pagination(page, pageCount, urlPrefix)
 
           // NB: there's no way to exclude results in offender search so have to hack it; it shouldn't be noticeable
@@ -54,6 +66,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
             return false
           })
         }
+
         searchResults = response
       }
 
