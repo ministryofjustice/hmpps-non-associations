@@ -15,6 +15,10 @@ export type OffenderSearchResults = {
   totalElements: number
 }
 
+export const sortOptions = ['lastName', 'firstName', 'prisonerNumber'] as const
+
+export const orderOptions = ['ASC', 'DESC'] as const
+
 export class OffenderSearchClient extends RestClient {
   static readonly PAGE_SIZE = 20
 
@@ -34,13 +38,20 @@ export class OffenderSearchClient extends RestClient {
   /**
    * Search for people in a given prison using a search term (which works with names and prisoner numbers)
    */
-  search(prisonId: string, term: string, page: number = 0): Promise<OffenderSearchResults> {
+  search(
+    prisonId: string,
+    term: string,
+    page: number = 0,
+    sort: (typeof sortOptions)[number] = 'lastName',
+    order: (typeof orderOptions)[number] = 'ASC',
+  ): Promise<OffenderSearchResults> {
     return this.get<OffenderSearchResults>({
       path: `/prison/${encodeURIComponent(prisonId)}/prisoners`,
       query: {
         term,
         size: OffenderSearchClient.PAGE_SIZE,
         page,
+        sort: `${sort},${order}`,
       },
     })
   }

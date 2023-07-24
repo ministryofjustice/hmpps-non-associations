@@ -8,7 +8,13 @@ import { OffenderSearchClient } from '../data/offenderSearch'
 import { davidJones, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
 jest.mock('../data/hmppsAuthClient')
-jest.mock('../data/offenderSearch')
+jest.mock('../data/offenderSearch', () => {
+  // ensures that sort and order constants are preserved
+  type module = typeof import('../data/offenderSearch')
+  const realModule = jest.requireActual<module>('../data/offenderSearch')
+  const mockedModule = jest.createMockFromModule<module>('../data/offenderSearch')
+  return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
+})
 
 // mock "key" prisoner
 const { prisonerNumber } = davidJones
@@ -77,7 +83,7 @@ describe('Search for a prisoner page', () => {
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
       .query({
-        q: 'Smith',
+        q: 'Smith ',
         formId: 'search',
         page: '1',
       })
@@ -93,8 +99,14 @@ describe('Search for a prisoner page', () => {
         expect(res.text).toContain('A1236CS')
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
-        // search performed
+        // correct search is performed
         expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+        const [prison, search, page, sort, order] = offenderSearchClient.search.mock.calls[0]
+        expect(prison).toEqual('MDI')
+        expect(search).toEqual('Smith')
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(sort).toEqual('lastName')
+        expect(order).toEqual('ASC')
       })
   })
 
@@ -148,18 +160,27 @@ describe('Search for a prisoner page', () => {
       .query({
         q: 'Smith',
         formId: 'search',
-        page: '1',
+        page: '2',
+        sort: 'prisonerNumber',
+        order: 'DESC',
       })
       .expect(200)
       .expect(res => {
         // pagination shows
         expect(res.text).toContain('govuk-pagination__list')
+        expect(res.text).toContain('sort=prisonerNumber&amp;order=DESC')
         // shows table
         expect(res.text).toContain('app-sortable-table')
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
-        // search performed
+        // correct search is performed
         expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+        const [prison, search, page, sort, order] = offenderSearchClient.search.mock.calls[0]
+        expect(prison).toEqual('MDI')
+        expect(search).toEqual('Smith')
+        expect(page).toEqual(1) // NB: page is 0-indexed in offender search
+        expect(sort).toEqual('prisonerNumber')
+        expect(order).toEqual('DESC')
       })
   })
 

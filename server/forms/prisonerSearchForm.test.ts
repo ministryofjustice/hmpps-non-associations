@@ -1,3 +1,4 @@
+import { sortOptions, orderOptions } from '../data/offenderSearch'
 import PrisonerSearchForm from './prisonerSearchForm'
 
 describe('PrisonerSearchForm', () => {
@@ -8,6 +9,8 @@ describe('PrisonerSearchForm', () => {
     { scenario: 'the page is not specified', payload: { q: 'john' } },
     { scenario: 'the page is empty', payload: { q: 'john', page: '' } },
     { scenario: 'the page is 0', payload: { q: 'john', page: '0' } },
+    { scenario: 'sort is invalid', payload: { q: 'john', page: '1', sort: 'age', order: 'ASC' } },
+    { scenario: 'order is invalid', payload: { q: 'john', page: '1', sort: 'firstName', order: 'reversed' } },
   ])('should present errors when $scenario', ({ payload }) => {
     const form = new PrisonerSearchForm()
     form.submit(payload)
@@ -20,9 +23,32 @@ describe('PrisonerSearchForm', () => {
       const form = new PrisonerSearchForm()
       const page = index + 1
       form.submit({ q: query, page: page.toString() })
+
       expect(form.hasErrors).toBeFalsy()
       expect(form.fields.q.value).toEqual(query)
       expect(form.fields.page.value).toEqual(page)
+
+      // sorting defaults to ascending by last name
+      expect(form.fields.sort.value).toEqual('lastName')
+      expect(form.fields.order.value).toEqual('ASC')
+    })
+  })
+
+  it('should accept various sorting options', () => {
+    sortOptions.forEach(sort => {
+      orderOptions.forEach(order => {
+        const payload = {
+          q: 'A1234BC',
+          page: '1',
+          sort,
+          order,
+        }
+        const form = new PrisonerSearchForm()
+        form.submit(payload)
+        expect(form.hasErrors).toBeFalsy()
+        expect(form.fields.sort.value).toEqual(sort)
+        expect(form.fields.order.value).toEqual(order)
+      })
     })
   })
 
