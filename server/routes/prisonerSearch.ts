@@ -9,9 +9,18 @@ import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formGetRoute from './forms/get'
 import { pagination, type Pagination } from '../utils/pagination'
+import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import PrisonerSearchForm from '../forms/prisonerSearchForm'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
+
+const tableColumns: SortableTableColumns<'photo' | 'lastName' | 'prisonerNumber' | 'cellLocation' | 'action'> = [
+  { column: 'photo', escapedHtml: '<span class="govuk-visually-hidden">Photo</span>', unsortable: true },
+  { column: 'lastName', escapedHtml: 'Name' },
+  { column: 'prisonerNumber', escapedHtml: 'Prison number', unsortable: true },
+  { column: 'cellLocation', escapedHtml: 'Location', unsortable: true },
+  { column: 'action', escapedHtml: '<span class="govuk-visually-hidden">Select prisoner</span>', unsortable: true },
+]
 
 export default function prisonerSearchRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })
@@ -35,7 +44,9 @@ export default function prisonerSearchRoutes(service: Services): Router {
       const form: PrisonerSearchForm | null = res.locals.submittedForm
 
       let searchResults: OffenderSearchResults | undefined
+      let tableHead: HeaderCell[] | undefined
       let paginationParams: Pagination | undefined
+
       if (form && !form.hasErrors) {
         const page = form.fields.page.value
         const searchTerms = form.fields.q.value
@@ -46,7 +57,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
 
         if (response.totalElements > 0) {
           const pageCount = Math.ceil(response.totalElements / OffenderSearchClient.PAGE_SIZE)
-          const urlParams = Object.entries({
+          const paginationUrlPrefixParams = Object.entries({
             q: searchTerms,
             formId,
             sort,
@@ -54,8 +65,8 @@ export default function prisonerSearchRoutes(service: Services): Router {
           }).map(([param, value]) => {
             return `${param}=${encodeURIComponent(value)}`
           })
-          const urlPrefix = `?${urlParams.join('&')}&`
-          paginationParams = pagination(page, pageCount, urlPrefix)
+          const paginationUrlPrefix = `?${paginationUrlPrefixParams.join('&')}&`
+          paginationParams = pagination(page, pageCount, paginationUrlPrefix)
 
           // NB: there's no way to exclude results in offender search so have to hack it; it shouldn't be noticeable
           response.content = response.content.filter(result => {
@@ -68,6 +79,21 @@ export default function prisonerSearchRoutes(service: Services): Router {
         }
 
         searchResults = response
+
+        const tableHeadUrlPrefixParams = Object.entries({
+          q: searchTerms,
+          formId,
+          page,
+        }).map(([param, value]) => {
+          return `${param}=${encodeURIComponent(value)}`
+        })
+        const tableHeadUrlPrefix = `?${tableHeadUrlPrefixParams.join('&')}&`
+        tableHead = sortableTableHead({
+          columns: tableColumns,
+          sortColumn: sort,
+          order,
+          urlPrefix: tableHeadUrlPrefix,
+        })
       }
 
       res.locals.breadcrumbs.addItems(
@@ -80,6 +106,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
         formId,
         form,
         searchResults,
+        tableHead,
         paginationParams,
       })
     }),
