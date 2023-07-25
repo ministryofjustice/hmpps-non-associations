@@ -126,9 +126,7 @@ describe('AddForm', () => {
     })
 
     it('when they are provided', () => {
-      const form = new AddForm()
-      form.prisonerName = 'David Jones'
-      form.otherPrisonerName = 'Fred Williams'
+      const form = new AddForm('David Jones', 'Fred Williams')
       form.submit(invalidPayload)
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields.prisonerRole.error).toEqual('Select David Jones’ role in the situation')

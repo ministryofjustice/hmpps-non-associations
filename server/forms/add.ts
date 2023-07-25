@@ -27,6 +27,8 @@ export const restrictionTypeOptions = {
 }
 export type RestrictionType = typeof restrictionTypeOptions
 
+export const maxCommentLength = 240 as const
+
 export type AddData = {
   prisonerRole: keyof Role
   otherPrisonerRole: keyof Role
@@ -36,14 +38,8 @@ export type AddData = {
 }
 
 export default class AddForm extends BaseForm<AddData> {
-  prisonerName: string
-
-  otherPrisonerName: string
-
-  constructor() {
+  constructor(readonly prisonerName = 'prisoner', readonly otherPrisonerName: string = 'other prisoner') {
     super()
-    this.prisonerName = 'prisoner'
-    this.otherPrisonerName = 'other prisoner'
   }
 
   protected validate(): void {
@@ -73,8 +69,8 @@ export default class AddForm extends BaseForm<AddData> {
       this.addError('comment', 'Enter a comment')
     } else {
       this.data.comment = this.data.comment.trim()
-      if (this.data.comment.length > 240) {
-        this.addError('comment', 'Comment must be 240 characters or less')
+      if (this.data.comment.length > maxCommentLength) {
+        this.addError('comment', `Comment must be ${maxCommentLength} characters or less`)
       }
     }
   }
