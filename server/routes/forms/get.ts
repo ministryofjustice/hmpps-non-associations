@@ -1,4 +1,4 @@
-import type { Router, RequestHandler, NextFunction } from 'express'
+import type { Router, Request, RequestHandler, Response, NextFunction } from 'express'
 import type { ParamsDictionary, PathParams, Query } from 'express-serve-static-core'
 import { BadRequest, MethodNotAllowed } from 'http-errors'
 
@@ -39,7 +39,7 @@ export default function formGetRoute<Forms extends Record<string, BaseForm<BaseD
   router: Router,
   path: PathParams,
   formConstructors: {
-    [Name in keyof Forms]: () => Forms[Name]
+    [Name in keyof Forms]: (req: Request, res: Response) => Forms[Name]
   },
   ...handlers: readonly FormGetRequestHandler<Forms>[]
 ): void {
@@ -47,7 +47,7 @@ export default function formGetRoute<Forms extends Record<string, BaseForm<BaseD
 }
 
 function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>(formConstructors: {
-  [Name in keyof Forms]: () => Forms[Name]
+  [Name in keyof Forms]: (req: Request, res: Response) => Forms[Name]
 }): FormGetRequestHandler<Forms> {
   return (req, res, next: NextFunction): void => {
     // limit request methods to GET
@@ -63,7 +63,7 @@ function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>
     res.locals.forms = res.locals.forms || {}
     // eslint-disable-next-line no-restricted-syntax
     for (const [formId, constructor] of Object.entries(formConstructors)) {
-      res.locals.forms[formId as keyof Forms] = constructor()
+      res.locals.forms[formId as keyof Forms] = constructor(req, res)
     }
 
     // if no formId submitted, skip to next handler

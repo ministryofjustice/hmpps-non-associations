@@ -30,7 +30,10 @@ function makeApp(handler: RequestHandler): Express {
     router,
     '/',
     {
-      'sample-form': () => new SampleForm(),
+      'sample-form': (req, res) => {
+        res.locals.formConstructed = true
+        return new SampleForm()
+      },
     },
     handler,
   )
@@ -49,6 +52,20 @@ describe('formGetRoute', () => {
       .expect(405)
       .expect((res: Response) => {
         expect(res.text).not.toEqual('DONE')
+      })
+  })
+
+  it('provides form constructors with req & res', () => {
+    let formConstructed = false
+    const app = makeApp((req, res) => {
+      formConstructed = res.locals.formConstructed
+      res.send('DONE')
+    })
+    return request(app)
+      .get('/')
+      .expect(res => {
+        expect(res.text).toEqual('DONE')
+        expect(formConstructed).toBeTruthy()
       })
   })
 
