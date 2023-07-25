@@ -81,7 +81,7 @@ describe('AddForm', () => {
       otherPrisonerRole: 'VICTIM',
       reason: 'OTHER',
       restrictionType: 'LANDING',
-      comment: '',
+      comment: 'COMMENT',
     }
 
     it('by allowing 240 characters', () => {
@@ -105,6 +105,34 @@ describe('AddForm', () => {
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields.comment.value).toEqual(comment)
       expect(form.fields.comment.error).toEqual('Comment must be 240 characters or less')
+    })
+  })
+
+  describe('should handle prisoner names', () => {
+    const invalidPayload = {
+      prisonerRole: 'INVALID',
+      otherPrisonerRole: 'INVALID',
+      reason: 'OTHER',
+      restrictionType: 'LANDING',
+      comment: 'COMMENT',
+    }
+
+    it('when none are provided', () => {
+      const form = new AddForm()
+      form.submit(invalidPayload)
+      expect(form.hasErrors).toBeTruthy()
+      expect(form.fields.prisonerRole.error).toEqual('Select prisoner’s role in the situation')
+      expect(form.fields.otherPrisonerRole.error).toEqual('Select other prisoner’s role in the situation')
+    })
+
+    it('when they are provided', () => {
+      const form = new AddForm()
+      form.prisonerName = 'David Jones'
+      form.otherPrisonerName = 'Fred Williams'
+      form.submit(invalidPayload)
+      expect(form.hasErrors).toBeTruthy()
+      expect(form.fields.prisonerRole.error).toEqual('Select David Jones’ role in the situation')
+      expect(form.fields.otherPrisonerRole.error).toEqual('Select Fred Williams’ role in the situation')
     })
   })
 })

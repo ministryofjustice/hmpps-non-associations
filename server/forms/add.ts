@@ -1,3 +1,4 @@
+import format from '../utils/format'
 import { BaseForm } from './index'
 
 export const roleOptions = {
@@ -35,13 +36,26 @@ export type AddData = {
 }
 
 export default class AddForm extends BaseForm<AddData> {
+  prisonerName: string
+
+  otherPrisonerName: string
+
+  constructor() {
+    super()
+    this.prisonerName = 'prisoner'
+    this.otherPrisonerName = 'other prisoner'
+  }
+
   protected validate(): void {
     if (!(this.data.prisonerRole in roleOptions)) {
-      this.addError('prisonerRole', 'Select prisoner’s role in the situation')
+      this.addError('prisonerRole', `Select ${format.possessiveName(this.prisonerName)} role in the situation`)
       delete this.data.prisonerRole
     }
     if (!(this.data.otherPrisonerRole in roleOptions)) {
-      this.addError('otherPrisonerRole', 'Select prisoner’s role in the situation')
+      this.addError(
+        'otherPrisonerRole',
+        `Select ${format.possessiveName(this.otherPrisonerName)} role in the situation`,
+      )
       delete this.data.otherPrisonerRole
     }
 
