@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
@@ -23,6 +24,10 @@ export default function addRoutes(service: Services): Router {
     {
       [formId]: async (req, res) => {
         const { prisonerNumber, otherPrisonerNumber } = req.params
+
+        if (prisonerNumber === otherPrisonerNumber) {
+          throw new NotFound('Cannot add a non-association to the same person')
+        }
 
         const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)

@@ -69,6 +69,16 @@ describe('Add non-association details page', () => {
       })
   })
 
+  it('should return 404 if both prisoners are the same person', () => {
+    return request(app)
+      .get(routeUrls.add(prisonerNumber, prisonerNumber))
+      .expect(404)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+      })
+  })
+
   it('should render breadcrumbs', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
