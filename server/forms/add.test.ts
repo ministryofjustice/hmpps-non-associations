@@ -74,4 +74,37 @@ describe('AddForm', () => {
     expect(form.hasErrors).toBeFalsy()
     expect(form.fields.comment.value).toEqual('Should avoid working together')
   })
+
+  describe('should handle long comments', () => {
+    const validPayload: AddData = {
+      prisonerRole: 'PERPETRATOR',
+      otherPrisonerRole: 'VICTIM',
+      reason: 'OTHER',
+      restrictionType: 'LANDING',
+      comment: '',
+    }
+
+    it('by allowing 240 characters', () => {
+      const comment = '0'.repeat(240)
+      const form = new AddForm()
+      form.submit({ ...validPayload, comment })
+      expect(form.hasErrors).toBeFalsy()
+      expect(form.fields.comment.value).toEqual(comment)
+    })
+    it('by allowing 240 characters if the rest is whitespace', () => {
+      const comment = '0'.repeat(240)
+      const form = new AddForm()
+      form.submit({ ...validPayload, comment: `  ${comment}  ` })
+      expect(form.hasErrors).toBeFalsy()
+      expect(form.fields.comment.value).toEqual(comment)
+    })
+    it('by disallowing more than 240 characters', () => {
+      const comment = '0'.repeat(241)
+      const form = new AddForm()
+      form.submit({ ...validPayload, comment })
+      expect(form.hasErrors).toBeTruthy()
+      expect(form.fields.comment.value).toEqual(comment)
+      expect(form.fields.comment.error).toEqual('Comment must be 240 characters or less')
+    })
+  })
 })

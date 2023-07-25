@@ -59,6 +59,9 @@ export default class AddForm extends BaseForm<AddData> {
       this.addError('comment', 'Enter a comment')
     } else {
       this.data.comment = this.data.comment.trim()
+      if (this.data.comment.length > 240) {
+        this.addError('comment', 'Comment must be 240 characters or less')
+      }
     }
   }
 }
