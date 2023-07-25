@@ -1,16 +1,130 @@
 {% extends "../partials/layout.njk" %}
 
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
 {% set pageTitle = "Non-association details" %}
 
 {% block content %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-one-half">
+
+      {% include "../partials/formErrorSummary.njk" %}
 
       <span class="govuk-caption-l">Non-associations</span>
-      <h1 class="govuk-heading-l">Non-association details</h1>
+      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
 
-      {# TODO: remove once role radio buttons exist #}
-      <!-- {{ otherPrisonerName }} -->
+      <form method="post" novalidate>
+        {% call govukFieldset({
+          legend: {
+            text: "Prisoner’s roles in the situation",
+            classes: "govuk-fieldset__legend--m"
+          }
+        }) %}
+
+          {% set fieldId = "prisonerRole" %}
+          {% set field = form.fields[fieldId] %}
+          {{ govukRadios({
+            attributes: { id: formId + "-" + fieldId },
+            name: fieldId,
+            fieldset: {
+              legend: {
+                text: "Is " + prisonerName + " a victim or perpetrator?",
+                classes: "govuk-fieldset__legend--s"
+              }
+            },
+            items: roleChoices | checkedItems(field.value),
+            errorMessage: { text: field.error } if field.error else undefined
+          }) }}
+
+          {% set fieldId = "otherPrisonerRole" %}
+          {% set field = form.fields[fieldId] %}
+          {{ govukRadios({
+            attributes: { id: formId + "-" + fieldId },
+            name: fieldId,
+            fieldset: {
+              legend: {
+                text: "Is " + otherPrisonerName + " a victim or perpetrator?",
+                classes: "govuk-fieldset__legend--s"
+              }
+            },
+            items: roleChoices | checkedItems(field.value),
+            errorMessage: { text: field.error } if field.error else undefined
+          }) }}
+
+          {% set fieldId = "reason" %}
+          {% set field = form.fields[fieldId] %}
+          {{ govukRadios({
+            attributes: { id: formId + "-" + fieldId },
+            name: fieldId,
+            fieldset: {
+              legend: {
+                text: "Reason for the non-association",
+                classes: "govuk-fieldset__legend--m"
+              }
+            },
+            items: reasonChoices | checkedItems(field.value),
+            errorMessage: { text: field.error } if field.error else undefined
+          }) }}
+
+          {% set fieldId = "restrictionType" %}
+          {% set field = form.fields[fieldId] %}
+          {{ govukRadios({
+            attributes: { id: formId + "-" + fieldId },
+            name: fieldId,
+            fieldset: {
+              legend: {
+                text: "Where to keep these prisoners apart",
+                classes: "govuk-fieldset__legend--m"
+              }
+            },
+            items: restrictionTypeChoices | checkedItems(field.value),
+            errorMessage: { text: field.error } if field.error else undefined
+          }) }}
+
+          {% set fieldId = "comment" %}
+          {% set field = form.fields[fieldId] %}
+          {{ govukCharacterCount({
+            id: formId + "-" + fieldId,
+            name: fieldId,
+            label: {
+              text: "Comments",
+              classes: "govuk-label--m"
+            },
+            hint: {
+              text: "Explain why these prisoners should be kept apart. Include any relevant IR numbers, if you have them."
+            },
+            maxlength: maxCommentLength,
+            value: field.value,
+            errorMessage: { text: field.error } if field.error else undefined
+          }) }}
+
+        {% endcall %}
+
+        <h2 class="govuk-heading-m">Next</h2>
+        <p>By saving these details, you confirm that, to the best of your knowledge, the information you have provided is correct.</p>
+        <p>You can return and update the non-association later.</p>
+
+        <input type="hidden" name="formId" value="{{ formId }}" />
+        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Save",
+            preventDoubleClick: true
+          }) }}
+
+          {{ govukButton({
+            text: "Cancel",
+            classes: "govuk-button--secondary",
+            element: "a",
+            href: routeUrls.view(prisonerNumber)
+          }) }}
+        </div>
+      </form>
 
     </div>
   </div>

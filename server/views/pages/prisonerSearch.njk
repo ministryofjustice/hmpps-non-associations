@@ -47,7 +47,7 @@
         </div>
 
         <input type="hidden" name="page" value="1" /> {#- a new search should always start on first page #}
-        <input type="hidden" name="formId" value="{{ formId }}">
+        <input type="hidden" name="formId" value="{{ formId }}" />
       </form>
 
       {% if form.submitted and not form.hasErrors %}
