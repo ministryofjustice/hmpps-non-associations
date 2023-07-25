@@ -30,7 +30,7 @@ export default function viewRoutes(service: Services): Router {
         role: 'Perpetrator',
         whereToKeepApart: 'Cell',
         comments:
-          'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus.',
+          'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu (240 characters)',
         dateAdded: '24 May 2023 by Mary Smith',
       },
     ]

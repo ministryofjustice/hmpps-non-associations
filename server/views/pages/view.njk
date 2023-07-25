@@ -2,11 +2,11 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
 
 {% set pageTitle = prisonerName | possessiveName + " non-associations" %}
 
 {% block content %}
-
 
   <span class="govuk-caption-l">Non-associations</span>
   <h1 class="govuk-heading-l">
@@ -19,6 +19,8 @@
       href: routeUrls.prisonerSearch(prisonerNumber)
     }) }}
   </p>
+
+  {% if nonAssociations.length > 0 %}
 
   {% set tableRows = [] %}
   {% for nonAssociation in nonAssociations %}
@@ -77,11 +79,11 @@
       captionClasses: "govuk-visually-hidden",
       classes: "app-sortable-table",
       head: [
-        {html: ''},
-        {html: 'Name'},
+        {html: "<span class=\"govuk-visually-hidden\">Photo</span>"},
+        {html: 'Prisoner'},
         {html: 'Reason'},
         {html: 'Role'},
-        {html: 'Where to be kept apart'},
+        {html: 'Where&nbsp;to&nbsp;keep apart'},
         {html: 'Comments'},
         {html: 'Date added'}
       ],
@@ -89,5 +91,17 @@
     }) }}
   </div>
 
+  {% if paginationParams %}
+    <div class="app-pagination-right-aligned">
+       {{ govukPagination(paginationParams) }}
+    </div>
+  {% endif %}
+
+  {% else %}
+
+    <p>{{ prisonerName }} has no Non Associations
+    </p>
+
+  {% endif %}
 
 {% endblock %}
