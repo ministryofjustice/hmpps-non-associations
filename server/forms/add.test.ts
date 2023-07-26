@@ -1,4 +1,5 @@
-import AddForm, { type AddData, roleOptions, reasonOptions, restrictionTypeOptions } from './add'
+import { roleOptions, reasonOptions, restrictionTypeOptions } from '../data/nonAssociationsApi'
+import AddForm, { type AddData } from './add'
 
 describe('AddForm', () => {
   it('should present errors when the payload is empty', () => {

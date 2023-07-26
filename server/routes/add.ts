@@ -5,12 +5,13 @@ import logger from '../../logger'
 import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
+import { roleOptions, reasonOptions, restrictionTypeOptions, maxCommentLength } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
-import AddForm, { roleOptions, reasonOptions, restrictionTypeOptions, maxCommentLength } from '../forms/add'
+import AddForm from '../forms/add'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 

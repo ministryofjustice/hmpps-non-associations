@@ -3,6 +3,7 @@ import RestClient from './restClient'
 
 export type OffenderSearchResult = {
   prisonId: string
+  prisonName: string
   bookingId: number
   prisonerNumber: string
   firstName: string

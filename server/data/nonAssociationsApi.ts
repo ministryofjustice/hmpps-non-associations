@@ -1,24 +1,105 @@
 import config from '../config'
 import RestClient from './restClient'
 
-// TODO: this is incomplete
-export interface LegacyNonAssociationsList {
-  offenderNo: string
+/**
+ * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
+ */
+
+export const roleOptions = {
+  VICTIM: 'Victim',
+  PERPETRATOR: 'Perpetrator',
+  NOT_RELEVANT: 'Not relevant',
+  UNKNOWN: 'Unknown',
+} as const
+export type Role = typeof roleOptions
+
+export const reasonOptions = {
+  BULLYING: 'Bullying',
+  GANG_RELATED: 'Gang related',
+  ORGANISED_CRIME: 'Organised crime',
+  LEGAL_REQUEST: 'Police or legal request',
+  THREAT: 'Threat',
+  VIOLENCE: 'Violence',
+  OTHER: 'Other',
+} as const
+export type Reason = typeof reasonOptions
+
+export const restrictionTypeOptions = {
+  CELL: 'Cell only',
+  LANDING: 'Cell and landing',
+  WING: 'Cell, landing and wing',
+}
+export type RestrictionType = typeof restrictionTypeOptions
+
+export const maxCommentLength = 240 as const
+
+export interface NonAssociationsList {
+  prisonerNumber: string
   firstName: string
   lastName: string
+  prisonId: string
+  prisonName: string
+  cellLocation: string
   nonAssociations: {
-    reasonCode: string
-    reasonDescription: string
-    typeCode: string
-    typeDescription: string
-    offenderNonAssociation: {
-      offenderNo: string
+    id: number
+    roleCode: keyof Role
+    roleDescription: Role[keyof Role]
+    reasonCode: keyof Reason
+    reasonDescription: Reason[keyof Reason]
+    restrictionTypeCode: keyof RestrictionType
+    restrictionTypeDescription: RestrictionType[keyof RestrictionType]
+    comment: string
+    authorisedBy: string
+    whenCreated: string
+    isClosed: boolean
+    closedBy: string | null
+    closedReason: string | null
+    closedAt: string | null
+    otherPrisonerDetails: {
+      prisonerNumber: string
+      roleCode: keyof Role
+      roleDescription: Role[keyof Role]
       firstName: string
       lastName: string
+      prisonId: string
+      prisonName: string
+      cellLocation: string
     }
-    comments: string
   }[]
 }
+
+export interface NonAssociation {
+  id: number
+  firstPrisonerNumber: string
+  firstPrisonerRole: keyof Role
+  secondPrisonerNumber: string
+  secondPrisonerRole: keyof Role
+  reason: keyof Reason
+  restrictionType: keyof RestrictionType
+  comment: string
+  authorisedBy: string
+  whenCreated: string
+  isClosed: boolean
+  closedBy: string | null
+  closedReason: string | null
+  closedAt: string | null
+}
+
+export interface CreateNonAssociationRequest {
+  firstPrisonerNumber: string
+  firstPrisonerRole: keyof Role
+  secondPrisonerNumber: string
+  secondPrisonerRole: keyof Role
+  reason: keyof Reason
+  restrictionType: string
+  comment: string
+}
+
+export const sortByOptions = ['WHEN_CREATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const
+export type SortBy = (typeof sortByOptions)[number]
+
+export const sortDirectionOptions = ['ASC', 'DESC'] as const
+export type SortDirection = (typeof sortDirectionOptions)[number]
 
 export class NonAssociationsApi extends RestClient {
   constructor(systemToken: string) {
@@ -27,13 +108,39 @@ export class NonAssociationsApi extends RestClient {
 
   /**
    * Retrieves a list of non-associations for given booking number
-   * NB: this should not be used generally because non-associations should be a property of a person,
-   * not just one of their bookings
-   *
-   * @deprecated this endpoint is a façade to a legacy prison-api call, will be replaced with a new endpoint and data structure
    */
-  getLegacyNonAssociationsList(bookingId: number): Promise<LegacyNonAssociationsList[]> {
-    // TODO: does this return a 404 instead of an empty list when booking id has no non-associations?
-    return this.get({ path: `/legacy/api/bookings/${encodeURIComponent(bookingId)}/non-association-details` })
+  listNonAssociations(
+    prisonerNumber: string,
+    {
+      includeClosed = false,
+      includeOtherPrisons = false,
+      sortBy = 'WHEN_CREATED',
+      sortDirection = 'ASC',
+    }: {
+      includeClosed?: boolean
+      includeOtherPrisons?: boolean
+      sortBy?: SortBy
+      sortDirection?: SortDirection
+    } = {},
+  ): Promise<NonAssociationsList> {
+    return this.get({
+      path: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
+      query: {
+        includeClosed: includeClosed.toString(),
+        includeOtherPrisons: includeOtherPrisons.toString(),
+        sortBy,
+        sortDirection,
+      },
+    })
+  }
+
+  /**
+   * Create a new non-association
+   */
+  createNonAssociation(request: CreateNonAssociationRequest): Promise<NonAssociation> {
+    return this.post<NonAssociation>({
+      path: '/non-associations',
+      data: request as unknown as Record<string, unknown>,
+    })
   }
 }
