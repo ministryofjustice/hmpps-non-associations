@@ -1,7 +1,8 @@
-import type { Router, RequestHandler, NextFunction } from 'express'
+import type { Router, Request, RequestHandler, Response, NextFunction } from 'express'
 import type { ParamsDictionary, PathParams, Query } from 'express-serve-static-core'
 import { BadRequest, MethodNotAllowed } from 'http-errors'
 
+import asyncMiddleware from '../../middleware/asyncMiddleware'
 import type { BaseData, BaseForm } from '../../forms'
 import type { AppLocals } from './index'
 
@@ -39,7 +40,7 @@ export default function formPostRoute<Forms extends Record<string, BaseForm<Base
   router: Router,
   path: PathParams,
   formConstructors: {
-    [Name in keyof Forms]: () => Forms[Name]
+    [Name in keyof Forms]: (req: Request, res: Response) => Forms[Name] | Promise<Forms[Name]>
   },
   ...handlers: readonly FormPostRequestHandler<Forms>[]
 ): void {
@@ -47,9 +48,9 @@ export default function formPostRoute<Forms extends Record<string, BaseForm<Base
 }
 
 function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>(formConstructors: {
-  [Name in keyof Forms]: () => Forms[Name]
+  [Name in keyof Forms]: (req: Request, res: Response) => Forms[Name] | Promise<Forms[Name]>
 }): FormPostRequestHandler<Forms> {
-  return (req, res, next: NextFunction): void => {
+  return asyncMiddleware(async (req, res, next: NextFunction): Promise<void> => {
     // limit request methods to GET or POST
     if (req.method !== 'GET' && req.method !== 'POST') {
       next(new MethodNotAllowed('Only GET or POST methods are allowed'))
@@ -61,10 +62,13 @@ function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because locals.forms are not _yet_ set up
     res.locals.forms = res.locals.forms || {}
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [formId, constructor] of Object.entries(formConstructors)) {
-      res.locals.forms[formId as keyof Forms] = constructor()
-    }
+    await Promise.all(
+      Object.entries(formConstructors).map(([formId, constructor]): Promise<void> => {
+        return (async () => {
+          res.locals.forms[formId as keyof Forms] = await constructor(req, res)
+        })()
+      }),
+    )
 
     // if not a POST, skip to next handler
     if (req.method !== 'POST') {
@@ -86,5 +90,5 @@ function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>
 
     // handle valid or invalid form
     next()
-  }
+  })
 }

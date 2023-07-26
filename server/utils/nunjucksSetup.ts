@@ -6,6 +6,7 @@ import express from 'express'
 
 import config from '../config'
 import type { Services } from '../services'
+import { checkedItems, multipleCheckedItems } from './checkedItems'
 import format from './format'
 import { convertToTitleCase, initialiseName, nameOfPrisoner, reversedNameOfPrisoner } from './utils'
 
@@ -60,4 +61,8 @@ export default function nunjucksSetup(app: express.Express, services: Services):
   njkEnv.addFilter('dateAndTime', format.dateAndTime)
   njkEnv.addFilter('date', format.date)
   njkEnv.addFilter('thousands', format.thousands)
+
+  // utils for GDS & MoJ components
+  njkEnv.addFilter('checkedItems', checkedItems)
+  njkEnv.addFilter('multipleCheckedItems', multipleCheckedItems)
 }
