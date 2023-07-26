@@ -81,7 +81,7 @@ export const davidJones2OpenNonAssociations: NonAssociationsList = {
 }
 
 export function nonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
-  return {
+  const data: Omit<NonAssociation, 'isClosed' | 'closedBy' | 'closedReason' | 'closedAt'> = {
     id: 101,
     firstPrisonerNumber: prisonerNumber,
     firstPrisonerRole: 'PERPETRATOR',
@@ -92,9 +92,21 @@ export function nonAssociation(prisonerNumber: string, otherPrisonerNumber: stri
     comment: 'See IR 12133100',
     authorisedBy: 'cde87s',
     whenCreated: '2023-07-21T08:14:21.123456',
-    isClosed: !open,
-    closedBy: open ? null : 'abc12a',
-    closedReason: open ? null : 'Problem solved',
-    closedAt: open ? null : '2023-07-26T12:34:56.123456',
+  }
+  if (open) {
+    return {
+      ...data,
+      isClosed: false,
+      closedBy: null,
+      closedReason: null,
+      closedAt: null,
+    }
+  }
+  return {
+    ...data,
+    isClosed: true,
+    closedBy: 'abc12a',
+    closedReason: 'Problem solved',
+    closedAt: '2023-07-26T12:34:56.123456',
   }
 }

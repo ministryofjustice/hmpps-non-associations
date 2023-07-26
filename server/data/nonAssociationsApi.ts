@@ -40,35 +40,46 @@ export interface NonAssociationsList {
   prisonId: string
   prisonName: string
   cellLocation: string
-  nonAssociations: {
-    id: number
-    roleCode: keyof Role
-    roleDescription: Role[keyof Role]
-    reasonCode: keyof Reason
-    reasonDescription: Reason[keyof Reason]
-    restrictionTypeCode: keyof RestrictionType
-    restrictionTypeDescription: RestrictionType[keyof RestrictionType]
-    comment: string
-    authorisedBy: string
-    whenCreated: string
-    isClosed: boolean
-    closedBy: string | null
-    closedReason: string | null
-    closedAt: string | null
-    otherPrisonerDetails: {
-      prisonerNumber: string
+  nonAssociations: Array<
+    {
+      id: number
       roleCode: keyof Role
       roleDescription: Role[keyof Role]
-      firstName: string
-      lastName: string
-      prisonId: string
-      prisonName: string
-      cellLocation: string
-    }
-  }[]
+      reasonCode: keyof Reason
+      reasonDescription: Reason[keyof Reason]
+      restrictionTypeCode: keyof RestrictionType
+      restrictionTypeDescription: RestrictionType[keyof RestrictionType]
+      comment: string
+      authorisedBy: string
+      whenCreated: string
+      otherPrisonerDetails: {
+        prisonerNumber: string
+        roleCode: keyof Role
+        roleDescription: Role[keyof Role]
+        firstName: string
+        lastName: string
+        prisonId: string
+        prisonName: string
+        cellLocation: string
+      }
+    } & (
+      | {
+          isClosed: false
+          closedBy: null
+          closedReason: null
+          closedAt: null
+        }
+      | {
+          isClosed: true
+          closedBy: string
+          closedReason: string
+          closedAt: string
+        }
+    )
+  >
 }
 
-export interface NonAssociation {
+export type NonAssociation = {
   id: number
   firstPrisonerNumber: string
   firstPrisonerRole: keyof Role
@@ -79,11 +90,20 @@ export interface NonAssociation {
   comment: string
   authorisedBy: string
   whenCreated: string
-  isClosed: boolean
-  closedBy: string | null
-  closedReason: string | null
-  closedAt: string | null
-}
+} & (
+  | {
+      isClosed: false
+      closedBy: null
+      closedReason: null
+      closedAt: null
+    }
+  | {
+      isClosed: true
+      closedBy: string
+      closedReason: string
+      closedAt: string
+    }
+)
 
 export interface CreateNonAssociationRequest {
   firstPrisonerNumber: string
