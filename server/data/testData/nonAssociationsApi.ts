@@ -80,7 +80,7 @@ export const davidJones2OpenNonAssociations: NonAssociationsList = {
   ],
 }
 
-export function nonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
+export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
   const data: Omit<NonAssociation, 'isClosed' | 'closedBy' | 'closedReason' | 'closedAt'> = {
     id: 101,
     firstPrisonerNumber: prisonerNumber,

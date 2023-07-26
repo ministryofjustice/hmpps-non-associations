@@ -111,7 +111,15 @@ export interface CreateNonAssociationRequest {
   secondPrisonerNumber: string
   secondPrisonerRole: keyof Role
   reason: keyof Reason
-  restrictionType: string
+  restrictionType: keyof RestrictionType
+  comment: string
+}
+
+export interface UpdateNonAssociationRequest {
+  firstPrisonerRole: keyof Role
+  secondPrisonerRole: keyof Role
+  reason: keyof Reason
+  restrictionType: keyof RestrictionType
   comment: string
 }
 
@@ -135,7 +143,7 @@ export class NonAssociationsApi extends RestClient {
       includeClosed = false,
       includeOtherPrisons = false,
       sortBy = 'WHEN_CREATED',
-      sortDirection = 'ASC',
+      sortDirection = 'DESC',
     }: {
       includeClosed?: boolean
       includeOtherPrisons?: boolean
@@ -155,11 +163,28 @@ export class NonAssociationsApi extends RestClient {
   }
 
   /**
+   * Retrieve a non-association by ID
+   */
+  getNonAssociation(id: number): Promise<NonAssociation> {
+    return this.get({ path: `/non-associations/${encodeURIComponent(id)}` })
+  }
+
+  /**
    * Create a new non-association
    */
   createNonAssociation(request: CreateNonAssociationRequest): Promise<NonAssociation> {
     return this.post<NonAssociation>({
       path: '/non-associations',
+      data: request as unknown as Record<string, unknown>,
+    })
+  }
+
+  /**
+   * Update an existing new non-association
+   */
+  updateNonAssociation(id: number, request: UpdateNonAssociationRequest): Promise<NonAssociation> {
+    return this.patch<NonAssociation>({
+      path: `/non-associations/${encodeURIComponent(id)}`,
       data: request as unknown as Record<string, unknown>,
     })
   }

@@ -6,9 +6,13 @@ import {
   davidJones0NonAssociations,
   davidJones1OpenNonAssociation,
   davidJones2OpenNonAssociations,
-  nonAssociation,
+  mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
+
+/**
+ * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
+ */
 
 export default {
   stubNonAssociationsApiPing: (): SuperAgentRequest => {
@@ -54,16 +58,44 @@ export default {
     })
   },
 
-  stubAddNonAssociation: () => {
+  stubGetNonAssociation: () => {
+    return stubFor({
+      request: {
+        method: 'GET',
+        urlPattern: '/non-associations/\\d+',
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+      },
+    })
+  },
+
+  stubCreateNonAssociation: () => {
     return stubFor({
       request: {
         method: 'POST',
         urlPattern: '/non-associations',
       },
       response: {
+        status: 201,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+      },
+    })
+  },
+
+  stubUpdateNonAssociation: () => {
+    return stubFor({
+      request: {
+        method: 'PATCH',
+        urlPattern: '/non-associations/\\d+',
+      },
+      response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: nonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
       },
     })
   },
