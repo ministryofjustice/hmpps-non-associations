@@ -183,4 +183,37 @@ describe('Add non-association details page', () => {
         expect(res.text).toContain('The non-association has been added to each prisoner’s profile')
       })
   })
+
+  it('should generic error page when api returns an error', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+    const error: SanitisedError = {
+      name: 'Error',
+      status: 400,
+      message: 'Bad Request',
+      stack: 'Error: Bad Request',
+    }
+    nonAssociationsApi.createNonAssociation.mockRejectedValue(error)
+
+    return request(app)
+      .post(routeUrls.add(prisonerNumber, otherPrisonerNumber))
+      .send({
+        formId: 'add',
+        prisonerRole: 'VICTIM',
+        otherPrisonerRole: 'PERPETRATOR',
+        reason: 'THREAT',
+        restrictionType: 'LANDING',
+        comment: 'An incident occurred yesterday',
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.createNonAssociation).toHaveBeenCalledTimes(1)
+
+        expect(res.text).not.toContain('The non-association has been added to each prisoner’s profile')
+        expect(res.text).toContain('Non-association could not be saved') // error message
+        expect(res.text).toContain('An incident occurred yesterday') // form still pre-filled
+      })
+  })
 })

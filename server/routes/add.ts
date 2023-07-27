@@ -19,6 +19,7 @@ import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
+import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
@@ -60,6 +61,8 @@ export default function addRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
       )
 
+      const messages: FlashMessages = {}
+
       if (form.submitted && !form.hasErrors) {
         const request: CreateNonAssociationRequest = {
           firstPrisonerNumber: prisonerNumber,
@@ -76,21 +79,23 @@ export default function addRoutes(service: Services): Router {
           logger.info(
             `Non-association created by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
           )
-        } catch (e) {
+
+          res.render('pages/addConfirmation.njk', {
+            prisonerNumber,
+            prisonerName,
+          })
+          return
+        } catch (error) {
           logger.error(
             `Non-association could NOT be created by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
+            error,
           )
-          // TODO: show error msg
+          messages.warning = ['Non-association could not be saved, please try again']
         }
-
-        res.render('pages/addConfirmation.njk', {
-          prisonerNumber,
-          prisonerName,
-        })
-        return
       }
 
       res.render('pages/add.njk', {
+        messages,
         prisonerNumber,
         prisonerName,
         otherPrisonerNumber,
