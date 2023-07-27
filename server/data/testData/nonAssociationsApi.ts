@@ -28,7 +28,8 @@ export const davidJones1OpenNonAssociation: NonAssociationsList = {
       restrictionTypeDescription: 'Cell and landing',
       comment: 'See IR 12133111',
       authorisedBy: 'abc12a',
-      whenCreated: '2023-07-26T12:34:56.123456',
+      whenCreated: new Date('2023-07-26T12:34:56'),
+      whenUpdated: new Date('2023-07-26T12:34:56'),
       isClosed: false,
       closedBy: null,
       closedReason: null,
@@ -61,7 +62,8 @@ export const davidJones2OpenNonAssociations: NonAssociationsList = {
       restrictionTypeDescription: 'Cell only',
       comment: 'Pending court case',
       authorisedBy: 'cde87s',
-      whenCreated: '2023-07-21T08:14:21.123456',
+      whenCreated: new Date('2023-07-21T08:14:21'),
+      whenUpdated: new Date('2023-07-21T08:14:21'),
       isClosed: false,
       closedBy: null,
       closedReason: null,
@@ -91,7 +93,8 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     restrictionType: 'CELL',
     comment: 'See IR 12133100',
     authorisedBy: 'cde87s',
-    whenCreated: '2023-07-21T08:14:21.123456',
+    whenCreated: new Date('2023-07-21T08:14:21'),
+    whenUpdated: new Date('2023-07-21T08:14:21'),
   }
   if (open) {
     return {
@@ -107,6 +110,6 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     isClosed: true,
     closedBy: 'abc12a',
     closedReason: 'Problem solved',
-    closedAt: '2023-07-26T12:34:56.123456',
+    closedAt: new Date('2023-07-26T12:34:56'),
   }
 }

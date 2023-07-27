@@ -51,7 +51,8 @@ export interface NonAssociationsList {
       restrictionTypeDescription: RestrictionType[keyof RestrictionType]
       comment: string
       authorisedBy: string
-      whenCreated: string
+      whenCreated: Date
+      whenUpdated: Date
       otherPrisonerDetails: {
         prisonerNumber: string
         roleCode: keyof Role
@@ -73,7 +74,7 @@ export interface NonAssociationsList {
           isClosed: true
           closedBy: string
           closedReason: string
-          closedAt: string
+          closedAt: Date
         }
     )
   >
@@ -89,7 +90,8 @@ export type NonAssociation = {
   restrictionType: keyof RestrictionType
   comment: string
   authorisedBy: string
-  whenCreated: string
+  whenCreated: Date
+  whenUpdated: Date
 } & (
   | {
       isClosed: false
@@ -101,7 +103,7 @@ export type NonAssociation = {
       isClosed: true
       closedBy: string
       closedReason: string
-      closedAt: string
+      closedAt: Date
     }
 )
 
@@ -123,7 +125,7 @@ export interface UpdateNonAssociationRequest {
   comment: string
 }
 
-export const sortByOptions = ['WHEN_CREATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const
+export const sortByOptions = ['WHEN_CREATED', 'WHEN_UPDATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const
 export type SortBy = (typeof sortByOptions)[number]
 
 export const sortDirectionOptions = ['ASC', 'DESC'] as const
@@ -132,6 +134,18 @@ export type SortDirection = (typeof sortDirectionOptions)[number]
 export class NonAssociationsApi extends RestClient {
   constructor(systemToken: string) {
     super('HMPPS Non-associations API', config.apis.hmppsNonAssociationsApi, systemToken)
+  }
+
+  private parseDates<O extends { whenCreated: unknown; whenUpdated: unknown; closedAt: unknown }>(data: O): O {
+    // eslint-disable-next-line no-param-reassign
+    data.whenCreated = new Date(data.whenCreated as string)
+    // eslint-disable-next-line no-param-reassign
+    data.whenUpdated = new Date(data.whenUpdated as string)
+    if (data.closedAt) {
+      // eslint-disable-next-line no-param-reassign
+      data.closedAt = new Date(data.closedAt as string)
+    }
+    return data
   }
 
   /**
@@ -151,7 +165,7 @@ export class NonAssociationsApi extends RestClient {
       sortDirection?: SortDirection
     } = {},
   ): Promise<NonAssociationsList> {
-    return this.get({
+    return this.get<NonAssociationsList>({
       path: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
       query: {
         includeClosed: includeClosed.toString(),
@@ -159,6 +173,9 @@ export class NonAssociationsApi extends RestClient {
         sortBy,
         sortDirection,
       },
+    }).then(nonAssociationList => {
+      nonAssociationList.nonAssociations.forEach(nonAssociation => this.parseDates(nonAssociation))
+      return nonAssociationList
     })
   }
 
@@ -166,7 +183,9 @@ export class NonAssociationsApi extends RestClient {
    * Retrieve a non-association by ID
    */
   getNonAssociation(id: number): Promise<NonAssociation> {
-    return this.get({ path: `/non-associations/${encodeURIComponent(id)}` })
+    return this.get<NonAssociation>({ path: `/non-associations/${encodeURIComponent(id)}` }).then(nonAssociation => {
+      return this.parseDates(nonAssociation)
+    })
   }
 
   /**
@@ -176,7 +195,7 @@ export class NonAssociationsApi extends RestClient {
     return this.post<NonAssociation>({
       path: '/non-associations',
       data: request as unknown as Record<string, unknown>,
-    })
+    }).then(this.parseDates)
   }
 
   /**
@@ -186,6 +205,6 @@ export class NonAssociationsApi extends RestClient {
     return this.patch<NonAssociation>({
       path: `/non-associations/${encodeURIComponent(id)}`,
       data: request as unknown as Record<string, unknown>,
-    })
+    }).then(this.parseDates)
   }
 }
