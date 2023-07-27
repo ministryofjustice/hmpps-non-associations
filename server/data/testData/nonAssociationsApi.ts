@@ -1,59 +1,115 @@
-import type { LegacyNonAssociationsList } from '../nonAssociationsApi'
+import type { NonAssociationsList, NonAssociation } from '../nonAssociationsApi'
+import { davidJones, fredMills, oscarJones } from './offenderSearch'
 
-// TODO: this is incomplete
-export const sampleEmptyLegacyNonAssociation: LegacyNonAssociationsList = {
-  offenderNo: 'G6123VU',
-  firstName: 'JOHN',
-  lastName: 'G6123VU',
+/**
+ * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
+ */
+
+export const davidJones0NonAssociations: NonAssociationsList = {
+  prisonId: davidJones.prisonId,
+  prisonName: davidJones.prisonName,
+  prisonerNumber: davidJones.prisonerNumber,
+  firstName: davidJones.firstName,
+  lastName: davidJones.lastName,
+  cellLocation: davidJones.cellLocation,
   nonAssociations: [],
 }
 
-// TODO: this is incomplete
-export const sampleSingleLegacyNonAssociation: LegacyNonAssociationsList = {
-  ...sampleEmptyLegacyNonAssociation,
+export const davidJones1OpenNonAssociation: NonAssociationsList = {
+  ...davidJones0NonAssociations,
   nonAssociations: [
     {
-      reasonCode: '?????',
-      reasonDescription: '?????',
-      typeCode: '?????',
-      typeDescription: '?????',
-      offenderNonAssociation: {
-        offenderNo: 'G5992UH',
-        firstName: 'FLEM',
-        lastName: 'HERMOSILLA',
+      id: 101,
+      roleCode: 'PERPETRATOR',
+      roleDescription: 'Perpetrator',
+      reasonCode: 'VIOLENCE',
+      reasonDescription: 'Violence',
+      restrictionTypeCode: 'LANDING',
+      restrictionTypeDescription: 'Cell and landing',
+      comment: 'See IR 12133111',
+      authorisedBy: 'abc12a',
+      whenCreated: new Date('2023-07-26T12:34:56'),
+      whenUpdated: new Date('2023-07-26T12:34:56'),
+      isClosed: false,
+      closedBy: null,
+      closedReason: null,
+      closedAt: null,
+      otherPrisonerDetails: {
+        prisonId: fredMills.prisonId,
+        prisonName: fredMills.prisonName,
+        prisonerNumber: fredMills.prisonerNumber,
+        firstName: fredMills.firstName,
+        lastName: fredMills.lastName,
+        roleCode: 'VICTIM',
+        roleDescription: 'Victim',
+        cellLocation: fredMills.cellLocation,
       },
-      comments: '?????',
     },
   ],
 }
 
-// TODO: this is incomplete
-export const sampleMultipleLegacyNonAssociation: LegacyNonAssociationsList = {
-  ...sampleEmptyLegacyNonAssociation,
+export const davidJones2OpenNonAssociations: NonAssociationsList = {
+  ...davidJones0NonAssociations,
   nonAssociations: [
+    davidJones1OpenNonAssociation.nonAssociations[0],
     {
-      reasonCode: '?????',
-      reasonDescription: '?????',
-      typeCode: '?????',
-      typeDescription: '?????',
-      offenderNonAssociation: {
-        offenderNo: 'G5992UH',
-        firstName: 'FLEM',
-        lastName: 'HERMOSILLA',
+      id: 102,
+      roleCode: 'NOT_RELEVANT',
+      roleDescription: 'Not relevant',
+      reasonCode: 'LEGAL_REQUEST',
+      reasonDescription: 'Police or legal request',
+      restrictionTypeCode: 'CELL',
+      restrictionTypeDescription: 'Cell only',
+      comment: 'Pending court case',
+      authorisedBy: 'cde87s',
+      whenCreated: new Date('2023-07-21T08:14:21'),
+      whenUpdated: new Date('2023-07-21T08:14:21'),
+      isClosed: false,
+      closedBy: null,
+      closedReason: null,
+      closedAt: null,
+      otherPrisonerDetails: {
+        prisonId: oscarJones.prisonId,
+        prisonName: oscarJones.prisonName,
+        prisonerNumber: oscarJones.prisonerNumber,
+        firstName: oscarJones.firstName,
+        lastName: oscarJones.lastName,
+        roleCode: 'NOT_RELEVANT',
+        roleDescription: 'Not relevant',
+        cellLocation: oscarJones.cellLocation,
       },
-      comments: '?????',
-    },
-    {
-      reasonCode: '?????',
-      reasonDescription: '?????',
-      typeCode: '?????',
-      typeDescription: '?????',
-      offenderNonAssociation: {
-        offenderNo: 'G5992UH',
-        firstName: 'FLEM',
-        lastName: 'HERMOSILLA',
-      },
-      comments: '?????',
     },
   ],
+}
+
+export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
+  const data: Omit<NonAssociation, 'isClosed' | 'closedBy' | 'closedReason' | 'closedAt'> = {
+    id: 101,
+    firstPrisonerNumber: prisonerNumber,
+    firstPrisonerRole: 'PERPETRATOR',
+    secondPrisonerNumber: otherPrisonerNumber,
+    secondPrisonerRole: 'VICTIM',
+    reason: 'THREAT',
+    restrictionType: 'CELL',
+    comment: 'See IR 12133100',
+    authorisedBy: 'cde87s',
+    whenCreated: new Date('2023-07-21T08:14:21'),
+    whenUpdated: new Date('2023-07-21T08:14:21'),
+  }
+  if (open) {
+    return {
+      ...data,
+      isClosed: false,
+      closedBy: null,
+      closedReason: null,
+      closedAt: null,
+    }
+  }
+  return {
+    ...data,
+    isClosed: true,
+    closedBy: 'abc12a',
+    closedReason: 'Problem solved',
+    closedAt: new Date('2023-07-26T12:34:56'),
+  }
 }

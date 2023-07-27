@@ -2,6 +2,7 @@ import type { OffenderSearchResult, OffenderSearchResults } from '../offenderSea
 
 export const davidJones: OffenderSearchResult = {
   prisonId: 'MDI',
+  prisonName: 'Moorland (HMP)',
   bookingId: 12345,
   prisonerNumber: 'A1234BC',
   firstName: 'DAVID',
@@ -11,6 +12,7 @@ export const davidJones: OffenderSearchResult = {
 
 export const fredMills: OffenderSearchResult = {
   prisonId: 'MDI',
+  prisonName: 'Moorland (HMP)',
   bookingId: 12346,
   prisonerNumber: 'A1235EF',
   firstName: 'FRED',
@@ -20,6 +22,7 @@ export const fredMills: OffenderSearchResult = {
 
 export const oscarJones: OffenderSearchResult = {
   prisonId: 'MDI',
+  prisonName: 'Moorland (HMP)',
   bookingId: 12347,
   prisonerNumber: 'A1236CS',
   firstName: 'OSCAR',

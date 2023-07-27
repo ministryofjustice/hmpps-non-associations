@@ -1,33 +1,7 @@
 import format from '../utils/format'
+import type { Reason, RestrictionType, Role } from '../data/nonAssociationsApi'
+import { roleOptions, reasonOptions, restrictionTypeOptions, maxCommentLength } from '../data/nonAssociationsApi'
 import { BaseForm } from './index'
-
-export const roleOptions = {
-  VICTIM: 'Victim',
-  PERPETRATOR: 'Perpetrator',
-  NOT_RELEVANT: 'Not relevant',
-  UNKNOWN: 'Unknown',
-} as const
-export type Role = typeof roleOptions
-
-export const reasonOptions = {
-  BULLYING: 'Bullying',
-  GANG_RELATED: 'Gang related',
-  ORGANISED_CRIME: 'Organised crime',
-  LEGAL_REQUEST: 'Police or legal request',
-  THREAT: 'Threat',
-  VIOLENCE: 'Violence',
-  OTHER: 'Other',
-} as const
-export type Reason = typeof reasonOptions
-
-export const restrictionTypeOptions = {
-  CELL: 'Cell only',
-  LANDING: 'Cell and landing',
-  WING: 'Cell, landing and wing',
-}
-export type RestrictionType = typeof restrictionTypeOptions
-
-export const maxCommentLength = 240 as const
 
 export type AddData = {
   prisonerRole: keyof Role

@@ -1,12 +1,18 @@
 import type { SuperAgentRequest } from 'superagent'
 
 import { stubFor } from './wiremock'
-import type { LegacyNonAssociationsList } from '../../server/data/nonAssociationsApi'
+import type { NonAssociationsList } from '../../server/data/nonAssociationsApi'
 import {
-  sampleEmptyLegacyNonAssociation,
-  sampleSingleLegacyNonAssociation,
-  sampleMultipleLegacyNonAssociation,
+  davidJones0NonAssociations,
+  davidJones1OpenNonAssociation,
+  davidJones2OpenNonAssociations,
+  mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
+import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
+
+/**
+ * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
+ */
 
 export default {
   stubNonAssociationsApiPing: (): SuperAgentRequest => {
@@ -23,31 +29,73 @@ export default {
     })
   },
 
-  stubLegacyNonAssociations: ({
-    bookingId = 100001,
-    returning = 'multiple',
+  stubListNonAssociations: ({
+    prisonerNumber = davidJones.prisonerNumber,
+    returning = 'twoOpen',
   }: {
-    bookingId?: number
-    returning?: 'empty' | 'single' | 'multiple'
+    prisonerNumber?: string
+    returning?: 'none' | 'oneOpen' | 'twoOpen'
   } = {}): SuperAgentRequest => {
-    let nonAssociationsList: LegacyNonAssociationsList
-    if (returning === 'empty') {
-      nonAssociationsList = sampleEmptyLegacyNonAssociation
-    } else if (returning === 'single') {
-      nonAssociationsList = sampleSingleLegacyNonAssociation
+    let nonAssociationsList: NonAssociationsList
+    if (returning === 'none') {
+      nonAssociationsList = davidJones0NonAssociations
+    } else if (returning === 'oneOpen') {
+      nonAssociationsList = davidJones1OpenNonAssociation
     } else {
-      nonAssociationsList = sampleMultipleLegacyNonAssociation
+      nonAssociationsList = davidJones2OpenNonAssociations
     }
 
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: `/nonAssociationsApi/legacy/api/bookings/${bookingId}/non-association-details`,
+        urlPattern: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
       },
       response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         jsonBody: nonAssociationsList,
+      },
+    })
+  },
+
+  stubGetNonAssociation: () => {
+    return stubFor({
+      request: {
+        method: 'GET',
+        urlPattern: '/non-associations/\\d+',
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+      },
+    })
+  },
+
+  stubCreateNonAssociation: () => {
+    return stubFor({
+      request: {
+        method: 'POST',
+        urlPattern: '/non-associations',
+      },
+      response: {
+        status: 201,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+      },
+    })
+  },
+
+  stubUpdateNonAssociation: () => {
+    return stubFor({
+      request: {
+        method: 'PATCH',
+        urlPattern: '/non-associations/\\d+',
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
       },
     })
   },
