@@ -7,7 +7,6 @@
 
 {% block content %}
 
-
   <span class="govuk-caption-l">Non-associations</span>
   <h1 class="govuk-heading-l">
     {{ prisonerName | possessiveName}} non-associations
@@ -21,39 +20,47 @@
   </p>
 
   {% set tableRows = [] %}
-  {% for nonAssociation in nonAssociations %}
-
+  {% for nonAssociation in nonAssociationsList.nonAssociations %}
     {% set otherPrisonerPhoto %}
-      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerNumber) }}" alt="Photo of {{ nonAssocociation.otherPrisonerName }}" class="app-prisoner-photo" />
+      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPrisoner }}" class="app-prisoner-photo" />
     {% endset %}
 
     {% set otherPrisonerProfileLink %}
-      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerNumber }}">
+      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
         <span class="govuk-visually-hidden"> View prisoner profile for </span>
-        <strong>{{ nonAssociation.otherPrisonerName }}</strong>
+        {{ nonAssociation.otherPrisonerDetails | reversedNameOfPrisoner }}
         <br />
-        {{ nonAssociation.otherPrisonerNumber }}
+        {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
       </a>
     {% endset %}
 
     {% set reason %}
-      {{ nonAssociation.reason}}
+      {{ nonAssociation.reasonDescription }}
     {% endset %}
 
     {% set role %}
-      {{ nonAssociation.role}}
+      {{ nonAssociation.otherPrisonerDetails.roleDescription }}
     {% endset %}
 
-    {% set whereToKeepApart %}
-      {{ nonAssociation.whereToKeepApart}}
+    {% set restrictionType %}
+      {{ nonAssociation.restrictionTypeDescription }}
     {% endset %}
 
-    {% set comments %}
-      {{ nonAssociation.comments}}
+    {% set comment %}
+      {{ nonAssociation.comment }}
     {% endset %}
 
-    {% set dateAdded %}
-      {{ nonAssociation.dateAdded}}
+    {% set firstCreated %}
+      {{ nonAssociation.whenCreated | date }}
+      <br />
+      by
+      {{ nonAssociation.authorisedBy }}
+    {% endset %}
+
+    {% set lastUpdated %}
+      {{ nonAssociation.whenUpdated | date }}
+      <br />
+      by ???
     {% endset %}
 
     {% set tableRows = (tableRows.push([
@@ -61,33 +68,42 @@
       {html: otherPrisonerProfileLink},
       {html: reason},
       {html: role},
-      {html: whereToKeepApart},
-      {html: comments},
-      {html: dateAdded}
+      {html: restrictionType},
+      {html: comment},
+      {html: firstCreated}
     ]), tableRows) %}
   {% endfor %}
 
   {% set caption -%}
-    Non Associations for  {{ prisonerName }}
+    Non-associations for {{ prisonerName }}
   {%- endset %}
 
-  <div class="app-sortable-table-container">
-    {{ govukTable({
-      caption: caption,
-      captionClasses: "govuk-visually-hidden",
-      classes: "app-sortable-table",
-      head: [
-        {html: ''},
-        {html: 'Name'},
-        {html: 'Reason'},
-        {html: 'Role'},
-        {html: 'Where to be kept apart'},
-        {html: 'Comments'},
-        {html: 'Date added'}
-      ],
-      rows: tableRows
-    }) }}
-  </div>
+  {% if tableRows.length > 0 %}
 
+    <div class="app-sortable-table-container">
+      {{ govukTable({
+        caption: caption,
+        captionClasses: "govuk-visually-hidden",
+        classes: "app-sortable-table",
+        head: [
+          {text: ""},
+          {text: "Name"},
+          {text: "Reason"},
+          {text: "Role"},
+          {text: "Where to keep apart"},
+          {text: "Comments"},
+          {text: "Date added"}
+        ],
+        rows: tableRows
+      }) }}
+    </div>
+
+  {% else %}
+
+    <p>
+      This prisoner has no open non-associations in {{ prisonName }}.
+    </p>
+
+  {% endif %}
 
 {% endblock %}

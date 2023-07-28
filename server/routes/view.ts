@@ -1,8 +1,10 @@
 import { type RequestHandler, Router } from 'express'
 
+import logger from '../../logger'
 import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
+import { NonAssociationsApi, type NonAssociationsList } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
@@ -22,18 +24,14 @@ export default function viewRoutes(service: Services): Router {
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
 
-    const response = [
-      {
-        otherPrisonerName: 'Broadstairs, Liam',
-        otherPrisonerNumber: 'A8469DY',
-        reason: 'Bullying',
-        role: 'Perpetrator',
-        whereToKeepApart: 'Cell',
-        comments:
-          'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus.',
-        dateAdded: '24 May 2023 by Mary Smith',
-      },
-    ]
+    const api = new NonAssociationsApi(res.locals.user.token)
+    let nonAssociationsList: NonAssociationsList
+    try {
+      nonAssociationsList = await api.listNonAssociations(prisonerNumber)
+    } catch (e) {
+      logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`)
+      // TODO: show error msg
+    }
 
     res.locals.breadcrumbs.addItems({
       text: reversedNameOfPrisoner(prisoner),
@@ -42,7 +40,8 @@ export default function viewRoutes(service: Services): Router {
     res.render('pages/view.njk', {
       prisonerNumber,
       prisonerName: nameOfPrisoner(prisoner),
-      nonAssociations: response,
+      prisonName: prisoner.prisonName,
+      nonAssociationsList,
     })
   })
 
