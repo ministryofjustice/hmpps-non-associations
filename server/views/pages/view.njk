@@ -54,8 +54,7 @@
     {% set firstCreated %}
       {{ nonAssociation.whenCreated | date }}
       <br />
-      by
-      {{ nonAssociation.authorisedBy }}
+      by {{ nonAssociation.authorisedBy }}
     {% endset %}
 
     {% set lastUpdated %}
