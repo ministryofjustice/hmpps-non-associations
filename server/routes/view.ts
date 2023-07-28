@@ -10,6 +10,7 @@ import PrisonApi from '../data/prisonApi'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
+import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
@@ -27,12 +28,13 @@ export default function viewRoutes(service: Services): Router {
 
     const api = new NonAssociationsApi(res.locals.user.token)
     let nonAssociationsList: NonAssociationsList
+    const messages: FlashMessages = {}
     try {
       nonAssociationsList = await api.listNonAssociations(prisonerNumber)
       nonAssociationsList = await lookUpStaffNames(res, nonAssociationsList)
-    } catch (e) {
-      logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`)
-      // TODO: show error msg
+    } catch (error) {
+      logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
+      messages.warning = ['Non-associations could not be loaded, please try again']
     }
 
     res.locals.breadcrumbs.addItems({
@@ -40,6 +42,7 @@ export default function viewRoutes(service: Services): Router {
       href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}`,
     })
     res.render('pages/view.njk', {
+      messages,
       prisonerNumber,
       prisonerName: nameOfPerson(prisoner),
       prisonName: prisoner.prisonName,

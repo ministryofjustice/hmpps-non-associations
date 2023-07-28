@@ -204,4 +204,29 @@ describe('Non-associations list page', () => {
         expect(res.text).not.toContain('app-sortable-table')
       })
   })
+
+  it('should generic error page when api returns an error', () => {
+    const error: SanitisedError = {
+      name: 'Error',
+      status: 500,
+      message: 'Internal Server Error',
+      stack: 'Error: Internal Server Error',
+    }
+    nonAssociationsApi.listNonAssociations.mockRejectedValue(error)
+
+    return request(app)
+      .get(routeUrls.view(prisonerNumber))
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+
+        // message
+        expect(res.text).toContain('Non-associations could not be loaded')
+        expect(res.text).not.toContain('This prisoner has no closed non-associations')
+        expect(res.text).not.toContain('This prisoner has no closed non-associations')
+        // no table
+        expect(res.text).not.toContain('app-sortable-table')
+      })
+  })
 })
