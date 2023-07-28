@@ -1,0 +1,26 @@
+$button-shadow-size: $govuk-border-width-form-element;
+$app-button-blue-colour: govuk-colour("blue");
+$app-button-blue-text-colour: govuk-colour("white");
+$app-button-blue-hover-colour: govuk-shade($app-button-blue-colour, 20%);
+$app-button-blue-shadow-colour: govuk-shade($app-button-blue-colour, 60%);
+
+.app-button--blue {
+  background-color: $app-button-blue-colour;
+  box-shadow: 0 $button-shadow-size 0 $app-button-blue-shadow-colour;
+
+  &,
+  &:link,
+  &:visited,
+  &:active,
+  &:hover {
+    color: $app-button-blue-text-colour;
+  }
+
+  &:hover {
+    background-color: $app-button-blue-hover-colour;
+
+    &[disabled] {
+      background-color: $app-button-blue-colour;
+    }
+  }
+}
