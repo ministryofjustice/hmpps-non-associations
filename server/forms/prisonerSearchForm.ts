@@ -1,11 +1,11 @@
-import { sortOptions, orderOptions } from '../data/offenderSearch'
+import { sortOptions, orderOptions, type Sort, type Order } from '../data/offenderSearch'
 import { BaseForm } from './index'
 
 export type PrisonerSearchData = {
   q: string
   page: number
-  sort: (typeof sortOptions)[number]
-  order: (typeof orderOptions)[number]
+  sort: Sort
+  order: Order
 }
 
 export default class PrisonerSearchForm extends BaseForm<PrisonerSearchData> {
