@@ -1,5 +1,5 @@
-import express, { type Express } from 'express'
 import cookieSession from 'cookie-session'
+import express, { type Express } from 'express'
 import { NotFound } from 'http-errors'
 
 import nunjucksSetup from '../../utils/nunjucksSetup'

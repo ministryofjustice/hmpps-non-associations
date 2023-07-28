@@ -5,13 +5,21 @@ import logger from '../../logger'
 import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
-import { roleOptions, reasonOptions, restrictionTypeOptions, maxCommentLength } from '../data/nonAssociationsApi'
+import {
+  NonAssociationsApi,
+  roleOptions,
+  reasonOptions,
+  restrictionTypeOptions,
+  maxCommentLength,
+  type CreateNonAssociationRequest,
+} from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
+import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
@@ -53,25 +61,41 @@ export default function addRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
       )
 
+      const messages: FlashMessages = {}
+
       if (form.submitted && !form.hasErrors) {
-        const payload = {
-          prisonerRole: form.fields.prisonerRole.value,
-          otherPrisonerRole: form.fields.otherPrisonerRole.value,
+        const request: CreateNonAssociationRequest = {
+          firstPrisonerNumber: prisonerNumber,
+          secondPrisonerNumber: otherPrisonerNumber,
+          firstPrisonerRole: form.fields.prisonerRole.value,
+          secondPrisonerRole: form.fields.otherPrisonerRole.value,
           reason: form.fields.reason.value,
           restrictionType: form.fields.restrictionType.value,
           comment: form.fields.comment.value,
         }
-        // TODO: actually call non-associations api
-        logger.warn(JSON.stringify(payload))
+        const api = new NonAssociationsApi(res.locals.user.token)
+        try {
+          const response = await api.createNonAssociation(request)
+          logger.info(
+            `Non-association created by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
+          )
 
-        res.render('pages/addConfirmation.njk', {
-          prisonerNumber,
-          prisonerName,
-        })
-        return
+          res.render('pages/addConfirmation.njk', {
+            prisonerNumber,
+            prisonerName,
+          })
+          return
+        } catch (error) {
+          logger.error(
+            `Non-association could NOT be created by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
+            error,
+          )
+          messages.warning = ['Non-association could not be saved, please try again']
+        }
       }
 
       res.render('pages/add.njk', {
+        messages,
         prisonerNumber,
         prisonerName,
         otherPrisonerNumber,

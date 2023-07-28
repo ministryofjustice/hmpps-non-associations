@@ -1,3 +1,4 @@
+import flash from 'connect-flash'
 import { type RequestHandler, Router } from 'express'
 
 import asyncMiddleware from '../middleware/asyncMiddleware'
@@ -9,9 +10,17 @@ import closeRoutes from './close'
 import updateRoutes from './update'
 import viewRoutes from './view'
 
+export type FlashMessages = {
+  information?: string[]
+  success?: string[]
+  warning?: string[]
+}
+
 export default function routes(services: Services): Router {
   const router = Router({ mergeParams: true })
   const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
+
+  router.use(flash())
 
   const urlTemplates = services.routeUrls.templates
 
