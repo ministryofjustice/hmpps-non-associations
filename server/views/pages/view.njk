@@ -23,13 +23,13 @@
   {% set tableRows = [] %}
   {% for nonAssociation in nonAssociationsList.nonAssociations %}
     {% set otherPrisonerPhoto %}
-      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPrisoner }}" class="app-prisoner-photo" />
+      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }}" class="app-prisoner-photo" />
     {% endset %}
 
     {% set otherPrisonerProfileLink %}
       <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
         <span class="govuk-visually-hidden"> View prisoner profile for </span>
-        {{ nonAssociation.otherPrisonerDetails | reversedNameOfPrisoner }}
+        {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
         <br />
         {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
       </a>
