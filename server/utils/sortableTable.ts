@@ -1,15 +1,12 @@
 type AriaSort = 'ascending' | 'descending' | 'none'
 
-export type HeaderCell =
-  | {
-      html: string
-      attributes: {
-        'aria-sort': AriaSort
-        'data-ga-category'?: string
-        'data-ga-action'?: string
-      }
-    }
-  | { html: string }
+export type HeaderCell = {
+  html: string
+  classes?: string
+  attributes?: {
+    'aria-sort': AriaSort
+  }
+}
 
 /**
  * Produces parameters for head of GOV.UK Table component macro
@@ -21,14 +18,14 @@ export function sortableTableHead<Column = string>({
   sortColumn,
   order,
 }: {
-  columns: { column: Column; escapedHtml: string; unsortable?: true }[]
+  columns: { column: Column; escapedHtml: string; unsortable?: true; classes?: string }[]
   urlPrefix: string
   sortColumn: Column
   order: 'ASC' | 'DESC'
 }): HeaderCell[] {
-  return columns.map(({ column, escapedHtml, unsortable }) => {
+  return columns.map(({ column, escapedHtml, unsortable, classes }) => {
     if (unsortable) {
-      return { html: escapedHtml }
+      return { html: escapedHtml, classes }
     }
 
     let sortQuery: string
@@ -47,15 +44,16 @@ export function sortableTableHead<Column = string>({
       sortQuery = `sort=${column}&amp;order=${order}`
       sortDescription = ''
     }
-    const ariaSort =
-      column === sortColumn
-        ? {
-            ASC: 'ascending',
-            DESC: 'descending',
-          }[order]
-        : 'none'
+
+    const ariaSortMap = {
+      ASC: 'ascending',
+      DESC: 'descending',
+    } as const
+    const ariaSort: AriaSort = column === sortColumn ? ariaSortMap[order] : 'none'
+
     return {
       html: `<a href="${urlPrefix}&amp;${sortQuery}">${escapedHtml} ${sortDescription}</a>`,
+      classes,
       attributes: {
         'aria-sort': ariaSort,
       },

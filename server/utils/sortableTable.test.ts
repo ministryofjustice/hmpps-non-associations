@@ -165,4 +165,25 @@ describe('sortableTableHead', () => {
       ])
     })
   })
+
+  it('should allow adding classes', () => {
+    const sampleColumnsWithClasses: SortableTableColumns<'A' | 'B' | 'C' | 'D'> = [
+      { column: 'A', escapedHtml: 'A', classes: 'table-cell-a' },
+      { column: 'B', escapedHtml: 'B', classes: 'table-cell-b' },
+      { column: 'C', escapedHtml: 'C', classes: 'table-cell-c' },
+      { column: 'D', escapedHtml: 'D' },
+    ]
+    const tableHead = sortableTableHead<'A' | 'B' | 'C' | 'D'>({
+      columns: sampleColumnsWithClasses,
+      urlPrefix: '?',
+      sortColumn: 'D',
+      order: 'DESC',
+    })
+    expect(tableHead).toEqual<HeaderCell[]>([
+      { html: expect.stringContaining('A'), classes: 'table-cell-a', attributes: { 'aria-sort': 'none' } },
+      { html: expect.stringContaining('B'), classes: 'table-cell-b', attributes: { 'aria-sort': 'none' } },
+      { html: expect.stringContaining('C'), classes: 'table-cell-c', attributes: { 'aria-sort': 'none' } },
+      { html: expect.stringContaining('D'), attributes: { 'aria-sort': 'descending' } },
+    ])
+  })
 })
