@@ -12,7 +12,7 @@ describe('sortableTableHead', () => {
       expect(
         sortableTableHead<Column>({
           columns: sampleColumns,
-          urlPrefix: '?size=large',
+          urlPrefix: '?size=large&',
           sortColumn: 'month',
           order: 'ASC',
         }),
@@ -32,7 +32,7 @@ describe('sortableTableHead', () => {
       expect(
         sortableTableHead<Column>({
           columns: sampleColumns,
-          urlPrefix: '?size=large',
+          urlPrefix: '?size=large&',
           sortColumn: 'rate',
           order: 'DESC',
         }),
@@ -52,7 +52,7 @@ describe('sortableTableHead', () => {
       expect(
         sortableTableHead<string>({
           columns: sampleColumns,
-          urlPrefix: '?size=large',
+          urlPrefix: '?size=large&',
           sortColumn: 'unknown',
           order: 'DESC',
         }),
@@ -74,7 +74,7 @@ describe('sortableTableHead', () => {
       expect(
         sortableTableHead<Column>({
           columns: sampleColumns,
-          urlPrefix: '?size=large',
+          urlPrefix: '?size=large&',
           sortColumn: 'month',
           order: 'ASC',
         }),
@@ -90,7 +90,7 @@ describe('sortableTableHead', () => {
       expect(
         sortableTableHead<Column>({
           columns: sampleColumns,
-          urlPrefix: '?size=large',
+          urlPrefix: '?size=large&',
           sortColumn: 'rate',
           order: 'DESC',
         }),
@@ -106,7 +106,7 @@ describe('sortableTableHead', () => {
       expect(
         sortableTableHead<string>({
           columns: sampleColumns,
-          urlPrefix: '?size=large',
+          urlPrefix: '?size=large&',
           sortColumn: 'unknown',
           order: 'DESC',
         }),
@@ -128,7 +128,7 @@ describe('sortableTableHead', () => {
     it('when another column is sorted', () => {
       const tableHead = sortableTableHead<string>({
         columns: sampleColumnsWithUnsortable,
-        urlPrefix: '?size=large',
+        urlPrefix: '?size=large&',
         sortColumn: 'month',
         order: 'ASC',
       })
@@ -148,7 +148,7 @@ describe('sortableTableHead', () => {
     it('when the unsortable column is sorted', () => {
       const tableHead = sortableTableHead<string>({
         columns: sampleColumnsWithUnsortable,
-        urlPrefix: '?size=large',
+        urlPrefix: '?size=large&',
         sortColumn: 'icon',
         order: 'DESC',
       })
@@ -180,10 +180,22 @@ describe('sortableTableHead', () => {
       order: 'DESC',
     })
     expect(tableHead).toEqual<HeaderCell[]>([
-      { html: expect.stringContaining('A'), classes: 'table-cell-a', attributes: { 'aria-sort': 'none' } },
-      { html: expect.stringContaining('B'), classes: 'table-cell-b', attributes: { 'aria-sort': 'none' } },
-      { html: expect.stringContaining('C'), classes: 'table-cell-c', attributes: { 'aria-sort': 'none' } },
-      { html: expect.stringContaining('D'), attributes: { 'aria-sort': 'descending' } },
+      {
+        html: expect.stringContaining('"?sort=A&amp;order=DESC"'),
+        classes: 'table-cell-a',
+        attributes: { 'aria-sort': 'none' },
+      },
+      {
+        html: expect.stringContaining('"?sort=B&amp;order=DESC"'),
+        classes: 'table-cell-b',
+        attributes: { 'aria-sort': 'none' },
+      },
+      {
+        html: expect.stringContaining('"?sort=C&amp;order=DESC"'),
+        classes: 'table-cell-c',
+        attributes: { 'aria-sort': 'none' },
+      },
+      { html: expect.stringContaining('"?sort=D&amp;order=ASC"'), attributes: { 'aria-sort': 'descending' } },
     ])
   })
 })
