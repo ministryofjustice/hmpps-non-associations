@@ -1,10 +1,10 @@
-import { type RequestHandler, type Response, Router } from 'express'
+import { type RequestHandler, Router } from 'express'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
-import { NonAssociationsApi, type NonAssociationsList } from '../data/nonAssociationsApi'
+import { NonAssociationsApi, type NonAssociationsList, lookUpStaffNames } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import { createRedisClient } from '../data/redisClient'
@@ -67,9 +67,10 @@ export default function viewRoutes(service: Services): Router {
       })
 
       const api = new NonAssociationsApi(res.locals.user.token)
+      const prisonApi = new PrisonApi(res.locals.user.token)
       try {
         nonAssociationsList = await api.listNonAssociations(prisonerNumber, { sortBy, sortDirection })
-        nonAssociationsList = await lookUpStaffNames(res, nonAssociationsList)
+        nonAssociationsList = await lookUpStaffNames(prisonApi, nonAssociationsList)
       } catch (error) {
         logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
         messages.warning = ['Non-associations could not be loaded, please try again']
@@ -92,36 +93,4 @@ export default function viewRoutes(service: Services): Router {
   })
 
   return router
-}
-
-async function lookUpStaffNames(res: Response, nonAssociationsList: NonAssociationsList): Promise<NonAssociationsList> {
-  const prisonApi = new PrisonApi(res.locals.user.token)
-
-  const staffUsernames = Array.from(
-    new Set(nonAssociationsList.nonAssociations.map(nonAssociation => nonAssociation.authorisedBy)),
-  )
-  const staffUsers = [
-    // known system users should appear here:
-    // https://github.com/ministryofjustice/hmpps-non-associations-api/blob/04bf15fd1a7d659abe785749fbedda9f13627fba/src/main/kotlin/uk/gov/justice/digital/hmpps/hmppsnonassociationsapi/HmppsNonAssociationsApi.kt#L9
-    { username: 'NON_ASSOCIATIONS_API', firstName: 'System', lastName: '' },
-
-    ...(await Promise.all(staffUsernames.map(username => prisonApi.getStaffDetails(username)))).filter(user => user),
-  ]
-
-  return {
-    ...nonAssociationsList,
-    nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation => {
-      let { authorisedBy } = nonAssociation
-      if (nonAssociation.authorisedBy) {
-        const staffUser = staffUsers.find(user => nonAssociation.authorisedBy === user.username)
-        if (staffUser) {
-          authorisedBy = nameOfPerson(staffUser)
-        }
-      }
-      return {
-        ...nonAssociation,
-        authorisedBy,
-      }
-    }),
-  }
 }

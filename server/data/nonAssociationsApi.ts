@@ -1,5 +1,7 @@
 import config from '../config'
+import { nameOfPerson } from '../utils/utils'
 import RestClient from './restClient'
+import PrisonApi, { type StaffMember } from './prisonApi'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
@@ -207,4 +209,55 @@ export function parseDates<O extends { whenCreated: unknown; whenUpdated: unknow
     data.closedAt = new Date(data.closedAt as string)
   }
   return data
+}
+
+// known system users should appear here:
+const systemUsers: ReadonlyArray<StaffMember> = [
+  // https://github.com/ministryofjustice/hmpps-non-associations-api/blob/04bf15fd1a7d659abe785749fbedda9f13627fba/src/main/kotlin/uk/gov/justice/digital/hmpps/hmppsnonassociationsapi/HmppsNonAssociationsApi.kt#L9
+  { username: 'NON_ASSOCIATIONS_API', firstName: 'System', lastName: '' },
+]
+
+export async function lookUpStaffNames(
+  prisonApi: PrisonApi,
+  nonAssociationsList: NonAssociationsList,
+): Promise<NonAssociationsList> {
+  const staffUsernameSet = new Set<string>()
+  nonAssociationsList.nonAssociations.forEach(nonAssociation => {
+    staffUsernameSet.add(nonAssociation.authorisedBy)
+    if (nonAssociation.closedBy) {
+      staffUsernameSet.add(nonAssociation.closedBy)
+    }
+  })
+  const staffUsernames = Array.from(staffUsernameSet)
+  const staffUsers: StaffMember[] = [
+    ...systemUsers,
+    ...(await Promise.all(staffUsernames.map(username => prisonApi.getStaffDetails(username)))).filter(user => user),
+  ]
+  const findStaffUser = (username: string | null | undefined): StaffMember | undefined =>
+    username && staffUsers.find(user => user.username === username)
+
+  return {
+    ...nonAssociationsList,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore because typescript cannot tell that `closedBy` will be correct (i.e. null if other closed fields are null)
+    nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation => {
+      let { authorisedBy, closedBy } = nonAssociation
+
+      let staffUser = findStaffUser(authorisedBy)
+      if (staffUser) {
+        authorisedBy = nameOfPerson(staffUser)
+      }
+
+      staffUser = findStaffUser(closedBy)
+      if (staffUser) {
+        closedBy = nameOfPerson(staffUser)
+      }
+
+      return {
+        ...nonAssociation,
+        authorisedBy,
+        closedBy,
+      }
+    }),
+  }
 }

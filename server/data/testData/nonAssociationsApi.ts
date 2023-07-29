@@ -82,6 +82,19 @@ export const davidJones2OpenNonAssociations: NonAssociationsList = {
   ],
 }
 
+export const davidJones2ClosedNonAssociations: NonAssociationsList = {
+  ...davidJones2OpenNonAssociations,
+  nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
+    return {
+      ...nonAssociation,
+      isClosed: true,
+      closedBy: 'lev79n',
+      closedReason: 'Problem solved',
+      closedAt: new Date('2023-07-26T12:34:56'),
+    }
+  }),
+}
+
 export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
   const data: Omit<NonAssociation, 'isClosed' | 'closedBy' | 'closedReason' | 'closedAt'> = {
     id: 101,

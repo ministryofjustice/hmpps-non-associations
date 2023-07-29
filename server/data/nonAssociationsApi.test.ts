@@ -1,7 +1,15 @@
-import { parseDates } from './nonAssociationsApi'
+import { parseDates, lookUpStaffNames } from './nonAssociationsApi'
 import type { NonAssociation, NonAssociationsList } from './nonAssociationsApi'
-import { davidJones2OpenNonAssociations, mockNonAssociation } from './testData/nonAssociationsApi'
+import PrisonApi from './prisonApi'
+import {
+  davidJones1OpenNonAssociation,
+  davidJones2OpenNonAssociations,
+  davidJones2ClosedNonAssociations,
+  mockNonAssociation,
+} from './testData/nonAssociationsApi'
 import { davidJones, fredMills } from './testData/offenderSearch'
+
+jest.mock('./prisonApi')
 
 describe('Non-associations API REST client', () => {
   describe('date parsing', () => {
@@ -75,6 +83,81 @@ describe('Non-associations API REST client', () => {
         expect(parsedNonAssociationsListItem.whenUpdated).toEqual(new Date(2023, 6, 29, 14, 0, 12))
         expect(parsedNonAssociationsListItem.closedAt).toEqual(new Date(2023, 7, 30, 9, 30, 39))
       })
+    })
+  })
+
+  describe('staff member lookups', () => {
+    let prisonApi: jest.Mocked<PrisonApi>
+
+    beforeAll(() => {
+      prisonApi = PrisonApi.prototype as jest.Mocked<PrisonApi>
+    })
+
+    afterEach(() => {
+      prisonApi.getStaffDetails.mockReset()
+    })
+
+    it('should work for open non-associations', async () => {
+      prisonApi.getStaffDetails.mockResolvedValueOnce({
+        username: 'abc12a',
+        firstName: 'MARY',
+        lastName: 'JOHNSON',
+      })
+      prisonApi.getStaffDetails.mockResolvedValueOnce({
+        username: 'cde87s',
+        firstName: 'MARK',
+        lastName: 'SIMMONS',
+      })
+      const processedNonAssociations = await lookUpStaffNames(prisonApi, davidJones2OpenNonAssociations)
+      expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+      expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+      expect(processedNonAssociations.nonAssociations[0].closedBy).toBeNull()
+      expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+      expect(processedNonAssociations.nonAssociations[1].closedBy).toBeNull()
+    })
+
+    it('should work for closed non-associations', async () => {
+      prisonApi.getStaffDetails.mockResolvedValueOnce({
+        username: 'abc12a',
+        firstName: 'MARY',
+        lastName: 'JOHNSON',
+      })
+      prisonApi.getStaffDetails.mockResolvedValueOnce({
+        username: 'lev79n',
+        firstName: 'BARRY',
+        lastName: 'HARRISON',
+      })
+      prisonApi.getStaffDetails.mockResolvedValueOnce({
+        username: 'cde87s',
+        firstName: 'MARK',
+        lastName: 'SIMMONS',
+      })
+      const processedNonAssociations = await lookUpStaffNames(prisonApi, davidJones2ClosedNonAssociations)
+      expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
+      expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+      expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('Barry Harrison')
+      expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+      expect(processedNonAssociations.nonAssociations[1].closedBy).toEqual('Barry Harrison')
+    })
+
+    it('should work for system users', async () => {
+      const nonAssociationsList: NonAssociationsList = {
+        ...davidJones1OpenNonAssociation,
+        nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
+          return {
+            ...nonAssociation,
+            authorisedBy: 'NON_ASSOCIATIONS_API',
+            isClosed: true,
+            closedBy: 'NON_ASSOCIATIONS_API',
+            closedReason: 'PROBLEM SOLVED',
+            closedAt: new Date('2023-07-26T12:34:56'),
+          }
+        }),
+      }
+      const processedNonAssociations = await lookUpStaffNames(prisonApi, nonAssociationsList)
+      expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+      expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('System')
+      expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('System')
     })
   })
 })
