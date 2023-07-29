@@ -1,6 +1,6 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
-{% if formId and form and form.submitted and form.hasErrors %}
+{% if form and form.submitted and form.hasErrors %}
   {{ govukErrorSummary({
     titleText: "There is a problem",
     errorList: form.getErrorSummary(formId)

@@ -10,9 +10,33 @@ import PrisonApi from '../data/prisonApi'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
+import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
+import ViewForm from '../forms/view'
 import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
+
+const tableColumns: SortableTableColumns<
+  'photo' | 'LAST_NAME' | 'reason' | 'role' | 'restrictionType' | 'comment' | 'WHEN_CREATED'
+> = [
+  {
+    column: 'photo',
+    escapedHtml: '<span class="govuk-visually-hidden">Photo</span>',
+    classes: 'app-view__cell--photo',
+    unsortable: true,
+  },
+  { column: 'LAST_NAME', escapedHtml: 'Prisoner', classes: 'app-view__cell--prisoner' },
+  { column: 'reason', escapedHtml: 'Reason', classes: 'app-view__cell--reason', unsortable: true },
+  { column: 'role', escapedHtml: 'Role', classes: 'app-view__cell--role', unsortable: true },
+  {
+    column: 'restrictionType',
+    escapedHtml: 'Where to keep apart',
+    classes: 'app-view__cell--restriction-type',
+    unsortable: true,
+  },
+  { column: 'comment', escapedHtml: 'Comments', classes: 'app-view__cell--comment', unsortable: true },
+  { column: 'WHEN_CREATED', escapedHtml: 'Date added', classes: 'app-view__cell--date-added' },
+]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function viewRoutes(service: Services): Router {
@@ -26,15 +50,30 @@ export default function viewRoutes(service: Services): Router {
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
 
-    const api = new NonAssociationsApi(res.locals.user.token)
-    let nonAssociationsList: NonAssociationsList
     const messages: FlashMessages = {}
-    try {
-      nonAssociationsList = await api.listNonAssociations(prisonerNumber)
-      nonAssociationsList = await lookUpStaffNames(res, nonAssociationsList)
-    } catch (error) {
-      logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
-      messages.warning = ['Non-associations could not be loaded, please try again']
+    let tableHead: HeaderCell[]
+    let nonAssociationsList: NonAssociationsList
+
+    const form = new ViewForm()
+    form.submit(req.query)
+    if (!form.hasErrors) {
+      const sortBy = form.fields.sort.value
+      const sortDirection = form.fields.order.value
+      tableHead = sortableTableHead({
+        columns: tableColumns,
+        sortColumn: sortBy,
+        order: sortDirection,
+        urlPrefix: '?',
+      })
+
+      const api = new NonAssociationsApi(res.locals.user.token)
+      try {
+        nonAssociationsList = await api.listNonAssociations(prisonerNumber, { sortBy, sortDirection })
+        nonAssociationsList = await lookUpStaffNames(res, nonAssociationsList)
+      } catch (error) {
+        logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
+        messages.warning = ['Non-associations could not be loaded, please try again']
+      }
     }
 
     res.locals.breadcrumbs.addItems({
@@ -47,6 +86,8 @@ export default function viewRoutes(service: Services): Router {
       prisonerName: nameOfPerson(prisoner),
       prisonName: prisoner.prisonName,
       nonAssociationsList,
+      tableHead,
+      form,
     })
   })
 

@@ -8,6 +8,7 @@
 {% block content %}
 
   {% include "../partials/messages.njk" %}
+  {% include "../partials/formErrorSummary.njk" %}
 
   <span class="govuk-caption-l">Non-associations</span>
   <h1 class="govuk-heading-l">
@@ -67,7 +68,7 @@
       by ???
     {% endset %}
 
-    {% set tableRows = (tableRows.push([
+    {% set _ = tableRows.push([
       {html: otherPrisonerPhoto, classes: "app-view__cell--photo"},
       {html: otherPrisonerProfileLink, classes: "app-view__cell--prisoner"},
       {html: reason, classes: "app-view__cell--reason"},
@@ -75,7 +76,7 @@
       {html: restrictionType, classes: "app-view__cell--restriction-type"},
       {html: comment, classes: "app-view__cell--comment"},
       {html: firstCreated, classes: "app-view__cell--date-added"}
-    ]), tableRows) %}
+    ]) %}
   {% endfor %}
 
   {% set caption -%}
@@ -89,15 +90,7 @@
         caption: caption,
         captionClasses: "govuk-visually-hidden",
         classes: "app-sortable-table",
-        head: [
-          {text: "", classes: "app-view__cell--photo"},
-          {text: "Prisoner", classes: "app-view__cell--prisoner"},
-          {text: "Reason", classes: "app-view__cell--reason"},
-          {text: "Role", classes: "app-view__cell--role"},
-          {text: "Where to keep apart", classes: "app-view__cell--restriction-type"},
-          {text: "Comments", classes: "app-view__cell--comment"},
-          {text: "Date added", classes: "app-view__cell--date-added"}
-        ],
+        head: tableHead,
         rows: tableRows
       }) }}
     </div>

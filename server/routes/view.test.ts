@@ -4,7 +4,7 @@ import request from 'supertest'
 import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import { NonAssociationsApi, type SortBy, type SortDirection } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import {
@@ -13,6 +13,7 @@ import {
   davidJones2OpenNonAssociations,
 } from '../data/testData/nonAssociationsApi'
 import { davidJones } from '../data/testData/offenderSearch'
+import type { ViewData } from '../forms/view'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -122,7 +123,94 @@ describe('Non-associations list page', () => {
       })
   })
 
-  it('should display System instead of internal system username as the authoriser', () => {
+  it('should sort non-associations showing most recently created first by default', () => {
+    nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
+    prisonApi.getStaffDetails.mockResolvedValueOnce({
+      username: 'abc12a',
+      firstName: 'MARY',
+      lastName: 'JOHNSON',
+    })
+
+    return request(app)
+      .get(routeUrls.view(prisonerNumber))
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledWith('A1234BC', {
+          sortBy: 'WHEN_CREATED',
+          sortDirection: 'DESC',
+        })
+      })
+  })
+
+  const sortingScenarios: {
+    scenario: string
+    query: Partial<ViewData>
+    expected: {
+      sortBy: SortBy
+      sortDirection: SortDirection
+    }
+  }[] = [
+    {
+      scenario: 'oldest',
+      query: { sort: 'WHEN_CREATED', order: 'ASC' },
+      expected: {
+        sortBy: 'WHEN_CREATED',
+        sortDirection: 'ASC',
+      },
+    },
+    {
+      scenario: 'prisoner surname',
+      query: { sort: 'LAST_NAME' },
+      expected: {
+        sortBy: 'LAST_NAME',
+        sortDirection: 'DESC',
+      },
+    },
+    {
+      scenario: 'prisoner surname specifying direction',
+      query: { sort: 'LAST_NAME', order: 'ASC' },
+      expected: {
+        sortBy: 'LAST_NAME',
+        sortDirection: 'ASC',
+      },
+    },
+  ]
+  it.each(sortingScenarios)('should allow sorting non-associations by $scenario', ({ query, expected }) => {
+    nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
+    prisonApi.getStaffDetails.mockResolvedValueOnce({
+      username: 'abc12a',
+      firstName: 'MARY',
+      lastName: 'JOHNSON',
+    })
+
+    return request(app)
+      .get(routeUrls.view(prisonerNumber))
+      .query(query)
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledWith('A1234BC', expected)
+      })
+  })
+
+  it('should show an error mesage in the unlikely event of sort options being invalid', () => {
+    return request(app)
+      .get(routeUrls.view(prisonerNumber))
+      .query({ sort: 'age' })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(nonAssociationsApi.listNonAssociations).not.toHaveBeenCalled()
+
+        expect(res.text).toContain('There is a problem')
+        expect(res.text).not.toContain('app-sortable-table')
+      })
+  })
+
+  it('should display “System” instead of internal system username as the authoriser', () => {
     nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
       ...davidJones2OpenNonAssociations,
       nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map((nonAssociation, index) => {
@@ -205,7 +293,7 @@ describe('Non-associations list page', () => {
       })
   })
 
-  it('should generic error page when api returns an error', () => {
+  it('should show generic error page when api returns an error', () => {
     const error: SanitisedError = {
       name: 'Error',
       status: 500,
