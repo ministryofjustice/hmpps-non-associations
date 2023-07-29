@@ -136,18 +136,6 @@ export class NonAssociationsApi extends RestClient {
     super('HMPPS Non-associations API', config.apis.hmppsNonAssociationsApi, systemToken)
   }
 
-  private parseDates<O extends { whenCreated: unknown; whenUpdated: unknown; closedAt: unknown }>(data: O): O {
-    // eslint-disable-next-line no-param-reassign
-    data.whenCreated = new Date(data.whenCreated as string)
-    // eslint-disable-next-line no-param-reassign
-    data.whenUpdated = new Date(data.whenUpdated as string)
-    if (data.closedAt) {
-      // eslint-disable-next-line no-param-reassign
-      data.closedAt = new Date(data.closedAt as string)
-    }
-    return data
-  }
-
   /**
    * Retrieves a list of non-associations for given booking number
    */
@@ -174,7 +162,7 @@ export class NonAssociationsApi extends RestClient {
         sortDirection,
       },
     }).then(nonAssociationList => {
-      nonAssociationList.nonAssociations.forEach(nonAssociation => this.parseDates(nonAssociation))
+      nonAssociationList.nonAssociations.forEach(nonAssociation => parseDates(nonAssociation))
       return nonAssociationList
     })
   }
@@ -184,7 +172,7 @@ export class NonAssociationsApi extends RestClient {
    */
   getNonAssociation(id: number): Promise<NonAssociation> {
     return this.get<NonAssociation>({ path: `/non-associations/${encodeURIComponent(id)}` }).then(nonAssociation => {
-      return this.parseDates(nonAssociation)
+      return parseDates(nonAssociation)
     })
   }
 
@@ -195,7 +183,7 @@ export class NonAssociationsApi extends RestClient {
     return this.post<NonAssociation>({
       path: '/non-associations',
       data: request as unknown as Record<string, unknown>,
-    }).then(this.parseDates)
+    }).then(parseDates)
   }
 
   /**
@@ -205,6 +193,18 @@ export class NonAssociationsApi extends RestClient {
     return this.patch<NonAssociation>({
       path: `/non-associations/${encodeURIComponent(id)}`,
       data: request as unknown as Record<string, unknown>,
-    }).then(this.parseDates)
+    }).then(parseDates)
   }
+}
+
+export function parseDates<O extends { whenCreated: unknown; whenUpdated: unknown; closedAt: unknown }>(data: O): O {
+  // eslint-disable-next-line no-param-reassign
+  data.whenCreated = new Date(data.whenCreated as string)
+  // eslint-disable-next-line no-param-reassign
+  data.whenUpdated = new Date(data.whenUpdated as string)
+  if (data.closedAt) {
+    // eslint-disable-next-line no-param-reassign
+    data.closedAt = new Date(data.closedAt as string)
+  }
+  return data
 }
