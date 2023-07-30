@@ -1,4 +1,4 @@
-import { parseDates, lookUpStaffNames } from './nonAssociationsApi'
+import { parseDates, lookupStaffInNonAssociation, lookupStaffInNonAssociations } from './nonAssociationsApi'
 import type { NonAssociation, NonAssociationsList } from './nonAssociationsApi'
 import PrisonApi from './prisonApi'
 import {
@@ -21,7 +21,7 @@ describe('Non-associations API REST client', () => {
       }
 
       it('should work when they’re open', () => {
-        const nonAssociation: NonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
         const parsedNonAssociation = parseDates({
           ...nonAssociation,
           whenCreated: '2023-07-28T18:10:51',
@@ -34,7 +34,7 @@ describe('Non-associations API REST client', () => {
       })
 
       it('should work when they’re closed', () => {
-        const nonAssociation: NonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
         const parsedNonAssociation = parseDates({
           ...nonAssociation,
           whenCreated: '2023-07-28T18:10:51',
@@ -97,67 +97,116 @@ describe('Non-associations API REST client', () => {
       prisonApi.getStaffDetails.mockReset()
     })
 
-    it('should work for open non-associations', async () => {
-      prisonApi.getStaffDetails.mockResolvedValueOnce({
-        username: 'abc12a',
-        firstName: 'MARY',
-        lastName: 'JOHNSON',
+    describe('of non-associations', () => {
+      it('should work for open non-associations', async () => {
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'cde87s',
+          firstName: 'PETE',
+          lastName: 'SMITH',
+        })
+        const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
+        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+        expect(processedNonAssociation.authorisedBy).toEqual('Pete Smith')
+        expect(processedNonAssociation.closedBy).toBeNull()
       })
-      prisonApi.getStaffDetails.mockResolvedValueOnce({
-        username: 'cde87s',
-        firstName: 'MARK',
-        lastName: 'SIMMONS',
+
+      it('should work for closed non-associations', async () => {
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false)
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'cde87s',
+          firstName: 'MARK',
+          lastName: 'SIMMONS',
+        })
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'abc12a',
+          firstName: 'MARY',
+          lastName: 'JOHNSON',
+        })
+        const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
+        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+        expect(processedNonAssociation.authorisedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociation.closedBy).toEqual('Mary Johnson')
       })
-      const processedNonAssociations = await lookUpStaffNames(prisonApi, davidJones2OpenNonAssociations)
-      expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-      expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
-      expect(processedNonAssociations.nonAssociations[0].closedBy).toBeNull()
-      expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
-      expect(processedNonAssociations.nonAssociations[1].closedBy).toBeNull()
+
+      it('should work for system users', async () => {
+        const nonAssociation = {
+          ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false),
+          authorisedBy: 'NON_ASSOCIATIONS_API',
+          closedBy: 'NON_ASSOCIATIONS_API',
+        } as NonAssociation
+        prisonApi.getStaffDetails.mockResolvedValueOnce(null)
+        const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
+        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+        expect(processedNonAssociation.authorisedBy).toEqual('System')
+        expect(processedNonAssociation.closedBy).toEqual('System')
+      })
     })
 
-    it('should work for closed non-associations', async () => {
-      prisonApi.getStaffDetails.mockResolvedValueOnce({
-        username: 'abc12a',
-        firstName: 'MARY',
-        lastName: 'JOHNSON',
+    describe('of non-association lists', () => {
+      it('should work for open non-associations', async () => {
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'abc12a',
+          firstName: 'MARY',
+          lastName: 'JOHNSON',
+        })
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'cde87s',
+          firstName: 'MARK',
+          lastName: 'SIMMONS',
+        })
+        const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2OpenNonAssociations)
+        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        expect(processedNonAssociations.nonAssociations[0].closedBy).toBeNull()
+        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociations.nonAssociations[1].closedBy).toBeNull()
       })
-      prisonApi.getStaffDetails.mockResolvedValueOnce({
-        username: 'lev79n',
-        firstName: 'BARRY',
-        lastName: 'HARRISON',
-      })
-      prisonApi.getStaffDetails.mockResolvedValueOnce({
-        username: 'cde87s',
-        firstName: 'MARK',
-        lastName: 'SIMMONS',
-      })
-      const processedNonAssociations = await lookUpStaffNames(prisonApi, davidJones2ClosedNonAssociations)
-      expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
-      expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
-      expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('Barry Harrison')
-      expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
-      expect(processedNonAssociations.nonAssociations[1].closedBy).toEqual('Barry Harrison')
-    })
 
-    it('should work for system users', async () => {
-      const nonAssociationsList: NonAssociationsList = {
-        ...davidJones1OpenNonAssociation,
-        nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
-          return {
-            ...nonAssociation,
-            authorisedBy: 'NON_ASSOCIATIONS_API',
-            isClosed: true,
-            closedBy: 'NON_ASSOCIATIONS_API',
-            closedReason: 'PROBLEM SOLVED',
-            closedAt: new Date('2023-07-26T12:34:56'),
-          }
-        }),
-      }
-      const processedNonAssociations = await lookUpStaffNames(prisonApi, nonAssociationsList)
-      expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-      expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('System')
-      expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('System')
+      it('should work for closed non-associations', async () => {
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'abc12a',
+          firstName: 'MARY',
+          lastName: 'JOHNSON',
+        })
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'lev79n',
+          firstName: 'BARRY',
+          lastName: 'HARRISON',
+        })
+        prisonApi.getStaffDetails.mockResolvedValueOnce({
+          username: 'cde87s',
+          firstName: 'MARK',
+          lastName: 'SIMMONS',
+        })
+        const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2ClosedNonAssociations)
+        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('Barry Harrison')
+        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociations.nonAssociations[1].closedBy).toEqual('Barry Harrison')
+      })
+
+      it('should work for system users', async () => {
+        const nonAssociationsList: NonAssociationsList = {
+          ...davidJones1OpenNonAssociation,
+          nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
+            return {
+              ...nonAssociation,
+              authorisedBy: 'NON_ASSOCIATIONS_API',
+              isClosed: true,
+              closedBy: 'NON_ASSOCIATIONS_API',
+              closedReason: 'PROBLEM SOLVED',
+              closedAt: new Date('2023-07-26T12:34:56'),
+            }
+          }),
+        }
+        prisonApi.getStaffDetails.mockResolvedValueOnce(null)
+        const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
+        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('System')
+        expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('System')
+      })
     })
   })
 })

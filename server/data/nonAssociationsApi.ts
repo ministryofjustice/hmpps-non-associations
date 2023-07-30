@@ -217,7 +217,42 @@ const systemUsers: ReadonlyArray<StaffMember> = [
   { username: 'NON_ASSOCIATIONS_API', firstName: 'System', lastName: '' },
 ]
 
-export async function lookUpStaffNames(
+async function makeStaffLookup(
+  prisonApi: PrisonApi,
+  staffUsernameSet: Set<string>,
+): Promise<(username: string | null | undefined) => StaffMember | undefined> {
+  const staffUsernames = Array.from(staffUsernameSet)
+  const staffUsers: StaffMember[] = [
+    ...systemUsers,
+    ...(await Promise.all(staffUsernames.map(username => prisonApi.getStaffDetails(username)))).filter(user => user),
+  ]
+  return username => username && staffUsers.find(user => user.username === username)
+}
+
+function lookupStaff<O extends { authorisedBy: string; closedBy: string | null }>(
+  findStaffUser: (username: string | null | undefined) => StaffMember | undefined,
+  nonAssociation: O,
+): O {
+  let { authorisedBy, closedBy } = nonAssociation
+
+  let staffUser = findStaffUser(authorisedBy)
+  if (staffUser) {
+    authorisedBy = nameOfPerson(staffUser)
+  }
+
+  staffUser = findStaffUser(closedBy)
+  if (staffUser) {
+    closedBy = nameOfPerson(staffUser)
+  }
+
+  return {
+    ...nonAssociation,
+    authorisedBy,
+    closedBy,
+  }
+}
+
+export async function lookupStaffInNonAssociations(
   prisonApi: PrisonApi,
   nonAssociationsList: NonAssociationsList,
 ): Promise<NonAssociationsList> {
@@ -228,36 +263,23 @@ export async function lookUpStaffNames(
       staffUsernameSet.add(nonAssociation.closedBy)
     }
   })
-  const staffUsernames = Array.from(staffUsernameSet)
-  const staffUsers: StaffMember[] = [
-    ...systemUsers,
-    ...(await Promise.all(staffUsernames.map(username => prisonApi.getStaffDetails(username)))).filter(user => user),
-  ]
-  const findStaffUser = (username: string | null | undefined): StaffMember | undefined =>
-    username && staffUsers.find(user => user.username === username)
-
+  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
   return {
     ...nonAssociationsList,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore because typescript cannot tell that `closedBy` will be correct (i.e. null if other closed fields are null)
-    nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation => {
-      let { authorisedBy, closedBy } = nonAssociation
-
-      let staffUser = findStaffUser(authorisedBy)
-      if (staffUser) {
-        authorisedBy = nameOfPerson(staffUser)
-      }
-
-      staffUser = findStaffUser(closedBy)
-      if (staffUser) {
-        closedBy = nameOfPerson(staffUser)
-      }
-
-      return {
-        ...nonAssociation,
-        authorisedBy,
-        closedBy,
-      }
-    }),
+    nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation =>
+      lookupStaff(findStaffUser, nonAssociation),
+    ),
   }
+}
+
+export async function lookupStaffInNonAssociation(
+  prisonApi: PrisonApi,
+  nonAssociation: NonAssociation,
+): Promise<NonAssociation> {
+  const staffUsernameSet = new Set<string>([nonAssociation.authorisedBy])
+  if (nonAssociation.closedBy) {
+    staffUsernameSet.add(nonAssociation.closedBy)
+  }
+  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
+  return lookupStaff(findStaffUser, nonAssociation)
 }
