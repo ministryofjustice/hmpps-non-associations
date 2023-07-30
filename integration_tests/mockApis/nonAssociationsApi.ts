@@ -99,4 +99,18 @@ export default {
       },
     })
   },
+
+  stubCloseNonAssociation: () => {
+    return stubFor({
+      request: {
+        method: 'PUT',
+        urlPattern: '/non-associations/\\d+/close',
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false),
+      },
+    })
+  },
 }

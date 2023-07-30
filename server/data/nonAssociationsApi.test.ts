@@ -34,7 +34,7 @@ describe('Non-associations API REST client', () => {
       })
 
       it('should work when they’re closed', () => {
-        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false)
         const parsedNonAssociation = parseDates({
           ...nonAssociation,
           whenCreated: '2023-07-28T18:10:51',
