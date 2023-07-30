@@ -138,7 +138,7 @@ describe('Non-associations list page', () => {
       .expect(res => {
         expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
         expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledWith('A1234BC', {
-          sortBy: 'WHEN_CREATED',
+          sortBy: 'WHEN_UPDATED',
           sortDirection: 'DESC',
         })
       })

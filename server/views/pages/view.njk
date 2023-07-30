@@ -65,7 +65,7 @@
     {% set lastUpdated %}
       {{ nonAssociation.whenUpdated | date }}
       <br />
-      by ???
+      by {{ nonAssociation.updatedBy }}
     {% endset %}
 
     {% set _ = tableRows.push([
@@ -75,7 +75,7 @@
       {html: role, classes: "app-view__cell--role"},
       {html: restrictionType, classes: "app-view__cell--restriction-type"},
       {html: comment, classes: "app-view__cell--comment"},
-      {html: firstCreated, classes: "app-view__cell--date-added"}
+      {html: lastUpdated, classes: "app-view__cell--date-updated"}
     ]) %}
   {% endfor %}
 

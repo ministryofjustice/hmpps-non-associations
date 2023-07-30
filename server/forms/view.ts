@@ -8,7 +8,7 @@ export type ViewData = {
 
 export default class ViewForm extends BaseForm<ViewData> {
   protected validate(): void {
-    this.data.sort = this.data.sort ?? 'WHEN_CREATED'
+    this.data.sort = this.data.sort ?? 'WHEN_UPDATED'
     if (!sortByOptions.includes(this.data.sort)) {
       this.addError('sort', 'Invalid sort column')
       delete this.data.sort
