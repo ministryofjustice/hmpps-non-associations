@@ -15,7 +15,7 @@ const { prisonerNumber } = davidJones
 const prisoner = davidJones
 
 // mock non-association
-const nonAssociationId = 132
+const nonAssociationId = 101
 
 let app: Express
 let offenderSearchClient: jest.Mocked<OffenderSearchClient>
@@ -45,7 +45,7 @@ describe('Update non-association page', () => {
       .expect(404)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
       })
   })
 
@@ -58,7 +58,7 @@ describe('Update non-association page', () => {
       .expect('Content-Type', /html/)
       .expect(res => {
         expect(res.text).toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
       })
   })
 })

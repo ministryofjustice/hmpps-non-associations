@@ -49,7 +49,7 @@ describe('Search for a prisoner page', () => {
       .expect(404)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
       })
   })
 
@@ -76,7 +76,7 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // search not performed
-        expect(offenderSearchClient.search.mock.calls).toHaveLength(0)
+        expect(offenderSearchClient.search).toHaveBeenCalledTimes(0)
       })
   })
 
@@ -106,7 +106,7 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // correct search is performed
-        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
         const [prison, search, page, sort, order] = offenderSearchClient.search.mock.calls[0]
         expect(prison).toEqual('MDI')
         expect(search).toEqual('Smith')
@@ -136,7 +136,7 @@ describe('Search for a prisoner page', () => {
         // shows "nothing found" message
         expect(res.text).toContain('0 results found for “Smith”')
         // search performed
-        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
       })
   })
 
@@ -160,7 +160,7 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // search not performed
-        expect(offenderSearchClient.search.mock.calls).toHaveLength(0)
+        expect(offenderSearchClient.search).toHaveBeenCalledTimes(0)
       })
   })
 
@@ -186,7 +186,7 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // correct search is performed
-        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
         const [prison, search, page, sort, order] = offenderSearchClient.search.mock.calls[0]
         expect(prison).toEqual('MDI')
         expect(search).toEqual('Smith')
@@ -223,7 +223,7 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // search performed
-        expect(offenderSearchClient.search.mock.calls).toHaveLength(1)
+        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
       })
   })
 })
