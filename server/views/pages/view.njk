@@ -68,6 +68,10 @@
       by {{ nonAssociation.updatedBy }}
     {% endset %}
 
+    {% set actions %}
+      <a href="{{ routeUrls.close(prisonerNumber, nonAssociation.id) }}">Close</a>
+    {% endset %}
+
     {% set _ = tableRows.push([
       {html: otherPrisonerPhoto, classes: "app-view__cell--photo"},
       {html: otherPrisonerProfileLink, classes: "app-view__cell--prisoner"},
@@ -75,7 +79,8 @@
       {html: role, classes: "app-view__cell--role"},
       {html: restrictionType, classes: "app-view__cell--restriction-type"},
       {html: comment, classes: "app-view__cell--comment"},
-      {html: lastUpdated, classes: "app-view__cell--date-updated"}
+      {html: lastUpdated, classes: "app-view__cell--date-updated"},
+      {html: actions, classes: "app-view__cell--actions"}
     ]) %}
   {% endfor %}
 
