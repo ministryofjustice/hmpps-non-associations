@@ -131,4 +131,67 @@ describe('Close non-association page', () => {
         })
     })
   })
+
+  it('should render a form before anything was submitted', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
+
+    return request(app)
+      .get(routeUrls.close(prisonerNumber, openNonAssociation.id))
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+
+        expect(res.text).not.toContain('There is a problem')
+        expect(res.text).toContain('Jones, David – A1234BC')
+        expect(res.text).toContain('Explain why this non-association is no longer required')
+      })
+  })
+
+  it('should show error messages if form has errors', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
+
+    return request(app)
+      .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
+      .send({
+        formId: 'close',
+        closureReason: '',
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+
+        expect(res.text).toContain('There is a problem')
+        expect(res.text).toContain('Jones, David – A1234BC')
+        expect(res.text).toContain('Enter a comment')
+      })
+  })
+
+  it('should show confirmation page if form had no errors', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
+
+    return request(app)
+      .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
+      .send({
+        formId: 'close',
+        closureReason: 'Problem resolved through mediation',
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+
+        expect(res.text).toContain('The non-association has been closed')
+        expect(res.text).not.toContain('There is a problem')
+        expect(res.text).not.toContain('Jones, David – A1234BC')
+        expect(res.text).not.toContain('Enter a comment')
+      })
+  })
 })
