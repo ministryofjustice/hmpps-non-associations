@@ -9,8 +9,18 @@
       <span class="govuk-caption-l">Non-associations</span>
       <h1 class="govuk-heading-l">Close a non-association</h1>
 
-      {# TODO: remove #}
-      <!-- {{ nonAssociation.id }} -->
+      <h2 class="govuk-heading-m">Prisoners involved</h2>
+      <p>
+        {% if keyPrisonerIsFirst %}
+          {{ firstPrisoner | reversedNameOfPerson }} – {{ firstPrisoner.prisonerNumber }}
+          <br />
+          {{ secondPrisoner | reversedNameOfPerson }} – {{ secondPrisoner.prisonerNumber }}
+        {% else %}
+          {{ secondPrisoner | reversedNameOfPerson }} – {{ secondPrisoner.prisonerNumber }}
+          <br />
+          {{ firstPrisoner | reversedNameOfPerson }} – {{ firstPrisoner.prisonerNumber }}
+        {% endif %}
+      </p>
 
     </div>
   </div>

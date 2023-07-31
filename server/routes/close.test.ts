@@ -71,6 +71,7 @@ describe('Close non-association page', () => {
   it('should render breadcrumbs', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
 
     return request(app)
       .get(routeUrls.close(prisonerNumber, openNonAssociation.id))
@@ -78,7 +79,56 @@ describe('Close non-association page', () => {
       .expect('Content-Type', /html/)
       .expect(res => {
         expect(res.text).toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       })
+  })
+
+  describe('should show prisoner name and number', () => {
+    beforeEach(() => {
+      nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
+      offenderSearchClient.getPrisoner.mockImplementation(somePrisonerNumber => {
+        if (somePrisonerNumber === davidJones.prisonerNumber) {
+          return Promise.resolve(davidJones)
+        }
+        if (somePrisonerNumber === fredMills.prisonerNumber) {
+          return Promise.resolve(fredMills)
+        }
+        return Promise.reject(Error('test implementation error'))
+      })
+    })
+
+    it('when key prisoner is the first one in the non-association', () => {
+      return request(app)
+        .get(routeUrls.close(davidJones.prisonerNumber, openNonAssociation.id))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+
+          expect(res.text).toContain('Jones, David')
+          expect(res.text).toContain('Mills, Fred')
+          const startPosition = res.text.indexOf('Prisoners involved')
+          const davidJonesPosition = res.text.indexOf('Jones, David', startPosition)
+          const fredMillsPosition = res.text.indexOf('Mills, Fred', startPosition)
+          expect(davidJonesPosition).toBeLessThan(fredMillsPosition)
+        })
+    })
+
+    it('when key prisoner is the second one in the non-association', () => {
+      return request(app)
+        .get(routeUrls.close(fredMills.prisonerNumber, openNonAssociation.id))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+
+          expect(res.text).toContain('Mills, Fred')
+          expect(res.text).toContain('Jones, David')
+          const startPosition = res.text.indexOf('Prisoners involved')
+          const fredMillsPosition = res.text.indexOf('Mills, Fred', startPosition)
+          const davidJonesPosition = res.text.indexOf('Jones, David', startPosition)
+          expect(fredMillsPosition).toBeLessThan(davidJonesPosition)
+        })
+    })
   })
 })

@@ -4,7 +4,7 @@ import { NotFound } from 'http-errors'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
@@ -31,7 +31,14 @@ export default function addRoutes(service: Services): Router {
 
     const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
-    const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+    const firstPrisoner = await offenderSearchClient.getPrisoner(nonAssociation.firstPrisonerNumber)
+    const secondPrisoner = await offenderSearchClient.getPrisoner(nonAssociation.secondPrisonerNumber)
+    let prisoner: OffenderSearchResult
+    if (keyPrisonerIsFirst) {
+      prisoner = firstPrisoner
+    } else if (keyPrisonerIsSecond) {
+      prisoner = secondPrisoner
+    }
 
     res.locals.breadcrumbs.addItems(
       { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
@@ -41,6 +48,10 @@ export default function addRoutes(service: Services): Router {
       prisonerNumber,
       prisonerName: nameOfPerson(prisoner),
       nonAssociation,
+      keyPrisonerIsFirst,
+      keyPrisonerIsSecond,
+      firstPrisoner,
+      secondPrisoner,
     })
   })
 
