@@ -19,6 +19,7 @@ const prisoner = davidJones
 
 // mock non-association
 const openNonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
+const closedNonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false)
 
 let app: Express
 let nonAssociationsApi: jest.Mocked<NonAssociationsApi>
@@ -143,6 +144,7 @@ describe('Close non-association page', () => {
       .expect('Content-Type', /html/)
       .expect(res => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
 
         expect(res.text).not.toContain('There is a problem')
         expect(res.text).toContain('Jones, David – A1234BC')
@@ -165,6 +167,7 @@ describe('Close non-association page', () => {
       .expect('Content-Type', /html/)
       .expect(res => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
 
         expect(res.text).toContain('There is a problem')
         expect(res.text).toContain('Jones, David – A1234BC')
@@ -176,6 +179,7 @@ describe('Close non-association page', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
+    nonAssociationsApi.closeNonAssociation.mockResolvedValueOnce(closedNonAssociation)
 
     return request(app)
       .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
@@ -187,6 +191,10 @@ describe('Close non-association page', () => {
       .expect('Content-Type', /html/)
       .expect(res => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.closeNonAssociation).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.closeNonAssociation).toHaveBeenCalledWith(openNonAssociation.id, {
+          closureReason: 'Problem resolved through mediation',
+        })
 
         expect(res.text).toContain('The non-association has been closed')
         expect(res.text).not.toContain('There is a problem')

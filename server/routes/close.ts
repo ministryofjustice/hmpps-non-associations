@@ -60,14 +60,21 @@ export default function addRoutes(service: Services): Router {
         const request: CloseNonAssociationRequest = {
           closureReason: form.fields.closureReason.value,
         }
-        // TODO: actually call non-associations api
-        logger.warn(JSON.stringify(request))
+        try {
+          const response = await api.closeNonAssociation(nonAssociationId, request)
+          logger.info(`Non-association [${response.id}] closed by ${res.locals.user.username}`)
 
-        res.render('pages/closeConfirmation.njk', {
-          prisonerNumber,
-          prisonerName,
-        })
-        return
+          res.render('pages/closeConfirmation.njk', {
+            prisonerNumber,
+            prisonerName,
+          })
+          return
+        } catch (error) {
+          logger.error(
+            `Non-association [${nonAssociationId}] could NOT be closed by ${res.locals.user.username}!`,
+            error,
+          )
+        }
       }
       res.render('pages/close.njk', {
         prisonerNumber,
