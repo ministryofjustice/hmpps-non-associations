@@ -92,6 +92,7 @@ describe('AddForm', () => {
       expect(form.hasErrors).toBeFalsy()
       expect(form.fields.comment.value).toEqual(comment)
     })
+
     it('by allowing 240 characters if the rest is whitespace', () => {
       const comment = '0'.repeat(240)
       const form = new AddForm()
@@ -99,6 +100,7 @@ describe('AddForm', () => {
       expect(form.hasErrors).toBeFalsy()
       expect(form.fields.comment.value).toEqual(comment)
     })
+
     it('by disallowing more than 240 characters', () => {
       const comment = '0'.repeat(241)
       const form = new AddForm()
