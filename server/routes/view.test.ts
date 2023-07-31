@@ -218,6 +218,7 @@ describe('Non-associations list page', () => {
         return {
           ...nonAssociation,
           authorisedBy,
+          updatedBy: authorisedBy,
         }
       }),
     })
@@ -251,6 +252,7 @@ describe('Non-associations list page', () => {
         return {
           ...nonAssociation,
           authorisedBy: 'abc12a',
+          updatedBy: 'abc12a',
         }
       }),
     })

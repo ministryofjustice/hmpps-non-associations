@@ -35,6 +35,7 @@ export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociati
       restrictionTypeDescription: 'Cell and landing',
       comment: 'See IR 12133111',
       authorisedBy: 'abc12a',
+      updatedBy: 'abc12a',
       whenCreated: new Date('2023-07-26T12:34:56'),
       whenUpdated: new Date('2023-07-26T12:34:56'),
       isClosed: false,
@@ -69,6 +70,7 @@ export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociat
       restrictionTypeDescription: 'Cell only',
       comment: 'Pending court case',
       authorisedBy: 'cde87s',
+      updatedBy: 'cde87s',
       whenCreated: new Date('2023-07-21T08:14:21'),
       whenUpdated: new Date('2023-07-21T08:14:21'),
       isClosed: false,
@@ -119,6 +121,7 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     restrictionType: 'CELL',
     comment: 'See IR 12133100',
     authorisedBy: 'cde87s',
+    updatedBy: 'cde87s',
     whenCreated: new Date('2023-07-21T08:14:21'),
     whenUpdated: new Date('2023-07-21T08:14:21'),
   }

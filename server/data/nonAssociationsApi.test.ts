@@ -108,6 +108,7 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         expect(processedNonAssociation.authorisedBy).toEqual('Pete Smith')
+        expect(processedNonAssociation.updatedBy).toEqual('Pete Smith')
         expect(processedNonAssociation.closedBy).toBeNull()
       })
 
@@ -126,6 +127,7 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
         expect(processedNonAssociation.authorisedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociation.closedBy).toEqual('Mary Johnson')
       })
 
@@ -133,12 +135,14 @@ describe('Non-associations API REST client', () => {
         const nonAssociation = {
           ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false),
           authorisedBy: 'NON_ASSOCIATIONS_API',
+          updatedBy: 'NON_ASSOCIATIONS_API',
           closedBy: 'NON_ASSOCIATIONS_API',
         } as NonAssociation
         prisonApi.getStaffDetails.mockResolvedValueOnce(null)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         expect(processedNonAssociation.authorisedBy).toEqual('System')
+        expect(processedNonAssociation.updatedBy).toEqual('System')
         expect(processedNonAssociation.closedBy).toEqual('System')
       })
     })
@@ -158,8 +162,10 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2OpenNonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
         expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toBeNull()
         expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociations.nonAssociations[1].updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociations.nonAssociations[1].closedBy).toBeNull()
       })
 
@@ -182,8 +188,10 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2ClosedNonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
         expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('Barry Harrison')
         expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociations.nonAssociations[1].updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociations.nonAssociations[1].closedBy).toEqual('Barry Harrison')
       })
 
@@ -194,6 +202,7 @@ describe('Non-associations API REST client', () => {
             return {
               ...nonAssociation,
               authorisedBy: 'NON_ASSOCIATIONS_API',
+              updatedBy: 'NON_ASSOCIATIONS_API',
               isClosed: true,
               closedBy: 'NON_ASSOCIATIONS_API',
               closedReason: 'PROBLEM SOLVED',
@@ -205,6 +214,7 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('System')
+        expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('System')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('System')
       })
     })

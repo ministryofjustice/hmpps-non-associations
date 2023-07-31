@@ -45,6 +45,7 @@ interface BaseNonAssociationsListItem {
   restrictionTypeDescription: RestrictionType[keyof RestrictionType]
   comment: string
   authorisedBy: string
+  updatedBy: string
   whenCreated: Date
   whenUpdated: Date
   otherPrisonerDetails: {
@@ -95,6 +96,7 @@ interface BaseNonAssociation {
   restrictionType: keyof RestrictionType
   comment: string
   authorisedBy: string
+  updatedBy: string
   whenCreated: Date
   whenUpdated: Date
 }
@@ -278,16 +280,21 @@ async function makeStaffLookup(
 /**
  * Private method to hydrate `BaseNonAssociationsListItem` and `NonAssociation` with staff names
  */
-function lookupStaff<O extends { authorisedBy: string; closedBy: string | null }>(
+function lookupStaff<O extends { authorisedBy: string; updatedBy: string; closedBy: string | null }>(
   /** Made by `makeStaffLookup` */
   findStaffUser: (username: string | null | undefined) => StaffMember | undefined,
   nonAssociation: O,
 ): O {
-  let { authorisedBy, closedBy } = nonAssociation
+  let { authorisedBy, updatedBy, closedBy } = nonAssociation
 
   let staffUser = findStaffUser(authorisedBy)
   if (staffUser) {
     authorisedBy = nameOfPerson(staffUser)
+  }
+
+  staffUser = findStaffUser(updatedBy)
+  if (staffUser) {
+    updatedBy = nameOfPerson(staffUser)
   }
 
   staffUser = findStaffUser(closedBy)
@@ -298,6 +305,7 @@ function lookupStaff<O extends { authorisedBy: string; closedBy: string | null }
   return {
     ...nonAssociation,
     authorisedBy,
+    updatedBy,
     closedBy,
   }
 }
@@ -312,6 +320,7 @@ export async function lookupStaffInNonAssociations<List extends NonAssociationsL
   const staffUsernameSet = new Set<string>()
   nonAssociationsList.nonAssociations.forEach(nonAssociation => {
     staffUsernameSet.add(nonAssociation.authorisedBy)
+    staffUsernameSet.add(nonAssociation.updatedBy)
     if (nonAssociation.closedBy) {
       staffUsernameSet.add(nonAssociation.closedBy)
     }
@@ -332,7 +341,7 @@ export async function lookupStaffInNonAssociation<N extends NonAssociation>(
   prisonApi: PrisonApi,
   nonAssociation: N,
 ): Promise<N> {
-  const staffUsernameSet = new Set<string>([nonAssociation.authorisedBy])
+  const staffUsernameSet = new Set<string>([nonAssociation.authorisedBy, nonAssociation.updatedBy])
   if (nonAssociation.closedBy) {
     staffUsernameSet.add(nonAssociation.closedBy)
   }
