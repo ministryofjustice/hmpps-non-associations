@@ -202,4 +202,37 @@ describe('Close non-association page', () => {
         expect(res.text).not.toContain('Enter a comment')
       })
   })
+
+  it('should generic error page when api returns an error', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
+    const error: SanitisedError = {
+      name: 'Error',
+      status: 400,
+      message: 'Bad Request',
+      stack: 'Error: Bad Request',
+    }
+    nonAssociationsApi.closeNonAssociation.mockRejectedValueOnce(error)
+
+    return request(app)
+      .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
+      .send({
+        formId: 'close',
+        closureReason: 'Problem resolved through mediation',
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.closeNonAssociation).toHaveBeenCalledTimes(1)
+
+        expect(res.text).toContain('Non-association could not be closed') // error message
+        expect(res.text).not.toContain('The non-association has been closed')
+        expect(res.text).not.toContain('There is a problem')
+        expect(res.text).not.toContain('Enter a comment')
+        expect(res.text).toContain('Jones, David – A1234BC')
+        expect(res.text).toContain('Problem resolved through mediation') // form still pre-filled
+      })
+  })
 })

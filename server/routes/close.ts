@@ -12,6 +12,7 @@ import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import CloseForm from '../forms/close'
+import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
@@ -55,6 +56,8 @@ export default function addRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
       )
 
+      const messages: FlashMessages = {}
+
       const form: CloseForm = res.locals.forms[formId]
       if (form.submitted && !form.hasErrors) {
         const request: CloseNonAssociationRequest = {
@@ -74,9 +77,11 @@ export default function addRoutes(service: Services): Router {
             `Non-association [${nonAssociationId}] could NOT be closed by ${res.locals.user.username}!`,
             error,
           )
+          messages.warning = ['Non-association could not be closed, please try again']
         }
       }
       res.render('pages/close.njk', {
+        messages,
         prisonerNumber,
         prisonerName,
         nonAssociation,
