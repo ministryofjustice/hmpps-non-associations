@@ -1,4 +1,5 @@
 import { type RequestHandler, Router } from 'express'
+import type { PathParams } from 'express-serve-static-core'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
@@ -12,7 +13,7 @@ const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
 export default function addRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })
-  const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
+  const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get('/', async (req, res) => {
     const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params

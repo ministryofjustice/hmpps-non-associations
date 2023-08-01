@@ -158,6 +158,18 @@ export class NonAssociationsApi extends RestClient {
   listNonAssociations(
     prisonerNumber: string,
     options: {
+      includeOpen?: true
+      includeClosed?: false
+      includeOtherPrisons?: boolean
+      sortBy?: SortBy
+      sortDirection?: SortDirection
+    },
+  ): Promise<NonAssociationsList<OpenNonAssociationsListItem>>
+
+  listNonAssociations(
+    prisonerNumber: string,
+    options: {
+      includeOpen: false
       includeClosed: true
       includeOtherPrisons?: boolean
       sortBy?: SortBy
@@ -168,21 +180,35 @@ export class NonAssociationsApi extends RestClient {
   listNonAssociations(
     prisonerNumber: string,
     options: {
+      includeOpen: false
       includeClosed?: false
       includeOtherPrisons?: boolean
       sortBy?: SortBy
       sortDirection?: SortDirection
     },
-  ): Promise<NonAssociationsList<OpenNonAssociationsListItem>>
+  ): Promise<never>
+
+  listNonAssociations(
+    prisonerNumber: string,
+    options: {
+      includeOpen?: true | boolean
+      includeClosed: true | boolean
+      includeOtherPrisons?: boolean
+      sortBy?: SortBy
+      sortDirection?: SortDirection
+    },
+  ): Promise<NonAssociationsList>
 
   listNonAssociations(
     prisonerNumber: string,
     {
+      includeOpen = true,
       includeClosed = false,
       includeOtherPrisons = false,
       sortBy = 'WHEN_CREATED',
       sortDirection = 'DESC',
     }: {
+      includeOpen?: boolean
       includeClosed?: boolean
       includeOtherPrisons?: boolean
       sortBy?: SortBy
@@ -192,6 +218,7 @@ export class NonAssociationsApi extends RestClient {
     return this.get<NonAssociationsList>({
       path: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
       query: {
+        includeOpen: includeOpen.toString(),
         includeClosed: includeClosed.toString(),
         includeOtherPrisons: includeOtherPrisons.toString(),
         sortBy,

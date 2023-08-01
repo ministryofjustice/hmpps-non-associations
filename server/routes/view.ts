@@ -1,4 +1,5 @@
 import { type RequestHandler, Router } from 'express'
+import type { PathParams } from 'express-serve-static-core'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
@@ -25,7 +26,7 @@ const tableColumns: SortableTableColumns<
     classes: 'app-view__cell--photo',
     unsortable: true,
   },
-  { column: 'LAST_NAME', escapedHtml: 'Prisoner', classes: 'app-view__cell--prisoner' },
+  { column: 'LAST_NAME', escapedHtml: 'Prisoner details', classes: 'app-view__cell--prisoner' },
   { column: 'reason', escapedHtml: 'Reason', classes: 'app-view__cell--reason', unsortable: true },
   { column: 'role', escapedHtml: 'Role', classes: 'app-view__cell--role', unsortable: true },
   {
@@ -42,9 +43,10 @@ const tableColumns: SortableTableColumns<
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function viewRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })
-  const get = (path: string | string[], handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
+  const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
-  get('/', async (req, res) => {
+  get(['/', '/closed'], async (req, res) => {
+    const listing: 'open' | 'closed' = req.path.includes('/closed') ? 'closed' : 'open'
     const { prisonerNumber } = req.params
 
     const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
@@ -61,7 +63,7 @@ export default function viewRoutes(service: Services): Router {
       const sortBy = form.fields.sort.value
       const sortDirection = form.fields.order.value
       tableHead = sortableTableHead({
-        columns: tableColumns,
+        columns: listing === 'closed' ? tableColumns.slice(0, -1) : tableColumns,
         sortColumn: sortBy,
         order: sortDirection,
         urlPrefix: '?',
@@ -70,7 +72,12 @@ export default function viewRoutes(service: Services): Router {
       const api = new NonAssociationsApi(res.locals.user.token)
       const prisonApi = new PrisonApi(res.locals.user.token)
       try {
-        nonAssociationsList = await api.listNonAssociations(prisonerNumber, { sortBy, sortDirection })
+        nonAssociationsList = await api.listNonAssociations(prisonerNumber, {
+          includeOpen: listing === 'open',
+          includeClosed: listing === 'closed',
+          sortBy,
+          sortDirection,
+        })
         nonAssociationsList = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
       } catch (error) {
         logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
@@ -84,6 +91,7 @@ export default function viewRoutes(service: Services): Router {
     })
     res.render('pages/view.njk', {
       messages,
+      listing,
       prisonerNumber,
       prisonerName: nameOfPerson(prisoner),
       prisonName: prisoner.prisonName,

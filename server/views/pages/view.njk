@@ -23,6 +23,21 @@
     }) }}
   </p>
 
+  <nav>
+    <ul class="govuk-tabs__list">
+      <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
+        <a class="govuk-tabs__tab" href="{{ routeUrls.view(prisonerNumber) }}">
+          Open
+        </a>
+      </li>
+      <li class="govuk-tabs__list-item {% if listing === "closed" %}govuk-tabs__list-item--selected{% endif %}">
+        <a class="govuk-tabs__tab" href="{{ routeUrls.view(prisonerNumber, true) }}">
+          Closed
+        </a>
+      </li>
+    </ul>
+  </nav>
+
   {% set tableRows = [] %}
   {% for nonAssociation in nonAssociationsList.nonAssociations %}
     {% set otherPrisonerPhoto %}
@@ -53,7 +68,7 @@
     {% endset %}
 
     {% set comment %}
-      {{ nonAssociation.comment }}
+      {{ nonAssociation.closedReason if listing == "closed" else nonAssociation.comment }}
     {% endset %}
 
     {% set firstCreated %}
@@ -72,16 +87,22 @@
       <a href="{{ routeUrls.close(prisonerNumber, nonAssociation.id) }}">Close</a>
     {% endset %}
 
-    {% set _ = tableRows.push([
+    {% set tableRow = [
       {html: otherPrisonerPhoto, classes: "app-view__cell--photo"},
       {html: otherPrisonerProfileLink, classes: "app-view__cell--prisoner"},
       {html: reason, classes: "app-view__cell--reason"},
       {html: role, classes: "app-view__cell--role"},
       {html: restrictionType, classes: "app-view__cell--restriction-type"},
-      {html: comment, classes: "app-view__cell--comment"},
-      {html: lastUpdated, classes: "app-view__cell--date-updated"},
-      {html: actions, classes: "app-view__cell--actions"}
-    ]) %}
+      {html: comment, classes: "app-view__cell--comment" if listing == "open" else "app-view__cell--comment--wide"},
+      {html: lastUpdated, classes: "app-view__cell--date-updated"}
+    ] %}
+    {% if listing === "open" %}
+      {% set _ = tableRow.push(
+        {html: actions, classes: "app-view__cell--actions"}
+      ) %}
+    {% endif %}
+
+    {% set _ = tableRows.push(tableRow) %}
   {% endfor %}
 
   {% set caption -%}
@@ -100,10 +121,14 @@
       }) }}
     </div>
 
-  {% else %}
+  {% elif nonAssociationsList %}
 
-    <p>
-      This prisoner has no open non-associations in {{ prisonName }}.
+    <p class="govuk-!-margin-top-6">
+      {% if listing == "closed" %}
+        This prisoner has no closed non-associations in {{ prisonName }}.
+      {% else %}
+        This prisoner has no open non-associations in {{ prisonName }}.
+      {% endif %}
     </p>
 
   {% endif %}

@@ -3,6 +3,7 @@ export default {
     home: '/',
     prisonerPhoto: '/prisoner/:prisonerNumber/photo.jpeg',
     view: '/prisoner/:prisonerNumber/non-associations',
+    viewClosed: '/prisoner/:prisonerNumber/non-associations/closed',
     prisonerSearch: '/prisoner/:prisonerNumber/non-associations/add/search-prisoner',
     add: '/prisoner/:prisonerNumber/non-associations/add/with-prisoner/:otherPrisonerNumber',
     close: '/prisoner/:prisonerNumber/non-associations/close/:nonAssociationId',
@@ -17,7 +18,10 @@ export default {
     return this.templates.prisonerPhoto.replace(':prisonerNumber', prisonerNumber)
   },
 
-  view(prisonerNumber: string): string {
+  view(prisonerNumber: string, closed = false): string {
+    if (closed) {
+      return this.templates.viewClosed.replace(':prisonerNumber', prisonerNumber)
+    }
     return this.templates.view.replace(':prisonerNumber', prisonerNumber)
   },
 

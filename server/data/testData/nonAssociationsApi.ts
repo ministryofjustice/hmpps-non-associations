@@ -12,7 +12,7 @@ import { davidJones, fredMills, oscarJones } from './offenderSearch'
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
  */
 
-export const davidJones0NonAssociations: NonAssociationsList<OpenNonAssociationsListItem> = {
+export const davidJones0NonAssociations: NonAssociationsList<never> = {
   prisonId: davidJones.prisonId,
   prisonName: davidJones.prisonName,
   prisonerNumber: davidJones.prisonerNumber,
@@ -91,6 +91,20 @@ export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociat
   ],
 }
 
+export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssociationsListItem> = {
+  ...davidJones1OpenNonAssociation,
+  nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
+    return {
+      ...nonAssociation,
+      isClosed: true,
+      closedBy: 'lev79n',
+      closedReason: 'Problem solved',
+      closedAt: new Date('2023-07-27T12:34:56'),
+      whenUpdated: new Date('2023-07-27T12:34:56'),
+    }
+  }),
+}
+
 export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAssociationsListItem> = {
   ...davidJones2OpenNonAssociations,
   nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
@@ -99,7 +113,8 @@ export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAsso
       isClosed: true,
       closedBy: 'lev79n',
       closedReason: 'Problem solved',
-      closedAt: new Date('2023-07-26T12:34:56'),
+      closedAt: new Date('2023-07-27T12:34:56'),
+      whenUpdated: new Date('2023-07-27T12:34:56'),
     }
   }),
 }
