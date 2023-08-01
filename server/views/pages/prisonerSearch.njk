@@ -60,7 +60,7 @@
           {% set tableRows = [] %}
           {% for result in searchResults.content %}
             {% set photo %}
-              <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPrisoner }}" class="app-prisoner-photo" />
+              <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPerson }}" class="app-prisoner-photo" />
             {% endset %}
 
             {% set link %}
@@ -69,13 +69,13 @@
               </a>
             {% endset %}
 
-            {% set tableRows = (tableRows.push([
+            {% set _ = tableRows.push([
               {html: photo},
-              {html: result | reversedNameOfPrisoner, classes: "govuk-!-padding-top-8"},
+              {html: result | reversedNameOfPerson, classes: "govuk-!-padding-top-8"},
               {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
               {text: result.cellLocation, classes: "govuk-!-padding-top-8"},
               {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
-            ]), tableRows) %}
+            ]) %}
           {% endfor %}
 
           <div class="app-sortable-table-container">

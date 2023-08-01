@@ -1,11 +1,18 @@
-import type { NonAssociationsList, NonAssociation } from '../nonAssociationsApi'
+import type {
+  NonAssociationsList,
+  OpenNonAssociationsListItem,
+  ClosedNonAssociationsListItem,
+  NonAssociation,
+  OpenNonAssociation,
+  ClosedNonAssociation,
+} from '../nonAssociationsApi'
 import { davidJones, fredMills, oscarJones } from './offenderSearch'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
  */
 
-export const davidJones0NonAssociations: NonAssociationsList = {
+export const davidJones0NonAssociations: NonAssociationsList<OpenNonAssociationsListItem> = {
   prisonId: davidJones.prisonId,
   prisonName: davidJones.prisonName,
   prisonerNumber: davidJones.prisonerNumber,
@@ -15,7 +22,7 @@ export const davidJones0NonAssociations: NonAssociationsList = {
   nonAssociations: [],
 }
 
-export const davidJones1OpenNonAssociation: NonAssociationsList = {
+export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociationsListItem> = {
   ...davidJones0NonAssociations,
   nonAssociations: [
     {
@@ -48,7 +55,7 @@ export const davidJones1OpenNonAssociation: NonAssociationsList = {
   ],
 }
 
-export const davidJones2OpenNonAssociations: NonAssociationsList = {
+export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociationsListItem> = {
   ...davidJones0NonAssociations,
   nonAssociations: [
     davidJones1OpenNonAssociation.nonAssociations[0],
@@ -82,6 +89,25 @@ export const davidJones2OpenNonAssociations: NonAssociationsList = {
   ],
 }
 
+export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAssociationsListItem> = {
+  ...davidJones2OpenNonAssociations,
+  nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
+    return {
+      ...nonAssociation,
+      isClosed: true,
+      closedBy: 'lev79n',
+      closedReason: 'Problem solved',
+      closedAt: new Date('2023-07-26T12:34:56'),
+    }
+  }),
+}
+
+export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open?: true): OpenNonAssociation
+export function mockNonAssociation(
+  prisonerNumber: string,
+  otherPrisonerNumber: string,
+  open: false,
+): ClosedNonAssociation
 export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
   const data: Omit<NonAssociation, 'isClosed' | 'closedBy' | 'closedReason' | 'closedAt'> = {
     id: 101,

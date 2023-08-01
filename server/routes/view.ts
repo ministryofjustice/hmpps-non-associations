@@ -1,14 +1,42 @@
 import { type RequestHandler, Router } from 'express'
 
-import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
+import logger from '../../logger'
+import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
+import { NonAssociationsApi, type NonAssociationsList, lookupStaffInNonAssociations } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
+import PrisonApi from '../data/prisonApi'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
+import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
+import ViewForm from '../forms/view'
+import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
+
+const tableColumns: SortableTableColumns<
+  'photo' | 'LAST_NAME' | 'reason' | 'role' | 'restrictionType' | 'comment' | 'WHEN_CREATED'
+> = [
+  {
+    column: 'photo',
+    escapedHtml: '<span class="govuk-visually-hidden">Photo</span>',
+    classes: 'app-view__cell--photo',
+    unsortable: true,
+  },
+  { column: 'LAST_NAME', escapedHtml: 'Prisoner', classes: 'app-view__cell--prisoner' },
+  { column: 'reason', escapedHtml: 'Reason', classes: 'app-view__cell--reason', unsortable: true },
+  { column: 'role', escapedHtml: 'Role', classes: 'app-view__cell--role', unsortable: true },
+  {
+    column: 'restrictionType',
+    escapedHtml: 'Where to keep apart',
+    classes: 'app-view__cell--restriction-type',
+    unsortable: true,
+  },
+  { column: 'comment', escapedHtml: 'Comments', classes: 'app-view__cell--comment', unsortable: true },
+  { column: 'WHEN_CREATED', escapedHtml: 'Date added', classes: 'app-view__cell--date-added' },
+]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function viewRoutes(service: Services): Router {
@@ -22,27 +50,45 @@ export default function viewRoutes(service: Services): Router {
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
 
-    const response = [
-      {
-        otherPrisonerName: 'Broadstairs, Liam',
-        otherPrisonerNumber: 'A8469DY',
-        reason: 'Bullying',
-        role: 'Perpetrator',
-        whereToKeepApart: 'Cell',
-        comments:
-          'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus.',
-        dateAdded: '24 May 2023 by Mary Smith',
-      },
-    ]
+    const messages: FlashMessages = {}
+    let tableHead: HeaderCell[]
+    let nonAssociationsList: NonAssociationsList
+
+    const form = new ViewForm()
+    form.submit(req.query)
+    if (!form.hasErrors) {
+      const sortBy = form.fields.sort.value
+      const sortDirection = form.fields.order.value
+      tableHead = sortableTableHead({
+        columns: tableColumns,
+        sortColumn: sortBy,
+        order: sortDirection,
+        urlPrefix: '?',
+      })
+
+      const api = new NonAssociationsApi(res.locals.user.token)
+      const prisonApi = new PrisonApi(res.locals.user.token)
+      try {
+        nonAssociationsList = await api.listNonAssociations(prisonerNumber, { sortBy, sortDirection })
+        nonAssociationsList = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
+      } catch (error) {
+        logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
+        messages.warning = ['Non-associations could not be loaded, please try again']
+      }
+    }
 
     res.locals.breadcrumbs.addItems({
-      text: reversedNameOfPrisoner(prisoner),
+      text: reversedNameOfPerson(prisoner),
       href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}`,
     })
     res.render('pages/view.njk', {
+      messages,
       prisonerNumber,
-      prisonerName: nameOfPrisoner(prisoner),
-      nonAssociations: response,
+      prisonerName: nameOfPerson(prisoner),
+      prisonName: prisoner.prisonName,
+      nonAssociationsList,
+      tableHead,
+      form,
     })
   })
 

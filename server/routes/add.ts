@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
-import { nameOfPrisoner, reversedNameOfPrisoner } from '../utils/utils'
+import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
 import {
@@ -42,8 +42,8 @@ export default function addRoutes(service: Services): Router {
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
         const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
-        const prisonerName = nameOfPrisoner(prisoner)
-        const otherPrisonerName = nameOfPrisoner(otherPrisoner)
+        const prisonerName = nameOfPerson(prisoner)
+        const otherPrisonerName = nameOfPerson(otherPrisoner)
 
         Object.assign(res.locals, { prisoner, prisonerName, otherPrisoner, otherPrisonerName })
 
@@ -57,7 +57,7 @@ export default function addRoutes(service: Services): Router {
       const form: AddForm = res.locals.forms[formId]
 
       res.locals.breadcrumbs.addItems(
-        { text: reversedNameOfPrisoner(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
+        { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
         { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
       )
 
