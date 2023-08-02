@@ -27,12 +27,12 @@
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.view(prisonerNumber) }}">
-          Open
+          Open ({{ nonAssociationsList.openCount }})
         </a>
       </li>
       <li class="govuk-tabs__list-item {% if listing === "closed" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.view(prisonerNumber, true) }}">
-          Closed
+          Closed ({{ nonAssociationsList.closedCount }})
         </a>
       </li>
     </ul>

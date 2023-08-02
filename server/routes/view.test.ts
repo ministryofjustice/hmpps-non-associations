@@ -179,6 +179,42 @@ describe('Non-associations list page', () => {
     })
   })
 
+  describe('should show count of non-associations in tabs', () => {
+    it('when listing open non-associations', () => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2OpenNonAssociations)
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+
+      return request(app)
+        .get(routeUrls.view(prisonerNumber))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+
+          expect(res.text).toContain('Open (2)')
+          expect(res.text).toContain('Closed (0)')
+        })
+    })
+
+    it('when listing closed non-associations', () => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2ClosedNonAssociations)
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+
+      return request(app)
+        .get(routeUrls.view(prisonerNumber, true))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
+
+          expect(res.text).toContain('Open (1)')
+          expect(res.text).toContain('Closed (2)')
+        })
+    })
+  })
+
   describe('should sort non-associations showing most recently updated first by default', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)

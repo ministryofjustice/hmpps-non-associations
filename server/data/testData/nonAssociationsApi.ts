@@ -97,6 +97,7 @@ export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociat
 
 export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssociationsListItem> = {
   ...davidJones1OpenNonAssociation,
+  openCount: 1,
   closedCount: 1,
   nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
     return {
@@ -112,6 +113,7 @@ export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssoc
 
 export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAssociationsListItem> = {
   ...davidJones2OpenNonAssociations,
+  openCount: 1,
   closedCount: 2,
   nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
     return {
