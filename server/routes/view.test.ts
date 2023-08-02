@@ -446,6 +446,63 @@ describe('Non-associations list page', () => {
     })
   })
 
+  describe('should display “(not specified)” when authorised-by is not given', () => {
+    it('when listing open non-associations', () => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
+        ...davidJones2OpenNonAssociations,
+        nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
+          return {
+            ...nonAssociation,
+            authorisedBy: '',
+            updatedBy: '',
+          }
+        }),
+      })
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+
+      return request(app)
+        .get(routeUrls.view(prisonerNumber))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('')
+
+          // table
+          expect(res.text).toContain('by (not specified)')
+        })
+    })
+
+    it('when listing closed non-associations', () => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
+        ...davidJones2ClosedNonAssociations,
+        nonAssociations: davidJones2ClosedNonAssociations.nonAssociations.map(nonAssociation => {
+          return {
+            ...nonAssociation,
+            authorisedBy: '',
+            updatedBy: '',
+            closedBy: '',
+          }
+        }),
+      })
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+
+      return request(app)
+        .get(routeUrls.view(prisonerNumber, true))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
+          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('')
+
+          // table
+          expect(res.text).toContain('by (not specified)')
+        })
+    })
+  })
+
   describe('should show a message when there are no non-associations', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones0NonAssociations)

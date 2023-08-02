@@ -74,13 +74,13 @@
     {% set firstCreated %}
       {{ nonAssociation.whenCreated | date }}
       <br />
-      by {{ nonAssociation.authorisedBy }}
+      by {{ nonAssociation.authorisedBy | default("(not specified)", true) }}
     {% endset %}
 
     {% set lastUpdated %}
       {{ nonAssociation.whenUpdated | date }}
       <br />
-      by {{ nonAssociation.updatedBy }}
+      by {{ nonAssociation.updatedBy | default("(not specified)", true) }}
     {% endset %}
 
     {% set actions %}
