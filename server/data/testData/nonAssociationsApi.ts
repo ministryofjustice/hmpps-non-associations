@@ -19,11 +19,14 @@ export const davidJones0NonAssociations: NonAssociationsList<never> = {
   firstName: davidJones.firstName,
   lastName: davidJones.lastName,
   cellLocation: davidJones.cellLocation,
+  openCount: 0,
+  closedCount: 0,
   nonAssociations: [],
 }
 
 export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociationsListItem> = {
   ...davidJones0NonAssociations,
+  openCount: 1,
   nonAssociations: [
     {
       id: 101,
@@ -58,6 +61,7 @@ export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociati
 
 export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociationsListItem> = {
   ...davidJones0NonAssociations,
+  openCount: 2,
   nonAssociations: [
     davidJones1OpenNonAssociation.nonAssociations[0],
     {
@@ -93,6 +97,7 @@ export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociat
 
 export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssociationsListItem> = {
   ...davidJones1OpenNonAssociation,
+  closedCount: 1,
   nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
     return {
       ...nonAssociation,
@@ -107,6 +112,7 @@ export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssoc
 
 export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAssociationsListItem> = {
   ...davidJones2OpenNonAssociations,
+  closedCount: 2,
   nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
     return {
       ...nonAssociation,
@@ -147,7 +153,7 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
       closedBy: null,
       closedReason: null,
       closedAt: null,
-    }
+    } satisfies OpenNonAssociation
   }
   return {
     ...data,
@@ -155,5 +161,5 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     closedBy: 'abc12a',
     closedReason: 'Problem solved',
     closedAt: new Date('2023-07-26T12:34:56'),
-  }
+  } satisfies ClosedNonAssociation
 }

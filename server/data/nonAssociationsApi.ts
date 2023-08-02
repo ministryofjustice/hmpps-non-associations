@@ -83,6 +83,8 @@ export interface NonAssociationsList<
   prisonId: string
   prisonName: string
   cellLocation: string
+  openCount: number
+  closedCount: number
   nonAssociations: Item[]
 }
 
