@@ -235,6 +235,69 @@ export class NonAssociationsApi extends RestClient {
   /**
    * Retrieve a non-association by ID
    */
+  listNonAssociationsBetween(
+    firstPrisonerNumber: string,
+    secondPrisonerNumber: string,
+    options: {
+      includeOpen?: true
+      includeClosed?: false
+    },
+  ): Promise<OpenNonAssociation[]>
+
+  listNonAssociationsBetween(
+    firstPrisonerNumber: string,
+    secondPrisonerNumber: string,
+    options: {
+      includeOpen: false
+      includeClosed: true
+    },
+  ): Promise<ClosedNonAssociation[]>
+
+  listNonAssociationsBetween(
+    firstPrisonerNumber: string,
+    secondPrisonerNumber: string,
+    options: {
+      includeOpen: false
+      includeClosed: false
+    },
+  ): Promise<never[]>
+
+  listNonAssociationsBetween(
+    firstPrisonerNumber: string,
+    secondPrisonerNumber: string,
+    options: {
+      includeOpen?: boolean
+      includeClosed?: boolean
+    },
+  ): Promise<NonAssociation[]>
+
+  listNonAssociationsBetween(
+    firstPrisonerNumber: string,
+    secondPrisonerNumber: string,
+    {
+      includeOpen = true,
+      includeClosed = false,
+    }: {
+      includeOpen?: boolean
+      includeClosed?: boolean
+    } = {},
+  ): Promise<NonAssociation[]> {
+    return this.get<NonAssociation[]>({
+      path: '/non-associations/between',
+      query: {
+        firstPrisonerNumber,
+        secondPrisonerNumber,
+        includeOpen: includeOpen.toString(),
+        includeClosed: includeClosed.toString(),
+      },
+    }).then(nonAssociations => {
+      return nonAssociations.map(nonAssociation => parseDates(nonAssociation))
+    })
+  }
+
+  /**
+   * Retrieve a non-association by ID
+   */
   getNonAssociation(id: number): Promise<NonAssociation> {
     return this.get<NonAssociation>({ path: `/non-associations/${encodeURIComponent(id)}` }).then(nonAssociation => {
       return parseDates(nonAssociation)
@@ -376,4 +439,23 @@ export async function lookupStaffInNonAssociation<N extends NonAssociation>(
   }
   const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
   return lookupStaff(findStaffUser, nonAssociation)
+}
+
+/**
+ * Hydrates an array of `NonAssociation` with staff names
+ */
+export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociation>(
+  prisonApi: PrisonApi,
+  nonAssociations: N[],
+): Promise<N[]> {
+  const staffUsernameSet = new Set<string>()
+  nonAssociations.forEach(nonAssociation => {
+    staffUsernameSet.add(nonAssociation.authorisedBy)
+    staffUsernameSet.add(nonAssociation.updatedBy)
+    if (nonAssociation.closedBy) {
+      staffUsernameSet.add(nonAssociation.closedBy)
+    }
+  })
+  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
+  return nonAssociations.map(nonAssociation => lookupStaff(findStaffUser, nonAssociation))
 }
