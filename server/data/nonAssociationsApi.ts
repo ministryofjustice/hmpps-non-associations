@@ -45,6 +45,7 @@ interface BaseNonAssociationsListItem {
   restrictionTypeDescription: RestrictionType[keyof RestrictionType]
   comment: string
   authorisedBy: string
+  updatedBy: string
   whenCreated: Date
   whenUpdated: Date
   otherPrisonerDetails: {
@@ -82,6 +83,8 @@ export interface NonAssociationsList<
   prisonId: string
   prisonName: string
   cellLocation: string
+  openCount: number
+  closedCount: number
   nonAssociations: Item[]
 }
 
@@ -95,6 +98,7 @@ interface BaseNonAssociation {
   restrictionType: keyof RestrictionType
   comment: string
   authorisedBy: string
+  updatedBy: string
   whenCreated: Date
   whenUpdated: Date
 }
@@ -156,6 +160,18 @@ export class NonAssociationsApi extends RestClient {
   listNonAssociations(
     prisonerNumber: string,
     options: {
+      includeOpen?: true
+      includeClosed?: false
+      includeOtherPrisons?: boolean
+      sortBy?: SortBy
+      sortDirection?: SortDirection
+    },
+  ): Promise<NonAssociationsList<OpenNonAssociationsListItem>>
+
+  listNonAssociations(
+    prisonerNumber: string,
+    options: {
+      includeOpen: false
       includeClosed: true
       includeOtherPrisons?: boolean
       sortBy?: SortBy
@@ -166,21 +182,35 @@ export class NonAssociationsApi extends RestClient {
   listNonAssociations(
     prisonerNumber: string,
     options: {
+      includeOpen: false
       includeClosed?: false
       includeOtherPrisons?: boolean
       sortBy?: SortBy
       sortDirection?: SortDirection
     },
-  ): Promise<NonAssociationsList<OpenNonAssociationsListItem>>
+  ): Promise<never>
+
+  listNonAssociations(
+    prisonerNumber: string,
+    options: {
+      includeOpen?: true | boolean
+      includeClosed: true | boolean
+      includeOtherPrisons?: boolean
+      sortBy?: SortBy
+      sortDirection?: SortDirection
+    },
+  ): Promise<NonAssociationsList>
 
   listNonAssociations(
     prisonerNumber: string,
     {
+      includeOpen = true,
       includeClosed = false,
       includeOtherPrisons = false,
       sortBy = 'WHEN_CREATED',
       sortDirection = 'DESC',
     }: {
+      includeOpen?: boolean
       includeClosed?: boolean
       includeOtherPrisons?: boolean
       sortBy?: SortBy
@@ -190,6 +220,7 @@ export class NonAssociationsApi extends RestClient {
     return this.get<NonAssociationsList>({
       path: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
       query: {
+        includeOpen: includeOpen.toString(),
         includeClosed: includeClosed.toString(),
         includeOtherPrisons: includeOtherPrisons.toString(),
         sortBy,
@@ -198,6 +229,61 @@ export class NonAssociationsApi extends RestClient {
     }).then(nonAssociationList => {
       nonAssociationList.nonAssociations.forEach(nonAssociation => parseDates(nonAssociation))
       return nonAssociationList
+    })
+  }
+
+  /**
+   * Retrieve non-associations between multiple prisoners
+   */
+  listNonAssociationsBetween(
+    prisonerNumbers: string[],
+    options: {
+      includeOpen?: true
+      includeClosed?: false
+    },
+  ): Promise<OpenNonAssociation[]>
+
+  listNonAssociationsBetween(
+    prisonerNumbers: string[],
+    options: {
+      includeOpen: false
+      includeClosed: true
+    },
+  ): Promise<ClosedNonAssociation[]>
+
+  listNonAssociationsBetween(
+    prisonerNumbers: string[],
+    options: {
+      includeOpen: false
+      includeClosed: false
+    },
+  ): Promise<never[]>
+
+  listNonAssociationsBetween(
+    prisonerNumbers: string[],
+    options: {
+      includeOpen?: boolean
+      includeClosed?: boolean
+    },
+  ): Promise<NonAssociation[]>
+
+  listNonAssociationsBetween(
+    prisonerNumbers: string[],
+    {
+      includeOpen = true,
+      includeClosed = false,
+    }: {
+      includeOpen?: boolean
+      includeClosed?: boolean
+    } = {},
+  ): Promise<NonAssociation[]> {
+    const open = encodeURIComponent(includeOpen.toString())
+    const closed = encodeURIComponent(includeClosed.toString())
+    return this.post<NonAssociation[]>({
+      path: `/non-associations/between?includeOpen=${open}&includeClosed=${closed}`,
+      data: prisonerNumbers as unknown as Record<string, unknown>,
+    }).then(nonAssociations => {
+      return nonAssociations.map(nonAssociation => parseDates(nonAssociation))
     })
   }
 
@@ -278,16 +364,21 @@ async function makeStaffLookup(
 /**
  * Private method to hydrate `BaseNonAssociationsListItem` and `NonAssociation` with staff names
  */
-function lookupStaff<O extends { authorisedBy: string; closedBy: string | null }>(
+function lookupStaff<O extends { authorisedBy: string; updatedBy: string; closedBy: string | null }>(
   /** Made by `makeStaffLookup` */
   findStaffUser: (username: string | null | undefined) => StaffMember | undefined,
   nonAssociation: O,
 ): O {
-  let { authorisedBy, closedBy } = nonAssociation
+  let { authorisedBy, updatedBy, closedBy } = nonAssociation
 
   let staffUser = findStaffUser(authorisedBy)
   if (staffUser) {
     authorisedBy = nameOfPerson(staffUser)
+  }
+
+  staffUser = findStaffUser(updatedBy)
+  if (staffUser) {
+    updatedBy = nameOfPerson(staffUser)
   }
 
   staffUser = findStaffUser(closedBy)
@@ -298,6 +389,7 @@ function lookupStaff<O extends { authorisedBy: string; closedBy: string | null }
   return {
     ...nonAssociation,
     authorisedBy,
+    updatedBy,
     closedBy,
   }
 }
@@ -312,6 +404,7 @@ export async function lookupStaffInNonAssociations<List extends NonAssociationsL
   const staffUsernameSet = new Set<string>()
   nonAssociationsList.nonAssociations.forEach(nonAssociation => {
     staffUsernameSet.add(nonAssociation.authorisedBy)
+    staffUsernameSet.add(nonAssociation.updatedBy)
     if (nonAssociation.closedBy) {
       staffUsernameSet.add(nonAssociation.closedBy)
     }
@@ -332,10 +425,29 @@ export async function lookupStaffInNonAssociation<N extends NonAssociation>(
   prisonApi: PrisonApi,
   nonAssociation: N,
 ): Promise<N> {
-  const staffUsernameSet = new Set<string>([nonAssociation.authorisedBy])
+  const staffUsernameSet = new Set<string>([nonAssociation.authorisedBy, nonAssociation.updatedBy])
   if (nonAssociation.closedBy) {
     staffUsernameSet.add(nonAssociation.closedBy)
   }
   const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
   return lookupStaff(findStaffUser, nonAssociation)
+}
+
+/**
+ * Hydrates an array of `NonAssociation` with staff names
+ */
+export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociation>(
+  prisonApi: PrisonApi,
+  nonAssociations: N[],
+): Promise<N[]> {
+  const staffUsernameSet = new Set<string>()
+  nonAssociations.forEach(nonAssociation => {
+    staffUsernameSet.add(nonAssociation.authorisedBy)
+    staffUsernameSet.add(nonAssociation.updatedBy)
+    if (nonAssociation.closedBy) {
+      staffUsernameSet.add(nonAssociation.closedBy)
+    }
+  })
+  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
+  return nonAssociations.map(nonAssociation => lookupStaff(findStaffUser, nonAssociation))
 }

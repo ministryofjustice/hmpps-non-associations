@@ -38,7 +38,7 @@ describe('ViewForm', () => {
     {
       scenario: 'no fields are submitted',
       payload: {},
-      expected: { sort: 'WHEN_CREATED', order: 'DESC' },
+      expected: { sort: 'WHEN_UPDATED', order: 'DESC' },
     },
     {
       scenario: 'only sort-by is provided',
@@ -48,7 +48,7 @@ describe('ViewForm', () => {
     {
       scenario: 'only sort direction is provided',
       payload: { order: 'ASC' },
-      expected: { sort: 'WHEN_CREATED', order: 'ASC' },
+      expected: { sort: 'WHEN_UPDATED', order: 'ASC' },
     },
   ]
   it.each(validScenarios)('should provide fallback values when $scenario', ({ payload, expected: { sort, order } }) => {

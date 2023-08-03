@@ -1,16 +1,68 @@
 {% extends "../partials/layout.njk" %}
 
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
+
 {% set pageTitle = "Close a non-association" %}
 
 {% block content %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-one-half">
+
+      {% include "../partials/messages.njk" %}
+      {% include "../partials/formErrorSummary.njk" %}
 
       <span class="govuk-caption-l">Non-associations</span>
-      <h1 class="govuk-heading-l">Close a non-association</h1>
+      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
 
-      {# TODO: remove #}
-      <!-- {{ nonAssociationId }} -->
+      <h2 class="govuk-heading-m">Prisoners involved</h2>
+      <p>
+        {% if keyPrisonerIsFirst %}
+          {{ firstPrisoner | reversedNameOfPerson }} – {{ firstPrisoner.prisonerNumber }}
+          <br />
+          {{ secondPrisoner | reversedNameOfPerson }} – {{ secondPrisoner.prisonerNumber }}
+        {% else %}
+          {{ secondPrisoner | reversedNameOfPerson }} – {{ secondPrisoner.prisonerNumber }}
+          <br />
+          {{ firstPrisoner | reversedNameOfPerson }} – {{ firstPrisoner.prisonerNumber }}
+        {% endif %}
+      </p>
+
+      <form method="post" novalidate>
+        {% set fieldId = "closureReason" %}
+        {% set field = form.fields[fieldId] %}
+        {{ govukCharacterCount({
+          id: formId + "-" + fieldId,
+          name: fieldId,
+          label: {
+            text: "Comments",
+            classes: "govuk-label--m"
+          },
+          hint: {
+            text: "Explain why this non-association is no longer required."
+          },
+          maxlength: maxCommentLength,
+          value: field.value,
+          errorMessage: { text: field.error } if field.error else undefined
+        }) }}
+
+        <input type="hidden" name="formId" value="{{ formId }}" />
+        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Close this non-association",
+            preventDoubleClick: true
+          }) }}
+
+          {{ govukButton({
+            text: "Cancel",
+            classes: "govuk-button--secondary",
+            element: "a",
+            href: routeUrls.view(prisonerNumber)
+          }) }}
+        </div>
+      </form>
 
     </div>
   </div>

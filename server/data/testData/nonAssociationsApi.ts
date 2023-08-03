@@ -12,18 +12,21 @@ import { davidJones, fredMills, oscarJones } from './offenderSearch'
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
  */
 
-export const davidJones0NonAssociations: NonAssociationsList<OpenNonAssociationsListItem> = {
+export const davidJones0NonAssociations: NonAssociationsList<never> = {
   prisonId: davidJones.prisonId,
   prisonName: davidJones.prisonName,
   prisonerNumber: davidJones.prisonerNumber,
   firstName: davidJones.firstName,
   lastName: davidJones.lastName,
   cellLocation: davidJones.cellLocation,
+  openCount: 0,
+  closedCount: 0,
   nonAssociations: [],
 }
 
 export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociationsListItem> = {
   ...davidJones0NonAssociations,
+  openCount: 1,
   nonAssociations: [
     {
       id: 101,
@@ -35,6 +38,7 @@ export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociati
       restrictionTypeDescription: 'Cell and landing',
       comment: 'See IR 12133111',
       authorisedBy: 'abc12a',
+      updatedBy: 'abc12a',
       whenCreated: new Date('2023-07-26T12:34:56'),
       whenUpdated: new Date('2023-07-26T12:34:56'),
       isClosed: false,
@@ -57,6 +61,7 @@ export const davidJones1OpenNonAssociation: NonAssociationsList<OpenNonAssociati
 
 export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociationsListItem> = {
   ...davidJones0NonAssociations,
+  openCount: 2,
   nonAssociations: [
     davidJones1OpenNonAssociation.nonAssociations[0],
     {
@@ -69,6 +74,7 @@ export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociat
       restrictionTypeDescription: 'Cell only',
       comment: 'Pending court case',
       authorisedBy: 'cde87s',
+      updatedBy: 'cde87s',
       whenCreated: new Date('2023-07-21T08:14:21'),
       whenUpdated: new Date('2023-07-21T08:14:21'),
       isClosed: false,
@@ -89,15 +95,34 @@ export const davidJones2OpenNonAssociations: NonAssociationsList<OpenNonAssociat
   ],
 }
 
+export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssociationsListItem> = {
+  ...davidJones1OpenNonAssociation,
+  openCount: 1,
+  closedCount: 1,
+  nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
+    return {
+      ...nonAssociation,
+      isClosed: true,
+      closedBy: 'lev79n',
+      closedReason: 'Problem solved',
+      closedAt: new Date('2023-07-27T12:34:56'),
+      whenUpdated: new Date('2023-07-27T12:34:56'),
+    }
+  }),
+}
+
 export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAssociationsListItem> = {
   ...davidJones2OpenNonAssociations,
+  openCount: 1,
+  closedCount: 2,
   nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
     return {
       ...nonAssociation,
       isClosed: true,
       closedBy: 'lev79n',
       closedReason: 'Problem solved',
-      closedAt: new Date('2023-07-26T12:34:56'),
+      closedAt: new Date('2023-07-27T12:34:56'),
+      whenUpdated: new Date('2023-07-27T12:34:56'),
     }
   }),
 }
@@ -119,6 +144,7 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     restrictionType: 'CELL',
     comment: 'See IR 12133100',
     authorisedBy: 'cde87s',
+    updatedBy: 'cde87s',
     whenCreated: new Date('2023-07-21T08:14:21'),
     whenUpdated: new Date('2023-07-21T08:14:21'),
   }
@@ -129,7 +155,7 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
       closedBy: null,
       closedReason: null,
       closedAt: null,
-    }
+    } satisfies OpenNonAssociation
   }
   return {
     ...data,
@@ -137,5 +163,5 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     closedBy: 'abc12a',
     closedReason: 'Problem solved',
     closedAt: new Date('2023-07-26T12:34:56'),
-  }
+  } satisfies ClosedNonAssociation
 }
