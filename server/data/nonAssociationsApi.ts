@@ -233,11 +233,10 @@ export class NonAssociationsApi extends RestClient {
   }
 
   /**
-   * Retrieve a non-association by ID
+   * Retrieve non-associations between multiple prisoners
    */
   listNonAssociationsBetween(
-    firstPrisonerNumber: string,
-    secondPrisonerNumber: string,
+    prisonerNumbers: string[],
     options: {
       includeOpen?: true
       includeClosed?: false
@@ -245,8 +244,7 @@ export class NonAssociationsApi extends RestClient {
   ): Promise<OpenNonAssociation[]>
 
   listNonAssociationsBetween(
-    firstPrisonerNumber: string,
-    secondPrisonerNumber: string,
+    prisonerNumbers: string[],
     options: {
       includeOpen: false
       includeClosed: true
@@ -254,8 +252,7 @@ export class NonAssociationsApi extends RestClient {
   ): Promise<ClosedNonAssociation[]>
 
   listNonAssociationsBetween(
-    firstPrisonerNumber: string,
-    secondPrisonerNumber: string,
+    prisonerNumbers: string[],
     options: {
       includeOpen: false
       includeClosed: false
@@ -263,8 +260,7 @@ export class NonAssociationsApi extends RestClient {
   ): Promise<never[]>
 
   listNonAssociationsBetween(
-    firstPrisonerNumber: string,
-    secondPrisonerNumber: string,
+    prisonerNumbers: string[],
     options: {
       includeOpen?: boolean
       includeClosed?: boolean
@@ -272,8 +268,7 @@ export class NonAssociationsApi extends RestClient {
   ): Promise<NonAssociation[]>
 
   listNonAssociationsBetween(
-    firstPrisonerNumber: string,
-    secondPrisonerNumber: string,
+    prisonerNumbers: string[],
     {
       includeOpen = true,
       includeClosed = false,
@@ -282,14 +277,11 @@ export class NonAssociationsApi extends RestClient {
       includeClosed?: boolean
     } = {},
   ): Promise<NonAssociation[]> {
-    return this.get<NonAssociation[]>({
-      path: '/non-associations/between',
-      query: {
-        firstPrisonerNumber,
-        secondPrisonerNumber,
-        includeOpen: includeOpen.toString(),
-        includeClosed: includeClosed.toString(),
-      },
+    const open = encodeURIComponent(includeOpen.toString())
+    const closed = encodeURIComponent(includeClosed.toString())
+    return this.post<NonAssociation[]>({
+      path: `/non-associations/between?includeOpen=${open}&includeClosed=${closed}`,
+      data: prisonerNumbers as unknown as Record<string, unknown>,
     }).then(nonAssociations => {
       return nonAssociations.map(nonAssociation => parseDates(nonAssociation))
     })

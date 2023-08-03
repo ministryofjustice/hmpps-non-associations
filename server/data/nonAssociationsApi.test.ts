@@ -194,7 +194,7 @@ describe('Non-associations API REST client', () => {
       })
     })
 
-    describe('of non-associations between a pair of prisoners', () => {
+    describe('of non-associations between a group of prisoners', () => {
       it('should work for open non-associations', async () => {
         const nonAssociations: OpenNonAssociation[] = [
           mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
