@@ -32,6 +32,7 @@ export interface ApiConfig {
 }
 
 export default {
+  productId: get('PRODUCT_ID', 'DPS???', requiredInProduction),
   buildNumber: get('BUILD_NUMBER', '2023-05-18.1.39b1b24', requiredInProduction),
   gitRef: get('GIT_REF', 'unknown', requiredInProduction),
   environment: process.env.ENVIRONMENT || 'local',
