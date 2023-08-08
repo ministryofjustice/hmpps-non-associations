@@ -54,7 +54,24 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
+        urlPattern: `/nonAssociationsApi/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
+        queryParameters: {
+          includeOpen: {
+            matches: '.*',
+          },
+          includeClosed: {
+            matches: '.*',
+          },
+          includeOtherPrisons: {
+            matches: '.*',
+          },
+          sortBy: {
+            matches: '.*',
+          },
+          sortDirection: {
+            matches: '.*',
+          },
+        },
       },
       response: {
         status: 200,
