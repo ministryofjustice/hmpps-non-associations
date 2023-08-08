@@ -1,7 +1,4 @@
-import type { UserRole } from '../../server/data/hmppsAuthClient'
-
-// TODO: Add imports
-import { davidJones, sampleOffenderSearchResults } from '../../server/data/testData/offenderSearch'
+import { davidJones } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import PrisonerNonAssociations from '../pages/prisonerNonAssociations'
 import NonAssociationsPage from '../pages/nonAssociations/nonAssociations'
@@ -12,8 +9,8 @@ context('Prisoner non associations', () => {
     cy.task('stubSignIn')
     cy.task('stubAuthUser')
     cy.task('stubNomisUserCaseloads')
-    cy.task('stubListNonAssociations')
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A1234BC', result: davidJones })
+    cy.task('stubListNonAssociations')
   })
 
   // TODO: Add tests

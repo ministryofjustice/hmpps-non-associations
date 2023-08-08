@@ -54,24 +54,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: `/nonAssociationsApi/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
-        queryParameters: {
-          includeOpen: {
-            matches: '.*',
-          },
-          includeClosed: {
-            matches: '.*',
-          },
-          includeOtherPrisons: {
-            matches: '.*',
-          },
-          sortBy: {
-            matches: '.*',
-          },
-          sortDirection: {
-            matches: '.*',
-          },
-        },
+        urlPathPattern: `/nonAssociationsApi/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
       },
       response: {
         status: 200,
@@ -85,7 +68,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: '/non-associations/\\d+',
+        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+',
       },
       response: {
         status: 200,
@@ -99,7 +82,7 @@ export default {
     return stubFor({
       request: {
         method: 'POST',
-        urlPattern: '/non-associations',
+        urlPathPattern: '/nonAssociationsApi/non-associations',
       },
       response: {
         status: 201,
@@ -113,7 +96,7 @@ export default {
     return stubFor({
       request: {
         method: 'PATCH',
-        urlPattern: '/non-associations/\\d+',
+        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+',
       },
       response: {
         status: 200,
@@ -127,7 +110,7 @@ export default {
     return stubFor({
       request: {
         method: 'PUT',
-        urlPattern: '/non-associations/\\d+/close',
+        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+/close',
       },
       response: {
         status: 200,
