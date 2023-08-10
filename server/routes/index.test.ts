@@ -63,3 +63,14 @@ describe('prisoner photos', () => {
       })
   })
 })
+
+describe('Product info', () => {
+  it('should return product ID', () => {
+    return request(app)
+      .get('/info')
+      .expect('Content-Type', /application\/json/)
+      .expect(res => {
+        expect(res.body).toHaveProperty('productId', 'DPS???')
+      })
+  })
+})
