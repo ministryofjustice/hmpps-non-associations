@@ -40,6 +40,7 @@ function addAppInfo(result: HealthCheckResult, applicationInfo: ApplicationInfo)
       gitRef: applicationInfo.gitRef,
     },
     version: applicationInfo.buildNumber,
+    productId: applicationInfo.productId,
   }
 
   return { ...result, ...buildInfo }
