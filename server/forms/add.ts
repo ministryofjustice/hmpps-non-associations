@@ -12,7 +12,10 @@ export type AddData = {
 }
 
 export default class AddForm extends BaseForm<AddData> {
-  constructor(readonly prisonerName = 'prisoner', readonly otherPrisonerName: string = 'other prisoner') {
+  constructor(
+    readonly prisonerName = 'prisoner',
+    readonly otherPrisonerName: string = 'other prisoner',
+  ) {
     super()
   }
 
