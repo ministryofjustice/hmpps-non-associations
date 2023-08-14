@@ -84,6 +84,7 @@
     {% endset %}
 
     {% set actions %}
+      <a href="{{ routeUrls.update(prisonerNumber, nonAssociation.id) }}">Update</a> | <br />
       <a href="{{ routeUrls.close(prisonerNumber, nonAssociation.id) }}">Close</a>
     {% endset %}
 
