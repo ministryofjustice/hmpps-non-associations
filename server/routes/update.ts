@@ -1,38 +1,149 @@
-import { type RequestHandler, Router } from 'express'
-import type { PathParams } from 'express-serve-static-core'
+import { Router } from 'express'
 
+import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
+import {
+  NonAssociationsApi,
+  roleOptions,
+  reasonOptions,
+  restrictionTypeOptions,
+  maxCommentLength,
+  UpdateNonAssociationRequest,
+} from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
+import formPostRoute from './forms/post'
+import type { FlashMessages } from './index'
+import UpdateForm from '../forms/update'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
-export default function addRoutes(service: Services): Router {
+export default function updateRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })
-  const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
-  get('/', async (req, res) => {
-    const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
-    const nonAssociationId = parseInt(nonAssociationIdStr, 10)
+  const formId = 'update' as const
+  formPostRoute(
+    router,
+    '/',
+    {
+      [formId]: async (req, res) => {
+        const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
+        const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
-    const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
-    const offenderSearchClient = new OffenderSearchClient(systemToken)
-    const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+        const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+        const offenderSearchClient = new OffenderSearchClient(systemToken)
+        const nonAssociationsApi = new NonAssociationsApi(res.locals.user.token)
+        const nonAssociation = await nonAssociationsApi.getNonAssociation(nonAssociationId)
 
-    res.locals.breadcrumbs.addItems(
-      { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
-      { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
-    )
-    res.render('pages/update.njk', {
-      prisonerNumber,
-      prisonerName: nameOfPerson(prisoner),
-      nonAssociationId,
-    })
-  })
+        const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+        const prisonerName = nameOfPerson(prisoner)
+        const otherPrisonerNumber =
+          nonAssociation.firstPrisonerNumber === prisonerNumber
+            ? nonAssociation.secondPrisonerNumber
+            : nonAssociation.firstPrisonerNumber
+
+        const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
+        const otherPrisonerName = nameOfPerson(otherPrisoner)
+
+        logger.debug('nonAssociation', nonAssociation)
+        logger.debug(`prisonerNumber = ${prisonerNumber} - info = ${JSON.stringify(prisoner)}`)
+        logger.debug(`otherPrisonerNumber = ${otherPrisonerNumber} - info = ${JSON.stringify(otherPrisoner)}`)
+
+        Object.assign(res.locals, { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName })
+
+        return new UpdateForm(prisonerName, otherPrisonerName)
+      },
+    },
+    asyncMiddleware(async (req, res) => {
+      const { prisonerNumber } = req.params
+      const { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } = res.locals
+      const otherPrisonerNumber = otherPrisoner.prisonerNumber
+
+      const form: UpdateForm = res.locals.forms[formId]
+
+      res.locals.breadcrumbs.addItems(
+        { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
+        { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
+      )
+
+      const messages: FlashMessages = {}
+
+      if (form.submitted && !form.hasErrors) {
+        const prisonerRoles = [form.fields.prisonerRole.value, form.fields.otherPrisonerRole.value]
+        const [firstPrisonerRole, secondPrisonerRole] =
+          nonAssociation.firstPrisonerNumber === prisonerNumber ? prisonerRoles : prisonerRoles.reverse()
+
+        const request: UpdateNonAssociationRequest = {
+          firstPrisonerRole,
+          secondPrisonerRole,
+          reason: form.fields.reason.value,
+          restrictionType: form.fields.restrictionType.value,
+          comment: form.fields.comment.value,
+        }
+        const api = new NonAssociationsApi(res.locals.user.token)
+        try {
+          const response = await api.updateNonAssociation(nonAssociation.id, request)
+          logger.info(
+            `Non-association ${nonAssociation.id} updated by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
+          )
+
+          res.render('pages/updateConfirmation.njk', {
+            prisonerNumber,
+            prisonerName,
+          })
+          return
+        } catch (error) {
+          logger.error(
+            `Non-association ${nonAssociation.id} could NOT be updated by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
+            error,
+          )
+          messages.warning = ['Non-association could not be updated, please try again']
+        }
+      }
+
+      // Load existing non-association information in the form if not submitted yet
+      if (!form.submitted) {
+        // Account for different order of prisoners
+        const prisonerRoles = [nonAssociation.firstPrisonerRole, nonAssociation.secondPrisonerRole]
+        const [prisonerRole, otherPrisonerRole] =
+          nonAssociation.firstPrisonerNumber === prisonerNumber ? prisonerRoles : prisonerRoles.reverse()
+
+        const { reason, restrictionType, comment } = nonAssociation
+
+        form.submit({
+          prisonerRole,
+          otherPrisonerRole,
+          reason,
+          restrictionType,
+          comment,
+        })
+      }
+
+      res.render('pages/update.njk', {
+        messages,
+        prisonerNumber,
+        prisonerName,
+        otherPrisonerNumber,
+        otherPrisonerName,
+        formId,
+        form,
+        roleChoices: Object.entries(roleOptions).map(([key, label]) => {
+          return { value: key, text: label }
+        }),
+        reasonChoices: Object.entries(reasonOptions).map(([key, label]) => {
+          return { value: key, text: label }
+        }),
+        restrictionTypeChoices: Object.entries(restrictionTypeOptions).map(([key, label]) => {
+          return { value: key, text: label }
+        }),
+        maxCommentLength,
+      })
+    }),
+  )
 
   return router
 }
