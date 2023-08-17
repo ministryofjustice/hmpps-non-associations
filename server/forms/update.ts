@@ -1,51 +1,20 @@
-import format from '../utils/format'
-import type { Reason, RestrictionType, Role } from '../data/nonAssociationsApi'
-import { roleOptions, reasonOptions, restrictionTypeOptions, maxCommentLength } from '../data/nonAssociationsApi'
-import { BaseForm } from './index'
+import type { NonAssociation } from '../data/nonAssociationsApi'
+import NonAssociationForm from './nonAssociation'
 
-export type UpdateData = {
-  prisonerRole: keyof Role
-  otherPrisonerRole: keyof Role
-  reason: keyof Reason
-  restrictionType: keyof RestrictionType
-  comment: string
-}
-
-export default class UpdateForm extends BaseForm<UpdateData> {
-  constructor(readonly prisonerName = 'prisoner', readonly otherPrisonerName: string = 'other prisoner') {
+export default class UpdateForm extends NonAssociationForm {
+  constructor(
+    readonly prisonerName = 'prisoner',
+    readonly otherPrisonerName: string = 'other prisoner',
+    readonly nonAssociation: NonAssociation,
+  ) {
     super()
   }
 
   protected validate(): void {
-    if (!(this.data.prisonerRole in roleOptions)) {
-      this.addError('prisonerRole', `Select ${format.possessiveName(this.prisonerName)} role in the situation`)
-      delete this.data.prisonerRole
-    }
-    if (!(this.data.otherPrisonerRole in roleOptions)) {
-      this.addError(
-        'otherPrisonerRole',
-        `Select ${format.possessiveName(this.otherPrisonerName)} role in the situation`,
-      )
-      delete this.data.otherPrisonerRole
-    }
+    super.validate()
 
-    if (!(this.data.reason in reasonOptions)) {
-      this.addError('reason', 'Select a reason for the non-association')
-      delete this.data.reason
-    }
-
-    if (!(this.data.restrictionType in restrictionTypeOptions)) {
-      this.addError('restrictionType', 'Select where to keep the prisoners apart')
-      delete this.data.restrictionType
-    }
-
-    if (!this.data.comment || /^\s*$/.test(this.data.comment)) {
-      this.addError('comment', 'Enter a comment')
-    } else {
-      this.data.comment = this.data.comment.trim()
-      if (this.data.comment.length > maxCommentLength) {
-        this.addError('comment', `Comment must be ${maxCommentLength} characters or less`)
-      }
+    if (this.data.comment && this.data.comment === this.nonAssociation?.comment) {
+      this.addError('comment', 'Enter a comment to explain what you are updating')
     }
   }
 }

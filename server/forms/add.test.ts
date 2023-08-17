@@ -1,5 +1,6 @@
 import { roleOptions, reasonOptions, restrictionTypeOptions } from '../data/nonAssociationsApi'
-import AddForm, { type AddData } from './add'
+import AddForm from './add'
+import { type NonAssociationFormData } from './nonAssociation'
 
 describe('AddForm', () => {
   it('should present errors when the payload is empty', () => {
@@ -9,7 +10,7 @@ describe('AddForm', () => {
   })
 
   it('should present errors when a field is missing', () => {
-    const validPayload: AddData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'VICTIM',
       otherPrisonerRole: 'PERPETRATOR',
       reason: 'BULLYING',
@@ -28,7 +29,7 @@ describe('AddForm', () => {
   })
 
   it('should present errors when a field is invalid', () => {
-    const validPayload: AddData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'NOT_RELEVANT',
       otherPrisonerRole: 'NOT_RELEVANT',
       reason: 'LEGAL_REQUEST',
@@ -63,7 +64,7 @@ describe('AddForm', () => {
   })
 
   it('should trim whitespace from comment', () => {
-    const validPayload: AddData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'UNKNOWN',
       otherPrisonerRole: 'UNKNOWN',
       reason: 'GANG_RELATED',
@@ -77,7 +78,7 @@ describe('AddForm', () => {
   })
 
   describe('should handle long comments', () => {
-    const validPayload: AddData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'PERPETRATOR',
       otherPrisonerRole: 'VICTIM',
       reason: 'OTHER',

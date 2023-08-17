@@ -1,5 +1,7 @@
 import { roleOptions, reasonOptions, restrictionTypeOptions } from '../data/nonAssociationsApi'
-import UpdateForm, { type UpdateData } from './update'
+import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
+import { type NonAssociationFormData } from './nonAssociation'
+import UpdateForm from './update'
 
 describe('UpdateForm', () => {
   it('should present errors when the payload is empty', () => {
@@ -9,7 +11,7 @@ describe('UpdateForm', () => {
   })
 
   it('should present errors when a field is missing', () => {
-    const validPayload: UpdateData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'VICTIM',
       otherPrisonerRole: 'PERPETRATOR',
       reason: 'BULLYING',
@@ -28,7 +30,7 @@ describe('UpdateForm', () => {
   })
 
   it('should present errors when a field is invalid', () => {
-    const validPayload: UpdateData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'NOT_RELEVANT',
       otherPrisonerRole: 'NOT_RELEVANT',
       reason: 'LEGAL_REQUEST',
@@ -48,6 +50,22 @@ describe('UpdateForm', () => {
     })
   })
 
+  it('checks non-association comment has changed', () => {
+    const nonAssociation = mockNonAssociation('A111', 'B222')
+    const payload: NonAssociationFormData = {
+      prisonerRole: nonAssociation.firstPrisonerRole,
+      otherPrisonerRole: nonAssociation.secondPrisonerRole,
+      reason: nonAssociation.reason,
+      restrictionType: nonAssociation.restrictionType,
+      comment: nonAssociation.comment,
+    }
+
+    const form = new UpdateForm('1st prisoner name', '2nd prisoner name', nonAssociation)
+    form.submit(payload)
+    expect(form.hasErrors).toBeTruthy()
+    expect(form.fields.comment.error).toEqual('Enter a comment to explain what you are updating')
+  })
+
   it('should accept valid payloads', () => {
     Object.keys(roleOptions).forEach(prisonerRole => {
       Object.keys(roleOptions).forEach(otherPrisonerRole => {
@@ -63,7 +81,7 @@ describe('UpdateForm', () => {
   })
 
   it('should trim whitespace from comment', () => {
-    const validPayload: UpdateData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'UNKNOWN',
       otherPrisonerRole: 'UNKNOWN',
       reason: 'GANG_RELATED',
@@ -77,7 +95,7 @@ describe('UpdateForm', () => {
   })
 
   describe('should handle long comments', () => {
-    const validPayload: UpdateData = {
+    const validPayload: NonAssociationFormData = {
       prisonerRole: 'PERPETRATOR',
       otherPrisonerRole: 'VICTIM',
       reason: 'OTHER',
