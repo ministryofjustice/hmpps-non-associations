@@ -5,7 +5,7 @@ export default class UpdateForm extends NonAssociationForm {
   constructor(
     readonly prisonerName = 'prisoner',
     readonly otherPrisonerName: string = 'other prisoner',
-    readonly nonAssociation: NonAssociation,
+    readonly nonAssociation: NonAssociation = null,
   ) {
     super()
   }

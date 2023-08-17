@@ -55,7 +55,7 @@ export default function updateRoutes(service: Services): Router {
 
         Object.assign(res.locals, { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName })
 
-        return new UpdateForm(prisonerName, otherPrisonerName)
+        return new UpdateForm(prisonerName, otherPrisonerName, nonAssociation)
       },
     },
     asyncMiddleware(async (req, res) => {
@@ -114,13 +114,16 @@ export default function updateRoutes(service: Services): Router {
 
         const { reason, restrictionType, comment } = nonAssociation
 
-        form.submit({
-          prisonerRole,
-          otherPrisonerRole,
-          reason,
-          restrictionType,
-          comment,
-        })
+        form.submit(
+          {
+            prisonerRole,
+            otherPrisonerRole,
+            reason,
+            restrictionType,
+            comment,
+          },
+          false, // Submit without validation
+        )
       }
 
       res.render('pages/update.njk', {

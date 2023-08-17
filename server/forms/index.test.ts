@@ -10,6 +10,11 @@ describe('Form handling', () => {
     protected validate(): void {
       if (!this.data.query) {
         this.addError('query', 'No query was submitted')
+      } else {
+        this.data.query = this.data.query.trim()
+        if (this.data.query === '') {
+          this.addError('query', 'Blank query was submitted')
+        }
       }
     }
   }
@@ -75,13 +80,30 @@ describe('Form handling', () => {
     })
 
     it('allows retrieving known field information', () => {
-      expect(form.fields.query.value).toEqual('search text ')
+      expect(form.fields.query.value).toEqual('search text')
       expect(form.fields.query.error).toBeUndefined()
     })
 
     it('will return undefined for unkown fields', () => {
       expect(form.fields.missingField.value).toBeUndefined()
       expect(form.fields.missingField.error).toBeUndefined()
+    })
+  })
+
+  describe('submitted invalid form without validating it', () => {
+    const form = new SimpleForm()
+    form.submit({ query: ' ' }, false)
+
+    it('is submitted', () => {
+      expect(form.submitted).toBeTruthy()
+    })
+
+    it(`it doesn't have errors`, () => {
+      expect(form.hasErrors).toBeFalsy()
+    })
+
+    it('contains the submitted, unsanitised fields', () => {
+      expect(form.fields.query.value).toEqual(' ')
     })
   })
 
