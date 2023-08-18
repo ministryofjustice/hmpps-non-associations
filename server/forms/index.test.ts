@@ -55,6 +55,19 @@ describe('Form handling', () => {
     })
   })
 
+  describe('loading data into a form', () => {
+    const form = new SimpleForm()
+    form.load({ query: ' ' })
+
+    it(`it doesn't have errors`, () => {
+      expect(form.hasErrors).toBeFalsy()
+    })
+
+    it('contains the loaded, unsanitised fields', () => {
+      expect(form.fields.query.value).toEqual(' ')
+    })
+  })
+
   describe('submitted valid form', () => {
     const form = new SimpleForm()
     form.submit({ query: 'search text ' })
@@ -87,23 +100,6 @@ describe('Form handling', () => {
     it('will return undefined for unkown fields', () => {
       expect(form.fields.missingField.value).toBeUndefined()
       expect(form.fields.missingField.error).toBeUndefined()
-    })
-  })
-
-  describe('submitted invalid form without validating it', () => {
-    const form = new SimpleForm()
-    form.submit({ query: ' ' }, false)
-
-    it('is submitted', () => {
-      expect(form.submitted).toBeTruthy()
-    })
-
-    it(`it doesn't have errors`, () => {
-      expect(form.hasErrors).toBeFalsy()
-    })
-
-    it('contains the submitted, unsanitised fields', () => {
-      expect(form.fields.query.value).toEqual(' ')
     })
   })
 

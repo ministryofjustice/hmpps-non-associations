@@ -114,16 +114,13 @@ export default function updateRoutes(service: Services): Router {
 
         const { reason, restrictionType, comment } = nonAssociation
 
-        form.submit(
-          {
-            prisonerRole,
-            otherPrisonerRole,
-            reason,
-            restrictionType,
-            comment,
-          },
-          false, // Submit without validation
-        )
+        form.load({
+          prisonerRole,
+          otherPrisonerRole,
+          reason,
+          restrictionType,
+          comment,
+        })
       }
 
       res.render('pages/update.njk', {

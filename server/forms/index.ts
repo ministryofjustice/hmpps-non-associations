@@ -24,9 +24,9 @@ export abstract class BaseForm<Data extends BaseData> {
   }
 
   /**
-   * Set the submitted/POSTed form data triggering validation
+   * Load data into the form without triggering the validation
    */
-  public submit(data: { [K in keyof Data]?: string }, doValidate: boolean = true): void {
+  public load(data: { [K in keyof Data]?: string }): void {
     if (this.submitted) {
       throw new Error('Form has already been submitted')
     }
@@ -36,9 +36,14 @@ export abstract class BaseForm<Data extends BaseData> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore because data has not yet been validated and turned into the expected type
     this.data = data
-    if (doValidate) {
-      this.validate()
-    }
+  }
+
+  /**
+   * Set the submitted/POSTed form data triggering validation
+   */
+  public submit(data: { [K in keyof Data]?: string }): void {
+    this.load(data)
+    this.validate()
   }
 
   /**
