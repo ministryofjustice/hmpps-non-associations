@@ -133,4 +133,110 @@ describe('Update non-association page', () => {
       })
     })
   })
+
+  it('should show error messages if form has errors', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+
+    return request(app)
+      .post(routeUrls.update(prisonerNumber, nonAssociation.id))
+      .send({
+        formId: 'update',
+        prisonerRole: 'VICTIM',
+        otherPrisonerRole: 'PERPETRATOR',
+        reason: 'THREAT',
+        restrictionType: 'LANDING',
+        comment: nonAssociation.comment, // Comment not updated
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.createNonAssociation).not.toHaveBeenCalled()
+
+        expect(res.text).toContain('There is a problem')
+        expect(res.text).toContain('Enter a comment to explain what you are updating')
+      })
+  })
+
+  it('should show confirmation page if form had no errors', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+
+    const updatedComment = `${nonAssociation.comment}\n\n - IR number: 123`
+    const updatedNonAssociation = { ...nonAssociation, comment: updatedComment }
+    nonAssociationsApi.updateNonAssociation.mockResolvedValueOnce(updatedNonAssociation)
+
+    // NOTE: Updating from 2nd prisoner to check roles are still updated correctly
+    return request(app)
+      .post(routeUrls.update(otherPrisoner.prisonerNumber, nonAssociation.id))
+      .send({
+        formId: 'update',
+        prisonerRole: nonAssociation.secondPrisonerRole,
+        otherPrisonerRole: nonAssociation.firstPrisonerRole,
+        reason: nonAssociation.reason,
+        restrictionType: nonAssociation.restrictionType,
+        comment: updatedComment,
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.updateNonAssociation).toHaveBeenCalledWith(nonAssociation.id, {
+          firstPrisonerRole: nonAssociation.firstPrisonerRole,
+          secondPrisonerRole: nonAssociation.secondPrisonerRole,
+          reason: nonAssociation.reason,
+          restrictionType: nonAssociation.restrictionType,
+          comment: updatedComment,
+        })
+
+        expect(res.text).toContain('The non-association has been updated on each prisoner’s profile')
+      })
+  })
+
+  it('should generic error page when api returns an error', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+
+    const updatedComment = `${nonAssociation.comment}\n\n - IR number: 123`
+    const error: SanitisedError = {
+      name: 'Error',
+      status: 400,
+      message: 'Bad Request',
+      stack: 'Error: Bad Request',
+    }
+    nonAssociationsApi.updateNonAssociation.mockRejectedValue(error)
+
+    return request(app)
+      .post(routeUrls.update(otherPrisoner.prisonerNumber, nonAssociation.id))
+      .send({
+        formId: 'update',
+        prisonerRole: nonAssociation.secondPrisonerRole,
+        otherPrisonerRole: nonAssociation.firstPrisonerRole,
+        reason: nonAssociation.reason,
+        restrictionType: nonAssociation.restrictionType,
+        comment: updatedComment,
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.updateNonAssociation).toHaveBeenCalledWith(nonAssociation.id, {
+          firstPrisonerRole: nonAssociation.firstPrisonerRole,
+          secondPrisonerRole: nonAssociation.secondPrisonerRole,
+          reason: nonAssociation.reason,
+          restrictionType: nonAssociation.restrictionType,
+          comment: updatedComment,
+        })
+
+        expect(res.text).not.toContain('The non-association has been updated on each prisoner’s profile')
+        expect(res.text).toContain('Non-association could not be updated') // error message
+        expect(res.text).toContain(updatedComment) // form still pre-filled
+      })
+  })
 })
