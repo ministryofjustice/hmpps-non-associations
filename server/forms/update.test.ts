@@ -1,10 +1,11 @@
 import { roleOptions, reasonOptions, restrictionTypeOptions } from '../data/nonAssociationsApi'
-import AddForm from './add'
+import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { type NonAssociationFormData } from './nonAssociation'
+import UpdateForm from './update'
 
-describe('AddForm', () => {
+describe('UpdateForm', () => {
   it('should present errors when the payload is empty', () => {
-    const form = new AddForm()
+    const form = new UpdateForm()
     form.submit({})
     expect(form.hasErrors).toBeTruthy()
   })
@@ -21,7 +22,7 @@ describe('AddForm', () => {
     enumFields.forEach(field => {
       const payload = { ...validPayload }
       delete payload[field]
-      const form = new AddForm()
+      const form = new UpdateForm()
       form.submit(payload)
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields[field].error).toBeTruthy()
@@ -42,11 +43,27 @@ describe('AddForm', () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       payload[field] = 'INVALID'
-      const form = new AddForm()
+      const form = new UpdateForm()
       form.submit(payload)
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields[field].error).toBeTruthy()
     })
+  })
+
+  it('checks non-association comment has changed', () => {
+    const nonAssociation = mockNonAssociation('A111', 'B222')
+    const payload: NonAssociationFormData = {
+      prisonerRole: nonAssociation.firstPrisonerRole,
+      otherPrisonerRole: nonAssociation.secondPrisonerRole,
+      reason: nonAssociation.reason,
+      restrictionType: nonAssociation.restrictionType,
+      comment: nonAssociation.comment,
+    }
+
+    const form = new UpdateForm('1st prisoner name', '2nd prisoner name', nonAssociation)
+    form.submit(payload)
+    expect(form.hasErrors).toBeTruthy()
+    expect(form.fields.comment.error).toEqual('Enter a comment to explain what you are updating')
   })
 
   it('should accept valid payloads', () => {
@@ -54,7 +71,7 @@ describe('AddForm', () => {
       Object.keys(roleOptions).forEach(otherPrisonerRole => {
         Object.keys(reasonOptions).forEach(reason => {
           Object.keys(restrictionTypeOptions).forEach(restrictionType => {
-            const form = new AddForm()
+            const form = new UpdateForm()
             form.submit({ prisonerRole, otherPrisonerRole, reason, restrictionType, comment: 'See IR 12345' })
             expect(form.hasErrors).toBeFalsy()
           })
@@ -71,7 +88,7 @@ describe('AddForm', () => {
       restrictionType: 'WING',
       comment: 'Should avoid working together  ',
     }
-    const form = new AddForm()
+    const form = new UpdateForm()
     form.submit(validPayload)
     expect(form.hasErrors).toBeFalsy()
     expect(form.fields.comment.value).toEqual('Should avoid working together')
@@ -88,7 +105,7 @@ describe('AddForm', () => {
 
     it('by allowing 240 characters', () => {
       const comment = '0'.repeat(240)
-      const form = new AddForm()
+      const form = new UpdateForm()
       form.submit({ ...validPayload, comment })
       expect(form.hasErrors).toBeFalsy()
       expect(form.fields.comment.value).toEqual(comment)
@@ -96,7 +113,7 @@ describe('AddForm', () => {
 
     it('by allowing 240 characters if the rest is whitespace', () => {
       const comment = '0'.repeat(240)
-      const form = new AddForm()
+      const form = new UpdateForm()
       form.submit({ ...validPayload, comment: `  ${comment}  ` })
       expect(form.hasErrors).toBeFalsy()
       expect(form.fields.comment.value).toEqual(comment)
@@ -104,7 +121,7 @@ describe('AddForm', () => {
 
     it('by disallowing more than 240 characters', () => {
       const comment = '0'.repeat(241)
-      const form = new AddForm()
+      const form = new UpdateForm()
       form.submit({ ...validPayload, comment })
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields.comment.value).toEqual(comment)
@@ -122,7 +139,7 @@ describe('AddForm', () => {
     }
 
     it('when none are provided', () => {
-      const form = new AddForm()
+      const form = new UpdateForm()
       form.submit(invalidPayload)
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields.prisonerRole.error).toEqual('Select prisoner’s role in the situation')
@@ -130,7 +147,7 @@ describe('AddForm', () => {
     })
 
     it('when they are provided', () => {
-      const form = new AddForm('David Jones', 'Fred Williams')
+      const form = new UpdateForm('David Jones', 'Fred Williams')
       form.submit(invalidPayload)
       expect(form.hasErrors).toBeTruthy()
       expect(form.fields.prisonerRole.error).toEqual('Select David Jones’ role in the situation')

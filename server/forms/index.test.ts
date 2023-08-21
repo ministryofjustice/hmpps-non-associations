@@ -10,6 +10,11 @@ describe('Form handling', () => {
     protected validate(): void {
       if (!this.data.query) {
         this.addError('query', 'No query was submitted')
+      } else {
+        this.data.query = this.data.query.trim()
+        if (this.data.query === '') {
+          this.addError('query', 'Blank query was submitted')
+        }
       }
     }
   }
@@ -50,6 +55,19 @@ describe('Form handling', () => {
     })
   })
 
+  describe('loading data into a form', () => {
+    const form = new SimpleForm()
+    form.load({ query: ' ' })
+
+    it(`it doesn't have errors`, () => {
+      expect(form.hasErrors).toBeFalsy()
+    })
+
+    it('contains the loaded, unsanitised fields', () => {
+      expect(form.fields.query.value).toEqual(' ')
+    })
+  })
+
   describe('submitted valid form', () => {
     const form = new SimpleForm()
     form.submit({ query: 'search text ' })
@@ -75,7 +93,7 @@ describe('Form handling', () => {
     })
 
     it('allows retrieving known field information', () => {
-      expect(form.fields.query.value).toEqual('search text ')
+      expect(form.fields.query.value).toEqual('search text')
       expect(form.fields.query.error).toBeUndefined()
     })
 
