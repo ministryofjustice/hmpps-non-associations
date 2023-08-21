@@ -10,7 +10,7 @@ import {
   davidJones2ClosedNonAssociations,
   mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
-import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
+import { andrewBrown, davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS

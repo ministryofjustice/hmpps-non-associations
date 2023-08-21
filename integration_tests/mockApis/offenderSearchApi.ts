@@ -51,11 +51,13 @@ export default {
     page: number
     totalElements: number | undefined
   }): SuperAgentRequest {
-    const query = `term=${encodeURIComponent(term)}&size=${OffenderSearchClient.PAGE_SIZE}&page=${page}`
+    const query = `term=${encodeURIComponent(term)}&size=${
+      OffenderSearchClient.PAGE_SIZE
+    }&page=${page}&sort=lastName${encodeURIComponent(',')}ASC`
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners?${query}`,
+        url: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners?${query}`,
       },
       response: {
         status: 200,
