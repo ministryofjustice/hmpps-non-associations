@@ -49,10 +49,6 @@ export default function updateRoutes(service: Services): Router {
         const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
         const otherPrisonerName = nameOfPerson(otherPrisoner)
 
-        logger.debug('nonAssociation', nonAssociation)
-        logger.debug(`prisonerNumber = ${prisonerNumber} - info = ${JSON.stringify(prisoner)}`)
-        logger.debug(`otherPrisonerNumber = ${otherPrisonerNumber} - info = ${JSON.stringify(otherPrisoner)}`)
-
         Object.assign(res.locals, { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName })
 
         return new UpdateForm(prisonerName, otherPrisonerName, nonAssociation)
