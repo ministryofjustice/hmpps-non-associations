@@ -9,7 +9,27 @@ export default class PrisonerNonAssociations extends Page {
     return cy.get('.govuk-fieldset')
   }
 
-  get statusRadios(): PageElement<HTMLDivElement> {
-    return this.form.find('.govuk-radios__item')
+  get RadioButtonPrisonerRole(): PageElement<HTMLElement> {
+    return cy.get('#prisonerRole')
+  }
+
+  get RadioButtonOtherPrisonerRole(): PageElement<HTMLElement> {
+    return cy.get('#otherPrisonerRole-2')
+  }
+
+  get RadioButtonReason(): PageElement<HTMLElement> {
+    return cy.get('#reason')
+  }
+
+  get RadioButtonRestrictionType(): PageElement<HTMLElement> {
+    return cy.get('#restrictionType')
+  }
+
+  getAddCommentBox(): PageElement<HTMLElement> {
+    return cy.get('#add-comment')
+  }
+
+  getSaveButton(): PageElement<HTMLElement> {
+    return cy.get('button[class="govuk-button"]')
   }
 }

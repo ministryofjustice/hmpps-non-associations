@@ -18,6 +18,7 @@ context('Prisoner non associations', () => {
   it('navigate to close a non association ', () => {
     const homePage = Page.verifyOnPage(PrisonerNonAssociations)
     homePage.getCloseNonAssociation().click()
+
     // cy.title().should('eq', `Close non-association`)
   })
 })

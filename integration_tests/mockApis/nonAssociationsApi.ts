@@ -87,7 +87,7 @@ export default {
       response: {
         status: 201,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, andrewBrown.prisonerNumber),
       },
     })
   },

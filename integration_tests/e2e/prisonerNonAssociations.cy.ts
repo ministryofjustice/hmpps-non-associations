@@ -14,8 +14,6 @@ context('Prisoner non associations', () => {
     cy.signIn()
     cy.visit('/prisoner/A1234BC/non-associations')
   })
-
-  // TODO: These need assertign
   it('has correct title', () => {
     cy.title().should('eq', `David Jones’ non-associations`)
   })
@@ -31,7 +29,7 @@ context('Prisoner non associations', () => {
     homePage.getClosedNonAssociations().should('contain.text', 'Closed')
   })
 
-  // TODO: This isn't sorting so need to investigate
+  // TODO: Not doing what i think its doing
   it('users can sort by name', () => {
     const homePage = Page.verifyOnPage(PrisonerNonAssociations)
     homePage.getAlphabeticallySortedNonAssociations().click()

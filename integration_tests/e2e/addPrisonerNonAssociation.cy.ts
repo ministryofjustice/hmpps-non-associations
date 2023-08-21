@@ -3,6 +3,7 @@ import Page from '../pages/page'
 import PrisonerNonAssociations from '../pages/prisonerNonAssociations'
 import addPrisonerNonAssociations from '../pages/addPrisonerNonAssociations'
 import addPrisonerNonAssociationDetails from '../pages/addPrisonerNonAssociationDetails'
+import addPrisonerNonAssociationConfirmation from '../pages/addPrisonerNonAssociationConfirmation'
 
 context('Prisoner non associations', () => {
   beforeEach(() => {
@@ -30,12 +31,22 @@ context('Prisoner non associations', () => {
     })
     const homePage = Page.verifyOnPage(PrisonerNonAssociations)
     homePage.getAddNewNonAssociation().click()
+    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
 
     const addPage = Page.verifyOnPage(addPrisonerNonAssociations)
     addPage.getInputField('search').type('Andrew')
     addPage.getSearchButton().click()
     addPage.getSelectPrisonerLink().click()
-    // const addDetailsPage = Page.verifyOnPage(addPrisonerNonAssociationDetails)x
-    // addDetailsPage.form.submit()
+
+    cy.task('stubCreateNonAssociation')
+    const addDetailsPage = Page.verifyOnPage(addPrisonerNonAssociationDetails)
+    addDetailsPage.RadioButtonPrisonerRole.click()
+    addDetailsPage.RadioButtonOtherPrisonerRole.click()
+    addDetailsPage.RadioButtonReason.click()
+    addDetailsPage.RadioButtonRestrictionType.click()
+    addDetailsPage.getAddCommentBox().type('Andrew is a bully')
+    addDetailsPage.getSaveButton().click()
+
+    Page.verifyOnPage(addPrisonerNonAssociationConfirmation)
   })
 })
