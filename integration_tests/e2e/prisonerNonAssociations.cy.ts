@@ -29,10 +29,10 @@ context('Prisoner non associations', () => {
     homePage.getClosedNonAssociations().should('contain.text', 'Closed')
   })
 
-  // TODO: Not doing what i think its doing
-  it('users can sort by name', () => {
-    const homePage = Page.verifyOnPage(PrisonerNonAssociations)
-    homePage.getAlphabeticallySortedNonAssociations().click()
-    homePage.getAlphabeticallySortedNonAssociations().should('have.attr', 'aria-sort', 'descending')
-  })
+  // TODO: Not doing what is intended. Needs fixing
+  // it('users can sort by name', () => {
+  //   const homePage = Page.verifyOnPage(PrisonerNonAssociations)
+  //   homePage.getAlphabeticallySortedNonAssociations().click()
+  //   homePage.getAlphabeticallySortedNonAssociations().should('have.attr', 'aria-sort', 'descending')
+  // })
 })

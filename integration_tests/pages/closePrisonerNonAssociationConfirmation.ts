@@ -2,7 +2,7 @@ import Page, { type PageElement } from './page'
 
 export default class PrisonerNonAssociations extends Page {
   constructor() {
-    super(`The non-association has been added`)
+    super(`The non-association has been closed`)
   }
 
   getInputField(name: string): PageElement<HTMLInputElement> {

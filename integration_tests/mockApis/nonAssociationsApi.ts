@@ -68,7 +68,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+',
+        url: '/nonAssociationsApi/non-associations/101',
       },
       response: {
         status: 200,
@@ -110,7 +110,7 @@ export default {
     return stubFor({
       request: {
         method: 'PUT',
-        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+/close',
+        urlPath: '/nonAssociationsApi/non-associations/101/close',
       },
       response: {
         status: 200,
