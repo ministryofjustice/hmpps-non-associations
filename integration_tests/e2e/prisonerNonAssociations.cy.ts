@@ -29,11 +29,4 @@ context('Prisoner non associations Page', () => {
       .getClosedNonAssociationsParent()
       .should('have.class', 'govuk-tabs__list-item govuk-tabs__list-item--selected')
   })
-
-  // TODO: Not doing what is intended. Needs fixing
-  // it('users can sort by name', () => {
-  //   const homePage = Page.verifyOnPage(PrisonerNonAssociations)
-  //   homePage.getAlphabeticallySortedNonAssociations().click()
-  //   homePage.getAlphabeticallySortedNonAssociations().should('have.attr', 'aria-sort', 'descending')
-  // })
 })
