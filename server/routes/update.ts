@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
@@ -38,6 +39,10 @@ export default function updateRoutes(service: Services): Router {
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const nonAssociationsApi = new NonAssociationsApi(res.locals.user.token)
         const nonAssociation = await nonAssociationsApi.getNonAssociation(nonAssociationId)
+
+        if (nonAssociation.isClosed) {
+          throw NotFound(`Non-association ${nonAssociationId} is closed and can't be edited`)
+        }
 
         const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
         const prisonerName = nameOfPerson(prisoner)
