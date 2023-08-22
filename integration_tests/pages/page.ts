@@ -33,12 +33,9 @@ export default abstract class Page {
     return cy.get('.govuk-breadcrumbs__list-item')
   }
 
-  checkLastBreadcrumb() {
-    cy.url().then(location => {
-      const url = new URL(location)
-      this.breadcrumbs.last().should('contain.text', this.title)
-      this.breadcrumbs.last().find('a').should('have.attr', 'href', url.pathname)
-    })
+  checkLastBreadcrumb(label: string): void {
+    this.breadcrumbs.last().should('contain.text', label)
+    this.breadcrumbs.last().find('a').should('have.attr', 'href')
   }
 
   get messages(): PageElement<HTMLDivElement> {

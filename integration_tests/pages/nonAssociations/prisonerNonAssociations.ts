@@ -1,4 +1,4 @@
-import Page, { type PageElement } from './page'
+import Page, { type PageElement } from '../page'
 
 export default class PrisonerNonAssociations extends Page {
   constructor() {
@@ -9,16 +9,8 @@ export default class PrisonerNonAssociations extends Page {
     return cy.contains('Closed')
   }
 
-  getNonAssociationsTable(): PageElement<HTMLTableElement> {
-    return cy.get('.govuk-table')
-  }
-
-  getPrisonerName(): PageElement<HTMLTableCellElement> {
-    return cy.get('a[data-ga-action="prisoner name"]')
-  }
-
-  get createLink(): PageElement<HTMLAnchorElement> {
-    return cy.get('a:contains(Create)')
+  getClosedNonAssociationsParent(): PageElement<HTMLElement> {
+    return cy.get('.govuk-tabs__list-item').eq(1)
   }
 
   getAlphabeticallySortedNonAssociations(): PageElement<HTMLElement> {

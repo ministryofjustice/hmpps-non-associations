@@ -1,11 +1,11 @@
-import Page, { type PageElement } from './page'
+import Page, { type PageElement } from '../page'
 
 export default class PrisonerNonAssociations extends Page {
   constructor() {
     super(`Search for a prisoner`)
   }
 
-  getInputField(name: string): PageElement<HTMLInputElement> {
+  getInputField(): PageElement<HTMLInputElement> {
     return cy.get('#search-q')
   }
 

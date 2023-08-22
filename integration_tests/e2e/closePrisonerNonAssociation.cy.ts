@@ -1,10 +1,10 @@
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import PrisonerNonAssociations from '../pages/prisonerNonAssociations'
-import ClosePrisonerNonAssociation from '../pages/closePrisonerNonAssociation'
-import ClosePrisonerNonAssociationConfirmation from '../pages/closePrisonerNonAssociationConfirmation'
+import PrisonerNonAssociations from '../pages/nonAssociations/prisonerNonAssociations'
+import ClosePrisonerNonAssociation from '../pages/nonAssociations/closePrisonerNonAssociation'
+import ClosePrisonerNonAssociationConfirmation from '../pages/nonAssociations/closePrisonerNonAssociationConfirmation'
 
-context('Prisoner non associations', () => {
+context('Close prisoner non associations page', () => {
   beforeEach(() => {
     cy.task('reset')
     cy.task('stubSignIn')
@@ -16,12 +16,14 @@ context('Prisoner non associations', () => {
     cy.visit('/prisoner/A1234BC/non-associations')
   })
 
-  it('navigate to close a non association ', () => {
+  it('should allow closing a non association ', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A1235EF', result: fredMills })
     cy.task('stubGetNonAssociation')
+
     const homePage = Page.verifyOnPage(PrisonerNonAssociations)
     homePage.getCloseNonAssociation().click()
     cy.task('stubCloseNonAssociation')
+
     const closePage = Page.verifyOnPage(ClosePrisonerNonAssociation)
     closePage.getCloseCommentBox().type('They are now friends')
     closePage.getCloseButton().click()

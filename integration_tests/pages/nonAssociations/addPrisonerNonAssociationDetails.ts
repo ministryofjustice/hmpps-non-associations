@@ -1,4 +1,4 @@
-import Page, { type PageElement } from './page'
+import Page, { type PageElement } from '../page'
 
 export default class PrisonerNonAssociations extends Page {
   constructor() {

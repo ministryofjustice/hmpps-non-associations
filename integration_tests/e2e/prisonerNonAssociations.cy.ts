@@ -1,9 +1,8 @@
 import { davidJones } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import PrisonerNonAssociations from '../pages/prisonerNonAssociations'
-import NonAssociationsPage from '../pages/nonAssociations/nonAssociations'
+import PrisonerNonAssociations from '../pages/nonAssociations/prisonerNonAssociations'
 
-context('Prisoner non associations', () => {
+context('Prisoner non associations Page', () => {
   beforeEach(() => {
     cy.task('reset')
     cy.task('stubSignIn')
@@ -18,15 +17,17 @@ context('Prisoner non associations', () => {
     cy.title().should('eq', `David Jones’ non-associations`)
   })
 
-  it('users can see non-associations for the prisoner in context', () => {
+  it('has correct breadcrumb', () => {
     const homePage = Page.verifyOnPage(PrisonerNonAssociations)
-    // homePage.checkLastBreadcrumb('Jones, David')
+    homePage.checkLastBreadcrumb('Jones, David')
   })
 
-  it('users can view closed tab', () => {
+  it('should display the closed tab', () => {
     const homePage = Page.verifyOnPage(PrisonerNonAssociations)
     homePage.getClosedNonAssociations().click()
-    homePage.getClosedNonAssociations().should('contain.text', 'Closed')
+    homePage
+      .getClosedNonAssociationsParent()
+      .should('have.class', 'govuk-tabs__list-item govuk-tabs__list-item--selected')
   })
 
   // TODO: Not doing what is intended. Needs fixing
