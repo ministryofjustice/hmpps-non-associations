@@ -40,6 +40,12 @@ export default function updateRoutes(service: Services): Router {
         const nonAssociationsApi = new NonAssociationsApi(res.locals.user.token)
         const nonAssociation = await nonAssociationsApi.getNonAssociation(nonAssociationId)
 
+        if (
+          nonAssociation.firstPrisonerNumber !== prisonerNumber &&
+          nonAssociation.secondPrisonerNumber !== prisonerNumber
+        ) {
+          throw NotFound(`Non-association ${nonAssociationId} does not involve ${prisonerNumber}`)
+        }
         if (nonAssociation.isClosed) {
           throw NotFound(`Non-association ${nonAssociationId} is closed and can't be edited`)
         }

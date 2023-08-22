@@ -81,6 +81,22 @@ describe('Update non-association page', () => {
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should return 404 if key prisoner is not part of non-association', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
+
+    return request(app)
+      .get(routeUrls.update('B4321BB', nonAssociation.id))
+      .expect(404)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(res.text).not.toContain('Jones, David')
+        expect(res.text).not.toContain('Jones, David')
+        expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
       })
   })
 
@@ -88,8 +104,6 @@ describe('Update non-association page', () => {
     const closedNonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner.prisonerNumber, false)
 
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(closedNonAssociation)
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
 
     return request(app)
       .get(routeUrls.update(prisonerNumber, closedNonAssociation.id))
@@ -98,6 +112,7 @@ describe('Update non-association page', () => {
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
       })
   })
 
