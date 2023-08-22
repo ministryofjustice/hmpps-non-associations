@@ -30,18 +30,18 @@ export const restrictionTypeOptions = {
   CELL: 'Cell only',
   LANDING: 'Cell and landing',
   WING: 'Cell, landing and wing',
-}
+} as const
 export type RestrictionType = typeof restrictionTypeOptions
 
 export const maxCommentLength = 240 as const
 
 interface BaseNonAssociationsListItem {
   id: number
-  roleCode: keyof Role
+  role: keyof Role
   roleDescription: Role[keyof Role]
-  reasonCode: keyof Reason
+  reason: keyof Reason
   reasonDescription: Reason[keyof Reason]
-  restrictionTypeCode: keyof RestrictionType
+  restrictionType: keyof RestrictionType
   restrictionTypeDescription: RestrictionType[keyof RestrictionType]
   comment: string
   authorisedBy: string
@@ -50,7 +50,7 @@ interface BaseNonAssociationsListItem {
   whenUpdated: Date
   otherPrisonerDetails: {
     prisonerNumber: string
-    roleCode: keyof Role
+    role: keyof Role
     roleDescription: Role[keyof Role]
     firstName: string
     lastName: string
@@ -92,10 +92,14 @@ interface BaseNonAssociation {
   id: number
   firstPrisonerNumber: string
   firstPrisonerRole: keyof Role
+  firstPrisonerRoleDescription: Role[keyof Role]
   secondPrisonerNumber: string
   secondPrisonerRole: keyof Role
+  secondPrisonerRoleDescription: Role[keyof Role]
   reason: keyof Reason
+  reasonDescription: Reason[keyof Reason]
   restrictionType: keyof RestrictionType
+  restrictionTypeDescription: RestrictionType[keyof RestrictionType]
   comment: string
   authorisedBy: string
   updatedBy: string

@@ -7,13 +7,13 @@ import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
 import {
   NonAssociationsApi,
+  type CreateNonAssociationRequest,
   roleOptions,
   reasonOptions,
   restrictionTypeOptions,
   maxCommentLength,
-  type CreateNonAssociationRequest,
 } from '../data/nonAssociationsApi'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
@@ -52,7 +52,11 @@ export default function addRoutes(service: Services): Router {
     },
     asyncMiddleware(async (req, res) => {
       const { prisonerNumber, otherPrisonerNumber } = req.params
-      const { prisoner, prisonerName, otherPrisonerName } = res.locals
+      const { prisoner, prisonerName, otherPrisonerName } = res.locals as unknown as {
+        prisoner: OffenderSearchResult
+        prisonerName: string
+        otherPrisonerName: string
+      }
 
       const form: AddForm = res.locals.forms[formId]
 
