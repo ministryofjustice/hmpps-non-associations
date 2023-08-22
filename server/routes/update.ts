@@ -7,19 +7,20 @@ import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
 import {
   NonAssociationsApi,
+  type NonAssociation,
+  type UpdateNonAssociationRequest,
   roleOptions,
   reasonOptions,
   restrictionTypeOptions,
   maxCommentLength,
-  UpdateNonAssociationRequest,
 } from '../data/nonAssociationsApi'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
-import type { FlashMessages } from './index'
 import UpdateForm from '../forms/update'
+import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
@@ -61,7 +62,13 @@ export default function updateRoutes(service: Services): Router {
     },
     asyncMiddleware(async (req, res) => {
       const { prisonerNumber } = req.params
-      const { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } = res.locals
+      const { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } = res.locals as unknown as {
+        nonAssociation: NonAssociation
+        prisoner: OffenderSearchResult
+        prisonerName: string
+        otherPrisoner: OffenderSearchResult
+        otherPrisonerName: string
+      }
       const otherPrisonerNumber = otherPrisoner.prisonerNumber
 
       const form: UpdateForm = res.locals.forms[formId]
