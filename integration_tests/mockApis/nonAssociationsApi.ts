@@ -10,7 +10,7 @@ import {
   davidJones2ClosedNonAssociations,
   mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
-import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
+import { andrewBrown, davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
@@ -54,7 +54,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: `/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
+        urlPathPattern: `/nonAssociationsApi/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
       },
       response: {
         status: 200,
@@ -68,7 +68,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: '/non-associations/\\d+',
+        url: '/nonAssociationsApi/non-associations/101',
       },
       response: {
         status: 200,
@@ -82,12 +82,12 @@ export default {
     return stubFor({
       request: {
         method: 'POST',
-        urlPattern: '/non-associations',
+        urlPathPattern: '/nonAssociationsApi/non-associations',
       },
       response: {
         status: 201,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, andrewBrown.prisonerNumber),
       },
     })
   },
@@ -96,7 +96,7 @@ export default {
     return stubFor({
       request: {
         method: 'PATCH',
-        urlPattern: '/non-associations/\\d+',
+        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+',
       },
       response: {
         status: 200,
@@ -110,7 +110,7 @@ export default {
     return stubFor({
       request: {
         method: 'PUT',
-        urlPattern: '/non-associations/\\d+/close',
+        urlPath: '/nonAssociationsApi/non-associations/101/close',
       },
       response: {
         status: 200,
