@@ -1,6 +1,6 @@
 import Page, { type PageElement } from '../page'
 
-export default class PrisonerNonAssociations extends Page {
+export default class ViewPrisonerNonAssociations extends Page {
   constructor() {
     super(`David Jones’ non-associations`)
   }
@@ -23,5 +23,9 @@ export default class PrisonerNonAssociations extends Page {
 
   getCloseNonAssociation(): PageElement<HTMLElement> {
     return cy.get('a:contains(Close)').eq(1)
+  }
+
+  getUpdateNonAssociation(): PageElement<HTMLElement> {
+    return cy.get('a:contains(Update)').eq(1)
   }
 }

@@ -10,7 +10,7 @@ import {
   davidJones2ClosedNonAssociations,
   mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
-import { andrewBrown, davidJones, fredMills } from '../../server/data/testData/offenderSearch'
+import { andrewBrown, davidJones, fredMills, oscarJones } from '../../server/data/testData/offenderSearch'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
@@ -78,6 +78,20 @@ export default {
     })
   },
 
+  stubGetNonAssociationToUpdate: () => {
+    return stubFor({
+      request: {
+        method: 'GET',
+        url: '/nonAssociationsApi/non-associations/102',
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, andrewBrown.prisonerNumber),
+      },
+    })
+  },
+
   stubCreateNonAssociation: () => {
     return stubFor({
       request: {
@@ -96,12 +110,12 @@ export default {
     return stubFor({
       request: {
         method: 'PATCH',
-        urlPathPattern: '/nonAssociationsApi/non-associations/\\d+',
+        url: '/nonAssociationsApi/non-associations/101',
       },
       response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, oscarJones.prisonerNumber),
       },
     })
   },
