@@ -84,6 +84,23 @@ describe('Update non-association page', () => {
       })
   })
 
+  it('should return 404 if the non-association is closed', () => {
+    const closedNonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner.prisonerNumber, false)
+
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(closedNonAssociation)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+
+    return request(app)
+      .get(routeUrls.update(prisonerNumber, closedNonAssociation.id))
+      .expect(404)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(res.text).not.toContain('Jones, David')
+        expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+      })
+  })
+
   it('should render breadcrumbs', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
