@@ -16,7 +16,7 @@ context('Update prisoner non associations page', () => {
     cy.visit('/prisoner/A1234BC/non-associations')
   })
 
-  it('should allow closing a non association ', () => {
+  it('should allow updating a non association ', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
     cy.task('stubGetNonAssociationToUpdate')
 
