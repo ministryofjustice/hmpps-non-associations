@@ -1,9 +1,9 @@
 import { davidJones, andrewBrown } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import PrisonerNonAssociations from '../pages/nonAssociations/prisonerNonAssociations'
-import addPrisonerNonAssociations from '../pages/nonAssociations/addPrisonerNonAssociations'
-import addPrisonerNonAssociationDetails from '../pages/nonAssociations/addPrisonerNonAssociationDetails'
-import addPrisonerNonAssociationConfirmation from '../pages/nonAssociations/addPrisonerNonAssociationConfirmation'
+import addPrisonerSearch from '../pages/nonAssociations/addPrisonerSearch'
+import addPrisonerDetails from '../pages/nonAssociations/addPrisonerDetails'
+import addPrisonerConfirmation from '../pages/nonAssociations/addPrisonerConfirmation'
 
 context('Add prisoner non associations page', () => {
   beforeEach(() => {
@@ -34,13 +34,13 @@ context('Add prisoner non associations page', () => {
     homePage.getAddNewNonAssociation().click()
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
 
-    const addPage = Page.verifyOnPage(addPrisonerNonAssociations)
-    addPage.getInputField('search').type('Andrew')
+    const addPage = Page.verifyOnPage(addPrisonerSearch)
+    addPage.getInputField().type('Andrew')
     addPage.getSearchButton().click()
     addPage.getSelectPrisonerLink().click()
 
     cy.task('stubCreateNonAssociation')
-    const addDetailsPage = Page.verifyOnPage(addPrisonerNonAssociationDetails)
+    const addDetailsPage = Page.verifyOnPage(addPrisonerDetails)
     addDetailsPage.RadioButtonPrisonerRole.click()
     addDetailsPage.RadioButtonOtherPrisonerRole.click()
     addDetailsPage.RadioButtonReason.click()
@@ -48,6 +48,6 @@ context('Add prisoner non associations page', () => {
     addDetailsPage.getAddCommentBox().type('Andrew is a bully')
     addDetailsPage.getSaveButton().click()
 
-    Page.verifyOnPage(addPrisonerNonAssociationConfirmation)
+    Page.verifyOnPage(addPrisonerConfirmation)
   })
 })

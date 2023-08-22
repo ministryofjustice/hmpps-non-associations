@@ -1,8 +1,8 @@
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import PrisonerNonAssociations from '../pages/nonAssociations/prisonerNonAssociations'
-import ClosePrisonerNonAssociation from '../pages/nonAssociations/closePrisonerNonAssociation'
-import ClosePrisonerNonAssociationConfirmation from '../pages/nonAssociations/closePrisonerNonAssociationConfirmation'
+import ClosePrisonerDetails from '../pages/nonAssociations/closePrisonerDetails'
+import ClosePrisonerConfirmation from '../pages/nonAssociations/closePrisonerConfirmation'
 
 context('Close prisoner non associations page', () => {
   beforeEach(() => {
@@ -24,10 +24,10 @@ context('Close prisoner non associations page', () => {
     homePage.getCloseNonAssociation().click()
     cy.task('stubCloseNonAssociation')
 
-    const closePage = Page.verifyOnPage(ClosePrisonerNonAssociation)
+    const closePage = Page.verifyOnPage(ClosePrisonerDetails)
     closePage.getCloseCommentBox().type('They are now friends')
     closePage.getCloseButton().click()
 
-    Page.verifyOnPage(ClosePrisonerNonAssociationConfirmation)
+    Page.verifyOnPage(ClosePrisonerConfirmation)
   })
 })
