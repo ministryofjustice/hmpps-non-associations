@@ -13,9 +13,9 @@ import { nameOfPerson } from '../utils/utils'
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
   // ensures that constants are preserved
-  type module = typeof import('../data/nonAssociationsApi')
-  const realModule = jest.requireActual<module>('../data/nonAssociationsApi')
-  const mockedModule = jest.createMockFromModule<module>('../data/nonAssociationsApi')
+  type Module = typeof import('../data/nonAssociationsApi')
+  const realModule = jest.requireActual<Module>('../data/nonAssociationsApi')
+  const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
 jest.mock('../data/offenderSearch')
