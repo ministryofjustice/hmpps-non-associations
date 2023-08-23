@@ -1,6 +1,6 @@
 import Page, { type PageElement } from '../page'
 
-export default class addPrisonerDetails extends Page {
+export default class AddPrisonerDetails extends Page {
   constructor() {
     super('Non-association details')
   }
@@ -9,19 +9,19 @@ export default class addPrisonerDetails extends Page {
     return cy.get('.govuk-fieldset')
   }
 
-  get RadioButtonPrisonerRole(): PageElement<HTMLElement> {
+  get radioButtonPrisonerRole(): PageElement<HTMLElement> {
     return cy.get('#prisonerRole')
   }
 
-  get RadioButtonOtherPrisonerRole(): PageElement<HTMLElement> {
+  get radioButtonOtherPrisonerRole(): PageElement<HTMLElement> {
     return cy.get('#otherPrisonerRole-2')
   }
 
-  get RadioButtonReason(): PageElement<HTMLElement> {
+  get radioButtonReason(): PageElement<HTMLElement> {
     return cy.get('#reason')
   }
 
-  get RadioButtonRestrictionType(): PageElement<HTMLElement> {
+  get radioButtonRestrictionType(): PageElement<HTMLElement> {
     return cy.get('#restrictionType')
   }
 

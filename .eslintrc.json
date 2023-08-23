@@ -49,12 +49,51 @@
         "@typescript-eslint/semi": 0,
         "import/no-unresolved": "error",
         "prettier/prettier": [
-          "error",
+          "warn",
           {
             "trailingComma": "all",
             "singleQuote": true,
             "printWidth": 120,
             "semi": false
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": "variable",
+            "format": ["camelCase", "UPPER_CASE"]
+          },
+          {
+            "selector": "parameter",
+            "format": ["camelCase"],
+            "leadingUnderscore": "allow"
+          },
+          // This is not very specific unfortunately
+          // {
+          //   "selector": "memberLike",
+          //   "modifiers": ["private"],
+          //   "format": ["camelCase"],
+          //   "leadingUnderscore": "allow"
+          // },
+          {
+            "selector": "typeLike",
+            "format": ["PascalCase"]
+          },
+          // Ignore properties that require quotes
+          // See: https://typescript-eslint.io/rules/naming-convention/#ignore-properties-that-require-quotes
+          {
+            "selector": [
+              "classProperty",
+              "objectLiteralProperty",
+              "typeProperty",
+              "classMethod",
+              "objectLiteralMethod",
+              "typeMethod",
+              "accessor",
+              "enumMember"
+            ],
+            "format": null,
+            "modifiers": ["requiresQuotes"]
           }
         ]
       }
@@ -94,7 +133,7 @@
     ],
     "no-only-tests/no-only-tests": "error",
     "prettier/prettier": [
-      "error",
+      "warn",
       {
         "trailingComma": "all",
         "singleQuote": true,

@@ -10,9 +10,9 @@ import { davidJones, sampleOffenderSearchResults } from '../data/testData/offend
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/offenderSearch', () => {
   // ensures that sort and order constants are preserved
-  type module = typeof import('../data/offenderSearch')
-  const realModule = jest.requireActual<module>('../data/offenderSearch')
-  const mockedModule = jest.createMockFromModule<module>('../data/offenderSearch')
+  type Module = typeof import('../data/offenderSearch')
+  const realModule = jest.requireActual<Module>('../data/offenderSearch')
+  const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
   return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
 })
 

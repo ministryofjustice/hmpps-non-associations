@@ -1,6 +1,6 @@
 import Page, { type PageElement } from '../page'
 
-export default class closePrisonerDetails extends Page {
+export default class ClosePrisonerDetails extends Page {
   constructor() {
     super(`Close a non-association`)
   }
