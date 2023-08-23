@@ -18,7 +18,7 @@ context('Update prisoner non associations page', () => {
 
   it('should allow updating a non association ', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
-    cy.task('stubGetNonAssociationToUpdate')
+    cy.task('stubGetNonAssociationForUpdate')
 
     const updatePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
     updatePage.getUpdateNonAssociation().click()

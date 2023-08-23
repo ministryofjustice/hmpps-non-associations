@@ -18,7 +18,7 @@ context('Close prisoner non associations page', () => {
 
   it('should allow closing a non association ', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A1235EF', result: fredMills })
-    cy.task('stubGetNonAssociation')
+    cy.task('stubGetNonAssociationForClose')
 
     const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
     homePage.getCloseNonAssociation().click()

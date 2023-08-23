@@ -64,7 +64,7 @@ export default {
     })
   },
 
-  stubGetNonAssociation: () => {
+  stubGetNonAssociationForClose: () => {
     return stubFor({
       request: {
         method: 'GET',
@@ -78,7 +78,7 @@ export default {
     })
   },
 
-  stubGetNonAssociationToUpdate: () => {
+  stubGetNonAssociationForUpdate: () => {
     return stubFor({
       request: {
         method: 'GET',
