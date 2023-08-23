@@ -1,12 +1,12 @@
 import { sortByOptions, sortDirectionOptions, type SortBy, type SortDirection } from '../data/nonAssociationsApi'
 import { BaseForm } from './index'
 
-export type ViewData = {
+export type ListData = {
   sort: SortBy
   order: SortDirection
 }
 
-export default class ViewForm extends BaseForm<ViewData> {
+export default class ListForm extends BaseForm<ListData> {
   protected validate(): void {
     this.data.sort = this.data.sort ?? 'WHEN_UPDATED'
     if (!sortByOptions.includes(this.data.sort)) {

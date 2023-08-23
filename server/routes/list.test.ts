@@ -16,7 +16,7 @@ import {
 } from '../data/testData/nonAssociationsApi'
 import { davidJones } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
-import type { ViewData } from '../forms/view'
+import type { ListData } from '../forms/list'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -65,7 +65,7 @@ describe('Non-associations list page', () => {
 
     it('when listing open non-associations', () => {
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(404)
         .expect(res => {
           expect(res.text).not.toContain('Jones, David')
@@ -77,7 +77,7 @@ describe('Non-associations list page', () => {
 
     it('when listing closed non-associations', () => {
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(404)
         .expect(res => {
           expect(res.text).not.toContain('Jones, David')
@@ -94,7 +94,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -107,7 +107,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -122,7 +122,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -151,7 +151,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -185,7 +185,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -202,7 +202,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -221,7 +221,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(() => {
@@ -240,7 +240,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(() => {
@@ -257,7 +257,7 @@ describe('Non-associations list page', () => {
 
   const sortingScenarios: {
     scenario: string
-    query: Partial<ViewData>
+    query: Partial<ListData>
     expected: {
       sortBy: SortBy
       sortDirection: SortDirection
@@ -294,7 +294,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .query(query)
         .expect(200)
         .expect('Content-Type', /html/)
@@ -313,7 +313,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .query(query)
         .expect(200)
         .expect('Content-Type', /html/)
@@ -331,7 +331,7 @@ describe('Non-associations list page', () => {
   describe('should show an error mesage in the unlikely event of sort options being invalid', () => {
     it('when listing open non-associations', () => {
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .query({ sort: 'age' })
         .expect(200)
         .expect('Content-Type', /html/)
@@ -346,7 +346,7 @@ describe('Non-associations list page', () => {
 
     it('when listing closed non-associations', () => {
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .query({ sort: 'age' })
         .expect(200)
         .expect('Content-Type', /html/)
@@ -376,7 +376,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -406,7 +406,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -438,7 +438,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -466,7 +466,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -497,7 +497,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -525,7 +525,7 @@ describe('Non-associations list page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -544,7 +544,7 @@ describe('Non-associations list page', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones0NonAssociations)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -563,7 +563,7 @@ describe('Non-associations list page', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones0NonAssociations)
 
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -592,7 +592,7 @@ describe('Non-associations list page', () => {
 
     it('when listing open non-associations', () => {
       return request(app)
-        .get(routeUrls.view(prisonerNumber))
+        .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -610,7 +610,7 @@ describe('Non-associations list page', () => {
 
     it('when listing closed non-associations', () => {
       return request(app)
-        .get(routeUrls.view(prisonerNumber, true))
+        .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
