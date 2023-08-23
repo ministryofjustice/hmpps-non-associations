@@ -14,7 +14,7 @@ export type NonAssociationFormData = {
 export default class NonAssociationForm extends BaseForm<NonAssociationFormData> {
   constructor(
     readonly prisonerName = 'prisoner',
-    readonly otherPrisonerName: string = 'other prisoner'
+    readonly otherPrisonerName: string = 'other prisoner',
   ) {
     super()
   }
