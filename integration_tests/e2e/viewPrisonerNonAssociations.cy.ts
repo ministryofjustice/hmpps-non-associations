@@ -1,6 +1,6 @@
 import { davidJones } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import PrisonerNonAssociations from '../pages/nonAssociations/prisonerNonAssociations'
+import ViewPrisonerNonAssociations from '../pages/nonAssociations/viewPrisonerNonAssociations'
 
 context('Prisoner non associations Page', () => {
   beforeEach(() => {
@@ -18,12 +18,12 @@ context('Prisoner non associations Page', () => {
   })
 
   it('has correct breadcrumb', () => {
-    const homePage = Page.verifyOnPage(PrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
     homePage.checkLastBreadcrumb('Jones, David')
   })
 
   it('should display the closed tab', () => {
-    const homePage = Page.verifyOnPage(PrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
     homePage.getClosedNonAssociations().click()
     homePage
       .getClosedNonAssociationsParent()

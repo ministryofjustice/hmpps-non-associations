@@ -1,6 +1,6 @@
 import { davidJones, andrewBrown } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import PrisonerNonAssociations from '../pages/nonAssociations/prisonerNonAssociations'
+import ViewPrisonerNonAssociations from '../pages/nonAssociations/viewPrisonerNonAssociations'
 import addPrisonerSearch from '../pages/nonAssociations/addPrisonerSearch'
 import addPrisonerDetails from '../pages/nonAssociations/addPrisonerDetails'
 import addPrisonerConfirmation from '../pages/nonAssociations/addPrisonerConfirmation'
@@ -18,7 +18,7 @@ context('Add prisoner non associations page', () => {
   })
 
   it('navigate to add non association', () => {
-    const homePage = Page.verifyOnPage(PrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
     homePage.getAddNewNonAssociation().click()
     cy.title().should('eq', `Search for a prisoner`)
   })
@@ -30,7 +30,7 @@ context('Add prisoner non associations page', () => {
       results: [andrewBrown],
     })
 
-    const homePage = Page.verifyOnPage(PrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
     homePage.getAddNewNonAssociation().click()
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
 
