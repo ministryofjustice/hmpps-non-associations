@@ -2,7 +2,7 @@ import { RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
 import { NotFound } from 'http-errors'
 
-import { nameOfPerson } from '../utils/utils'
+import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
@@ -13,7 +13,6 @@ import type { Services } from '../services'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function viewRoutes(service: Services): Router {
   const router = Router({ mergeParams: true })
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
@@ -45,6 +44,16 @@ export default function viewRoutes(service: Services): Router {
     const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
     const otherPrisonerName = nameOfPerson(otherPrisoner)
 
+    res.locals.breadcrumbs.addItems(
+      {
+        text: reversedNameOfPerson(prisoner),
+        href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}`,
+      },
+      {
+        text: 'Non-associations',
+        href: service.routeUrls.list(prisonerNumber, nonAssociation.isClosed),
+      },
+    )
     res.render('pages/view.njk', {
       prisonerNumber,
       prisonerName,
