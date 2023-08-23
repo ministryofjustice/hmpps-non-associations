@@ -7,14 +7,15 @@
 
 {% set pageTitle = "Select a prisoner" if form.submitted and not form.hasErrors else "Search for a prisoner" %}
 
+{% set pageHeading = "Select a prisoner" if form.submitted and not form.hasErrors else "Search for a prisoner to keep apart from " + prisonerName %}
+
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
       {% include "../partials/formErrorSummary.njk" %}
 
-      <span class="govuk-caption-l">Non-associations</span>
-      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
       <form method="get" novalidate>
         <div class="app-field-and-button-group">

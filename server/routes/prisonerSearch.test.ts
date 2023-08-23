@@ -69,7 +69,7 @@ describe('Search for a prisoner page', () => {
       .expect(200)
       .expect(res => {
         // heading
-        expect(res.text).toContain('Search for a prisoner')
+        expect(res.text).toContain('Search for a prisoner to keep apart from David Jones')
         expect(res.text).not.toContain('Select a prisoner')
         // no table
         expect(res.text).not.toContain('app-sortable-table')
@@ -93,7 +93,7 @@ describe('Search for a prisoner page', () => {
       .expect(200)
       .expect(res => {
         // heading
-        expect(res.text).not.toContain('Search for a prisoner')
+        expect(res.text).not.toContain('Search for a prisoner to keep apart from David Jones')
         expect(res.text).toContain('Select a prisoner')
         // show result count
         expect(res.text).toContain('Prisoners listed: 2')
@@ -129,7 +129,7 @@ describe('Search for a prisoner page', () => {
       .expect(200)
       .expect(res => {
         // heading
-        expect(res.text).not.toContain('Search for a prisoner')
+        expect(res.text).not.toContain('Search for a prisoner to keep apart from David Jones')
         expect(res.text).toContain('Select a prisoner')
         // no table
         expect(res.text).not.toContain('app-sortable-table')
@@ -151,7 +151,7 @@ describe('Search for a prisoner page', () => {
       .expect(200)
       .expect(res => {
         // heading
-        expect(res.text).toContain('Search for a prisoner')
+        expect(res.text).toContain('Search for a prisoner to keep apart from David Jones')
         expect(res.text).not.toContain('Select a prisoner')
         // error summary shows
         expect(res.text).toContain('There is a problem')
