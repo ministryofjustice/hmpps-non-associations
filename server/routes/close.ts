@@ -61,7 +61,7 @@ export default function addRoutes(service: Services): Router {
       const form: CloseForm = res.locals.forms[formId]
       if (form.submitted && !form.hasErrors) {
         const request: CloseNonAssociationRequest = {
-          closureReason: form.fields.closureReason.value,
+          closedReason: form.fields.closedReason.value,
         }
         try {
           const response = await api.closeNonAssociation(nonAssociationId, request)

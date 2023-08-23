@@ -142,9 +142,9 @@ export interface UpdateNonAssociationRequest {
 }
 
 export interface CloseNonAssociationRequest {
-  closureReason: string
-  dateOfClosure?: Date
-  staffMemberRequestingClosure?: string
+  closedReason: string
+  closedAt?: Date
+  closedBy?: string
 }
 
 export const sortByOptions = ['WHEN_CREATED', 'WHEN_UPDATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const

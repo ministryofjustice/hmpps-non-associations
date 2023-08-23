@@ -161,7 +161,7 @@ describe('Close non-association page', () => {
       .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
       .send({
         formId: 'close',
-        closureReason: '',
+        closedReason: '',
       })
       .expect(200)
       .expect('Content-Type', /html/)
@@ -185,7 +185,7 @@ describe('Close non-association page', () => {
       .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
       .send({
         formId: 'close',
-        closureReason: 'Problem resolved through mediation',
+        closedReason: 'Problem resolved through mediation',
       })
       .expect(200)
       .expect('Content-Type', /html/)
@@ -193,7 +193,7 @@ describe('Close non-association page', () => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
         expect(nonAssociationsApi.closeNonAssociation).toHaveBeenCalledTimes(1)
         expect(nonAssociationsApi.closeNonAssociation).toHaveBeenCalledWith(openNonAssociation.id, {
-          closureReason: 'Problem resolved through mediation',
+          closedReason: 'Problem resolved through mediation',
         })
 
         expect(res.text).toContain('The non-association has been closed')
@@ -219,7 +219,7 @@ describe('Close non-association page', () => {
       .post(routeUrls.close(prisonerNumber, openNonAssociation.id))
       .send({
         formId: 'close',
-        closureReason: 'Problem resolved through mediation',
+        closedReason: 'Problem resolved through mediation',
       })
       .expect(200)
       .expect('Content-Type', /html/)
