@@ -28,7 +28,7 @@
       </p>
 
       <form method="post" novalidate>
-        {% set fieldId = "closureReason" %}
+        {% set fieldId = "closedReason" %}
         {% set field = form.fields[fieldId] %}
         {{ govukCharacterCount({
           id: formId + "-" + fieldId,

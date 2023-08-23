@@ -2,11 +2,11 @@ import Page, { type PageElement } from '../page'
 
 export default class ClosePrisonerDetails extends Page {
   constructor() {
-    super(`Close a non-association`)
+    super('Close a non-association')
   }
 
   getCloseCommentBox(): PageElement<HTMLElement> {
-    return cy.get('#close-closureReason')
+    return cy.get('#close-closedReason')
   }
 
   getCloseButton(): PageElement<HTMLElement> {
