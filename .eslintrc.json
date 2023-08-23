@@ -49,7 +49,7 @@
         "@typescript-eslint/semi": 0,
         "import/no-unresolved": "error",
         "prettier/prettier": [
-          "error",
+          "warn",
           {
             "trailingComma": "all",
             "singleQuote": true,
@@ -94,7 +94,7 @@
     ],
     "no-only-tests/no-only-tests": "error",
     "prettier/prettier": [
-      "error",
+      "warn",
       {
         "trailingComma": "all",
         "singleQuote": true,
