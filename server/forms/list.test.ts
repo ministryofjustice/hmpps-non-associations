@@ -1,11 +1,11 @@
 import { sortByOptions, sortDirectionOptions } from '../data/nonAssociationsApi'
-import ViewForm, { type ViewData } from './view'
+import ListForm, { type ListData } from './list'
 
-describe('ViewForm', () => {
+describe('ListForm', () => {
   const invalidScenarios: {
     scenario: string
     payload: unknown
-    invalidFields: (keyof ViewData)[]
+    invalidFields: (keyof ListData)[]
   }[] = [
     {
       scenario: 'invalid sort-by',
@@ -24,7 +24,7 @@ describe('ViewForm', () => {
     },
   ]
   it.each(invalidScenarios)('should not accept $scenario', ({ payload, invalidFields }) => {
-    const form = new ViewForm()
+    const form = new ListForm()
     form.submit(payload)
     expect(form.hasErrors).toBeTruthy()
     invalidFields.forEach(field => expect(form.fields[field].error).toBeTruthy())
@@ -32,8 +32,8 @@ describe('ViewForm', () => {
 
   const validScenarios: {
     scenario: string
-    payload: Partial<ViewData>
-    expected: ViewData
+    payload: Partial<ListData>
+    expected: ListData
   }[] = [
     {
       scenario: 'no fields are submitted',
@@ -52,7 +52,7 @@ describe('ViewForm', () => {
     },
   ]
   it.each(validScenarios)('should provide fallback values when $scenario', ({ payload, expected: { sort, order } }) => {
-    const form = new ViewForm()
+    const form = new ListForm()
     form.submit(payload)
     expect(form.hasErrors).toBeFalsy()
     expect(form.fields.sort.value).toEqual(sort)
@@ -62,7 +62,7 @@ describe('ViewForm', () => {
   it('should accept various sorting options', () => {
     sortByOptions.forEach(sort => {
       sortDirectionOptions.forEach(order => {
-        const form = new ViewForm()
+        const form = new ListForm()
         form.submit({ sort, order })
         expect(form.hasErrors).toBeFalsy()
         expect(form.fields.sort.value).toEqual(sort)

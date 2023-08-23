@@ -1,8 +1,8 @@
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import ViewPrisonerNonAssociations from '../pages/nonAssociations/viewPrisonerNonAssociations'
 import ClosePrisonerDetails from '../pages/nonAssociations/closePrisonerDetails'
 import ClosePrisonerConfirmation from '../pages/nonAssociations/closePrisonerConfirmation'
+import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
 
 context('Close prisoner non associations page', () => {
   beforeEach(() => {
@@ -20,7 +20,7 @@ context('Close prisoner non associations page', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A1235EF', result: fredMills })
     cy.task('stubGetNonAssociationForClose')
 
-    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ListPrisonerNonAssociations)
     homePage.getCloseNonAssociation().click()
     cy.task('stubCloseNonAssociation')
 

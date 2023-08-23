@@ -1,9 +1,9 @@
 import { davidJones, andrewBrown } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import ViewPrisonerNonAssociations from '../pages/nonAssociations/viewPrisonerNonAssociations'
-import addPrisonerSearch from '../pages/nonAssociations/addPrisonerSearch'
-import addPrisonerDetails from '../pages/nonAssociations/addPrisonerDetails'
-import addPrisonerConfirmation from '../pages/nonAssociations/addPrisonerConfirmation'
+import AddPrisonerSearch from '../pages/nonAssociations/addPrisonerSearch'
+import AddPrisonerDetails from '../pages/nonAssociations/addPrisonerDetails'
+import AddPrisonerConfirmation from '../pages/nonAssociations/addPrisonerConfirmation'
+import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
 
 context('Add prisoner non associations page', () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ context('Add prisoner non associations page', () => {
   })
 
   it('navigate to add non association', () => {
-    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ListPrisonerNonAssociations)
     homePage.getAddNewNonAssociation().click()
     cy.title().should('eq', `Search for a prisoner`)
   })
@@ -30,17 +30,17 @@ context('Add prisoner non associations page', () => {
       results: [andrewBrown],
     })
 
-    const homePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
+    const homePage = Page.verifyOnPage(ListPrisonerNonAssociations)
     homePage.getAddNewNonAssociation().click()
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
 
-    const addPage = Page.verifyOnPage(addPrisonerSearch)
+    const addPage = Page.verifyOnPage(AddPrisonerSearch)
     addPage.getInputField().type('Andrew')
     addPage.getSearchButton().click()
     addPage.getSelectPrisonerLink().click()
 
     cy.task('stubCreateNonAssociation')
-    const addDetailsPage = Page.verifyOnPage(addPrisonerDetails)
+    const addDetailsPage = Page.verifyOnPage(AddPrisonerDetails)
     addDetailsPage.radioButtonPrisonerRole.click()
     addDetailsPage.radioButtonOtherPrisonerRole.click()
     addDetailsPage.radioButtonReason.click()
@@ -48,6 +48,6 @@ context('Add prisoner non associations page', () => {
     addDetailsPage.getAddCommentBox().type('Andrew is a bully')
     addDetailsPage.getSaveButton().click()
 
-    Page.verifyOnPage(addPrisonerConfirmation)
+    Page.verifyOnPage(AddPrisonerConfirmation)
   })
 })

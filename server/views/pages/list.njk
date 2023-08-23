@@ -25,12 +25,12 @@
   <nav>
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
-        <a class="govuk-tabs__tab" href="{{ routeUrls.view(prisonerNumber) }}">
+        <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber) }}">
           Open ({{ nonAssociationsList.openCount }})
         </a>
       </li>
       <li class="govuk-tabs__list-item {% if listing === "closed" %}govuk-tabs__list-item--selected{% endif %}">
-        <a class="govuk-tabs__tab" href="{{ routeUrls.view(prisonerNumber, true) }}">
+        <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber, true) }}">
           Closed ({{ nonAssociationsList.closedCount }})
         </a>
       </li>
@@ -88,17 +88,17 @@
     {% endset %}
 
     {% set tableRow = [
-      {html: otherPrisonerPhoto, classes: "app-view__cell--photo"},
-      {html: otherPrisonerProfileLink, classes: "app-view__cell--prisoner"},
-      {html: reason, classes: "app-view__cell--reason"},
-      {html: role, classes: "app-view__cell--role"},
-      {html: restrictionType, classes: "app-view__cell--restriction-type"},
-      {html: comment, classes: "app-view__cell--comment" if listing == "open" else "app-view__cell--comment--wide"},
-      {html: lastUpdated, classes: "app-view__cell--date-updated"}
+      {html: otherPrisonerPhoto, classes: "app-list__cell--photo"},
+      {html: otherPrisonerProfileLink, classes: "app-list__cell--prisoner"},
+      {html: reason, classes: "app-list__cell--reason"},
+      {html: role, classes: "app-list__cell--role"},
+      {html: restrictionType, classes: "app-list__cell--restriction-type"},
+      {html: comment, classes: "app-list__cell--comment" if listing == "open" else "app-list__cell--comment--wide"},
+      {html: lastUpdated, classes: "app-list__cell--date-updated"}
     ] %}
     {% if listing === "open" %}
       {% set _ = tableRow.push(
-        {html: actions, classes: "app-view__cell--actions"}
+        {html: actions, classes: "app-list__cell--actions"}
       ) %}
     {% endif %}
 

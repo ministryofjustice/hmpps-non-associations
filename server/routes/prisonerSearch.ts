@@ -98,7 +98,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
 
       res.locals.breadcrumbs.addItems(
         { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
-        { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
+        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
       )
       res.render('pages/prisonerSearch.njk', {
         prisonerNumber,

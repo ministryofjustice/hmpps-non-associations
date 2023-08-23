@@ -81,7 +81,7 @@ export default function updateRoutes(service: Services): Router {
 
       res.locals.breadcrumbs.addItems(
         { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
-        { text: 'Non-associations', href: service.routeUrls.view(prisonerNumber) },
+        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
       )
 
       const messages: FlashMessages = {}

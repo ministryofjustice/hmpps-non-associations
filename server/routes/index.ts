@@ -8,8 +8,8 @@ import PrisonApi from '../data/prisonApi'
 import prisonerSearchRoutes from './prisonerSearch'
 import addRoutes from './add'
 import closeRoutes from './close'
+import listRoutes from './list'
 import updateRoutes from './update'
-import viewRoutes from './view'
 
 export type FlashMessages = {
   information?: string[]
@@ -46,7 +46,7 @@ export default function routes(services: Services): Router {
     }
   })
 
-  router.use(urlTemplates.view, viewRoutes(services))
+  router.use(urlTemplates.list, listRoutes(services))
 
   router.use(urlTemplates.prisonerSearch, prisonerSearchRoutes(services))
 

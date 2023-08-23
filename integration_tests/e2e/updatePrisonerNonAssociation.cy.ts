@@ -1,6 +1,6 @@
 import { davidJones, andrewBrown } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import ViewPrisonerNonAssociations from '../pages/nonAssociations/viewPrisonerNonAssociations'
+import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
 import UpdatePrisonerDetails from '../pages/nonAssociations/updatePrisonerDetails'
 import UpdatePrisonerConfirmation from '../pages/nonAssociations/updatePrisonerConfirmation'
 
@@ -20,7 +20,7 @@ context('Update prisoner non associations page', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A5678CS', result: andrewBrown })
     cy.task('stubGetNonAssociationForUpdate')
 
-    const updatePage = Page.verifyOnPage(ViewPrisonerNonAssociations)
+    const updatePage = Page.verifyOnPage(ListPrisonerNonAssociations)
     updatePage.getUpdateNonAssociation().click()
     cy.task('stubUpdateNonAssociation')
 
