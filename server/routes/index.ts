@@ -9,6 +9,7 @@ import prisonerSearchRoutes from './prisonerSearch'
 import addRoutes from './add'
 import closeRoutes from './close'
 import listRoutes from './list'
+import viewRoutes from './view'
 import updateRoutes from './update'
 
 export type FlashMessages = {
@@ -51,6 +52,8 @@ export default function routes(services: Services): Router {
   router.use(urlTemplates.prisonerSearch, prisonerSearchRoutes(services))
 
   router.use(urlTemplates.add, addRoutes(services))
+
+  router.use(urlTemplates.view, viewRoutes(services))
 
   router.use(urlTemplates.close, closeRoutes(services))
 

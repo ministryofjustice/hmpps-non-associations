@@ -6,8 +6,9 @@ export default {
     listClosed: '/prisoner/:prisonerNumber/non-associations/closed',
     prisonerSearch: '/prisoner/:prisonerNumber/non-associations/add/search-prisoner',
     add: '/prisoner/:prisonerNumber/non-associations/add/with-prisoner/:otherPrisonerNumber',
-    close: '/prisoner/:prisonerNumber/non-associations/close/:nonAssociationId',
-    update: '/prisoner/:prisonerNumber/non-associations/update/:nonAssociationId',
+    view: '/prisoner/:prisonerNumber/non-associations/:nonAssociationId',
+    close: '/prisoner/:prisonerNumber/non-associations/:nonAssociationId/close',
+    update: '/prisoner/:prisonerNumber/non-associations/:nonAssociationId/update',
   } as const,
 
   home(): string {
@@ -33,6 +34,12 @@ export default {
     return this.templates.add
       .replace(':prisonerNumber', prisonerNumber)
       .replace(':otherPrisonerNumber', otherPrisonerNumber)
+  },
+
+  view(prisonerNumber: string, nonAssociationId: number): string {
+    return this.templates.view
+      .replace(':prisonerNumber', prisonerNumber)
+      .replace(':nonAssociationId', String(nonAssociationId))
   },
 
   close(prisonerNumber: string, nonAssociationId: number): string {
