@@ -5,8 +5,9 @@ import { NotFound } from 'http-errors'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
-import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import { NonAssociationsApi, lookupStaffInNonAssociation } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
+import PrisonApi from '../data/prisonApi'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
@@ -25,7 +26,7 @@ export default function viewRoutes(service: Services): Router {
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const api = new NonAssociationsApi(res.locals.user.token)
 
-    const nonAssociation = await api.getNonAssociation(nonAssociationId)
+    let nonAssociation = await api.getNonAssociation(nonAssociationId)
 
     if (
       nonAssociation.firstPrisonerNumber !== prisonerNumber &&
@@ -43,6 +44,9 @@ export default function viewRoutes(service: Services): Router {
     const prisonerName = nameOfPerson(prisoner)
     const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
     const otherPrisonerName = nameOfPerson(otherPrisoner)
+
+    const prisonApi = new PrisonApi(res.locals.user.token)
+    nonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
 
     res.locals.breadcrumbs.addItems(
       {

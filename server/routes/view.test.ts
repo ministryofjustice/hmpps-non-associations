@@ -6,8 +6,10 @@ import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
+import PrisonApi from '../data/prisonApi'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, mockGetPrisoner } from '../data/testData/offenderSearch'
+import { mockGetStaffDetails } from '../data/testData/prisonApi'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -18,6 +20,7 @@ jest.mock('../data/nonAssociationsApi', () => {
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
 jest.mock('../data/offenderSearch')
+jest.mock('../data/prisonApi')
 
 // mock "key" prisoner
 const { prisonerNumber } = davidJones
@@ -32,14 +35,16 @@ const nonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner
 const nonAssociationId = nonAssociation.id
 
 let app: Express
-let offenderSearchClient: jest.Mocked<OffenderSearchClient>
 let nonAssociationsApi: jest.Mocked<NonAssociationsApi>
+let offenderSearchClient: jest.Mocked<OffenderSearchClient>
+let prisonApi: jest.Mocked<PrisonApi>
 
 beforeEach(() => {
   app = appWithAllRoutes({})
 
-  offenderSearchClient = OffenderSearchClient.prototype as jest.Mocked<OffenderSearchClient>
   nonAssociationsApi = NonAssociationsApi.prototype as jest.Mocked<NonAssociationsApi>
+  offenderSearchClient = OffenderSearchClient.prototype as jest.Mocked<OffenderSearchClient>
+  prisonApi = PrisonApi.prototype as jest.Mocked<PrisonApi>
 })
 
 afterEach(() => {
@@ -63,6 +68,7 @@ describe('View non-association details page', () => {
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+        expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
       })
   })
 
@@ -82,6 +88,7 @@ describe('View non-association details page', () => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+        expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
       })
   })
 
@@ -97,20 +104,27 @@ describe('View non-association details page', () => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+        expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
       })
   })
 
   describe('details', () => {
     beforeEach(() => {
       offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
     })
 
     function expectCommonDetails(res: request.Response) {
+      expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledWith(nonAssociation.id)
+      expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+      expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
+
       expect(res.text).toContain('Threat')
       expect(res.text).toContain('Cell only')
       expect(res.text).toContain('See IR 12133100')
       expect(res.text).toContain('21 July 2023')
-      expect(res.text).toContain('cde87s')
+      expect(res.text).not.toContain('cde87s')
+      expect(res.text).toContain('Mark Simmons')
     }
 
     function expectOpen(res: request.Response) {
@@ -201,5 +215,24 @@ describe('View non-association details page', () => {
           })
       })
     })
+  })
+
+  it('should display “System” instead of internal system username as the authoriser', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce({
+      ...nonAssociation,
+      authorisedBy: 'NON_ASSOCIATIONS_API',
+      updatedBy: 'NON_ASSOCIATIONS_API',
+    })
+    offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+    prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+
+    return request(app)
+      .get(routeUrls.view(otherPrisonerNumber, nonAssociation.id))
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(res.text).toContain('System')
+        expect(res.text).not.toContain('NON_ASSOCIATIONS_API')
+      })
   })
 })
