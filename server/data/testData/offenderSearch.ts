@@ -1,4 +1,5 @@
-import type { OffenderSearchResult, OffenderSearchResults } from '../offenderSearch'
+import type { OffenderSearchClient, OffenderSearchResult, OffenderSearchResults } from '../offenderSearch'
+import { SanitisedError } from '../../sanitisedError'
 
 export const davidJones: OffenderSearchResult = {
   prisonId: 'MDI',
@@ -37,7 +38,28 @@ export const andrewBrown: OffenderSearchResult = {
   prisonerNumber: 'A5678CS',
   firstName: 'ANDREW',
   lastName: 'BROWN',
-  cellLocation: '1-1-003',
+  cellLocation: '1-1-004',
+}
+
+export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumber => {
+  const error: SanitisedError = {
+    name: 'Error',
+    status: 404,
+    message: 'Not Found',
+    stack: 'Not Found',
+  }
+  switch (prisonerNumber) {
+    case davidJones.prisonerNumber:
+      return Promise.resolve(davidJones)
+    case fredMills.prisonerNumber:
+      return Promise.resolve(fredMills)
+    case oscarJones.prisonerNumber:
+      return Promise.resolve(oscarJones)
+    case andrewBrown.prisonerNumber:
+      return Promise.resolve(andrewBrown)
+    default:
+      return Promise.reject(error)
+  }
 }
 
 export const sampleOffenderSearchResults: OffenderSearchResults = {

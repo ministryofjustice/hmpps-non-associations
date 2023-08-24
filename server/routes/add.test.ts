@@ -119,6 +119,9 @@ describe('Add non-association details page', () => {
         expect(res.text).not.toContain('There is a problem')
         expect(res.text).toContain('Is David Jones a victim or perpetrator?')
         expect(res.text).toContain('Is Fred Mills a victim or perpetrator?')
+        const davidJonesPosition = res.text.indexOf('Is David Jones a victim or perpetrator?')
+        const fredMillsPosition = res.text.indexOf('Is Fred Mills a victim or perpetrator?')
+        expect(davidJonesPosition).toBeLessThan(fredMillsPosition)
       })
   })
 

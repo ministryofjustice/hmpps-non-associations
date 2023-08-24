@@ -360,7 +360,9 @@ async function makeStaffLookup(
   const staffUsernames = Array.from(staffUsernameSet)
   const staffUsers: StaffMember[] = [
     ...systemUsers,
-    ...(await Promise.all(staffUsernames.map(username => prisonApi.getStaffDetails(username)))).filter(user => user),
+    ...(await Promise.allSettled(staffUsernames.map(username => prisonApi.getStaffDetails(username))))
+      .map(promise => (promise.status === 'fulfilled' ? promise.value : null))
+      .filter(user => user),
   ]
   return username => username && staffUsers.find(user => user.username === username)
 }

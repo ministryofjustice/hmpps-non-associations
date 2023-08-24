@@ -1,3 +1,13 @@
 .app-prisoner-photo {
   width: 90px;
 }
+
+.app-prisoner-photo--small {
+  @extend .app-prisoner-photo;
+  width: 70px;
+}
+
+.app-prisoner-photo--large {
+  @extend .app-prisoner-photo;
+  width: 120px;
+}
