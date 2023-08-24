@@ -7,7 +7,7 @@ import routeUrls from '../services/routeUrls'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, OffenderSearchResult } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
-import { davidJones, fredMills } from '../data/testData/offenderSearch'
+import { davidJones, fredMills, oscarJones } from '../data/testData/offenderSearch'
 import { nameOfPerson } from '../utils/utils'
 
 jest.mock('../data/hmppsAuthClient')
@@ -89,7 +89,7 @@ describe('Update non-association page', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
 
     return request(app)
-      .get(routeUrls.update('B4321BB', nonAssociation.id))
+      .get(routeUrls.update(oscarJones.prisonerNumber, nonAssociation.id))
       .expect(404)
       .expect('Content-Type', /html/)
       .expect(res => {

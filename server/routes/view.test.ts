@@ -8,7 +8,7 @@ import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
-import { davidJones, fredMills, mockGetPrisoner } from '../data/testData/offenderSearch'
+import { davidJones, fredMills, oscarJones, mockGetPrisoner } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
 
 jest.mock('../data/hmppsAuthClient')
@@ -96,11 +96,10 @@ describe('View non-association details page', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
 
     return request(app)
-      .get(routeUrls.view('B4321BB', nonAssociation.id))
+      .get(routeUrls.view(oscarJones.prisonerNumber, nonAssociation.id))
       .expect(404)
       .expect('Content-Type', /html/)
       .expect(res => {
-        expect(res.text).not.toContain('Jones, David')
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
@@ -233,6 +232,27 @@ describe('View non-association details page', () => {
       .expect(res => {
         expect(res.text).toContain('System')
         expect(res.text).not.toContain('NON_ASSOCIATIONS_API')
+      })
+  })
+
+  it('should show authoriser username when prison api returned an error', () => {
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
+    offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+    const error: SanitisedError = {
+      name: 'Error',
+      status: 500,
+      message: 'Internal Server Error',
+      stack: 'Internal Server Error',
+    }
+    prisonApi.getStaffDetails.mockRejectedValueOnce(error)
+
+    return request(app)
+      .get(routeUrls.view(otherPrisonerNumber, nonAssociation.id))
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(res.text).toContain('cde87s')
+        expect(res.text).not.toContain('Mark Simmons')
       })
   })
 })
