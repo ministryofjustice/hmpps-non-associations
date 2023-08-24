@@ -33,6 +33,10 @@ export default function addRoutes(service: Services): Router {
       const api = new NonAssociationsApi(res.locals.user.token)
       const nonAssociation = await api.getNonAssociation(nonAssociationId)
 
+      if (nonAssociation.isClosed) {
+        throw NotFound(`Non-association ${nonAssociationId} is closed and can't be edited`)
+      }
+
       const keyPrisonerIsFirst = nonAssociation.firstPrisonerNumber === prisonerNumber
       const keyPrisonerIsSecond = nonAssociation.secondPrisonerNumber === prisonerNumber
       if (!(keyPrisonerIsFirst || keyPrisonerIsSecond)) {
