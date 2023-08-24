@@ -94,7 +94,6 @@ describe('Update non-association page', () => {
       .expect('Content-Type', /html/)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
-        expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
       })
