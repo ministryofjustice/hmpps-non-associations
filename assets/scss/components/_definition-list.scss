@@ -1,0 +1,12 @@
+dl {
+  @extend %govuk-body-m;
+
+  dt {
+    font-weight: bold;
+  }
+
+  dd {
+    @extend %govuk-body-m;
+    margin-left: 0;
+  }
+}

@@ -1,16 +1,146 @@
 {% extends "../partials/layout.njk" %}
 
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
 {% set pageTitle = "Non-association details" %}
 
 {% block content %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
 
-      <h1 class="govuk-heading-l">
-        Non-association:
-        {{ prisonerName }} and {{ otherPrisonerName }}
-      </h1>
+  <h1 class="govuk-heading-l">
+    Non-association:
+    {{ prisonerName }} and {{ otherPrisonerName }}
+  </h1>
+
+  <div class="app-view__key-prisoner-details">
+    <img src="{{ routeUrls.prisonerPhoto(prisonerNumber) }}" alt="Photo of {{ prisonerName }}" class="app-prisoner-photo--small" />
+
+    <dl>
+      <dt class="govuk-visually-hidden">Prisoner</dt>
+      <a href="{{ dpsUrl }}/prisoner/{{ prisonerNumber }}">
+        {{ prisoner| reversedNameOfPerson }}
+      </a>
+      <br />
+      {{ prisonerNumber }}
+    </dl>
+
+    <dl>
+      <dt>Location</dt>
+      <dd>
+        {{ prisoner.cellLocation }}
+      </dd>
+    </dl>
+
+    <dl>
+      <dt>Role</dt>
+      <dd>
+        {{ nonAssociation.firstPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.secondPrisonerRoleDescription }}
+      </dd>
+    </dl>
+  </div>
+
+  <div class="govuk-grid-row govuk-!-margin-top-8">
+    <div class="govuk-grid-column-two-thirds app-view__other-prisoner-details">
+      <img src="{{ routeUrls.prisonerPhoto(otherPrisonerNumber) }}" alt="Photo of {{ otherPrisonerName }}" class="app-prisoner-photo--large" />
+
+      <div>
+        {% set otherPrisonerLink %}
+          <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}">
+            {{ otherPrisoner | reversedNameOfPerson }}
+          </a>
+        {% endset %}
+
+        {{ govukTable({
+          caption: "Prisoner details",
+          captionClasses: "govuk-table__caption--m",
+          firstCellIsHeader: true,
+          rows: [
+            [
+              {text: "Name"},
+              {html: otherPrisonerLink}
+            ],
+            [
+              {text: "Prison number"},
+              {text: otherPrisonerNumber}
+            ],
+            [
+              {text: "Location"},
+              {text: otherPrisoner.cellLocation}
+            ]
+          ]
+        }) }}
+
+        {{ govukTable({
+          caption: "Non-association details",
+          captionClasses: "govuk-table__caption--m",
+          firstCellIsHeader: true,
+          rows: [
+            [
+              {text: otherPrisonerName | possessiveName + " role"},
+              {text: nonAssociation.secondPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.firstPrisonerRoleDescription}
+            ],
+            [
+              {text: "Reason"},
+              {text: nonAssociation.reasonDescription}
+            ],
+            [
+              {text: "Where to keep apart"},
+              {text: nonAssociation.restrictionTypeDescription}
+            ],
+            [
+              {text: "Comments"},
+              {html: nonAssociation.comment | escape | nl2br}
+            ]
+          ]
+        }) }}
+
+        {% if not nonAssociation.isClosed %}
+          <div class="govuk-button-group">
+            {{ govukButton({
+              text: "Update",
+              classes: "govuk-button--secondary",
+              element: "a",
+              href: routeUrls.update(prisonerNumber, nonAssociation.id)
+            }) }}
+
+            {{ govukButton({
+              text: "Close",
+              classes: "govuk-button--warning",
+              element: "a",
+              href: routeUrls.close(prisonerNumber, nonAssociation.id)
+            }) }}
+          </div>
+        {% endif %}
+
+        <p class="govuk-!-margin-top-6">
+          <a href="{{ routeUrls.list(prisonerNumber) }}">
+            Return to {{ prisonerName | possessiveName }} non-associations
+          </a>
+        </p>
+      </div>
+
+    </div>
+    <div class="govuk-grid-column-one-third">
+
+      {% if nonAssociation.isClosed %}
+        <p>
+          {{govukTag({
+            text: "Closed",
+            classes: "govuk-tag--red"
+          })}}
+        </p>
+      {% endif %}
+
+      <dl>
+        <dt>Last updated</dt>
+        <dd>{{ nonAssociation.whenUpdated | date }}</dd>
+
+        <dt>Updated by</dt>
+        <dd>{{ nonAssociation.updatedBy }}</dd>
+      </dl>
 
     </div>
   </div>
+
 {% endblock %}

@@ -34,13 +34,13 @@ export default function viewRoutes(service: Services): Router {
       throw NotFound(`Non-association ${nonAssociationId} does not involve ${prisonerNumber}`)
     }
 
+    const keyPrisonerIsFirst = nonAssociation.firstPrisonerNumber === prisonerNumber
+    const otherPrisonerNumber = keyPrisonerIsFirst
+      ? nonAssociation.secondPrisonerNumber
+      : nonAssociation.firstPrisonerNumber
+
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
     const prisonerName = nameOfPerson(prisoner)
-    const otherPrisonerNumber =
-      nonAssociation.firstPrisonerNumber === prisonerNumber
-        ? nonAssociation.secondPrisonerNumber
-        : nonAssociation.firstPrisonerNumber
-
     const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
     const otherPrisonerName = nameOfPerson(otherPrisoner)
 
@@ -55,10 +55,13 @@ export default function viewRoutes(service: Services): Router {
       },
     )
     res.render('pages/view.njk', {
+      keyPrisonerIsFirst,
+      prisoner,
       prisonerNumber,
       prisonerName,
       prisonName: prisoner.prisonName,
       otherPrisoner,
+      otherPrisonerNumber,
       otherPrisonerName,
       nonAssociation,
     })
