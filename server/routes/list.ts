@@ -92,6 +92,7 @@ export default function listRoutes(service: Services): Router {
     res.render('pages/list.njk', {
       messages,
       listing,
+      prisoner,
       prisonerNumber,
       prisonerName: nameOfPerson(prisoner),
       prisonName: prisoner.prisonName,

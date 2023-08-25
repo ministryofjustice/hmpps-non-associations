@@ -1,36 +1,6 @@
-.app-view__key-prisoner-details {
-  @extend .govuk-\!-padding-4;
-  display: flex;
-  align-items: start;
-  background: govuk-colour("light-grey");
-
-  .app-prisoner-photo--small {
-    margin-right: 50px;
-  }
-
-  dl {
-    margin-right: 80px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-
-  @include govuk-media-query($until: tablet) {
-    display: block;
-
-    .app-prisoner-photo--small {
-      margin-bottom: govuk-spacing(4);
-    }
-
-    dl {
-      margin-right: 0;
-    }
-  }
-}
-
 .app-view__other-prisoner-details {
   display: flex;
+  flex-direction: row;
   align-items: start;
 
   .app-prisoner-photo--large {
