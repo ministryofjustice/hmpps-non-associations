@@ -1,28 +1,12 @@
-import Page, { type PageElement } from '../page'
+import { type PageElement } from '../page'
 
-export default class AddPage extends Page {
+import BaseAddUpdatePage from './baseAddUpdate'
+
+export default class AddPage extends BaseAddUpdatePage {
+  formId = 'add'
+
   constructor() {
     super('Non-association details')
-  }
-
-  get form(): PageElement<HTMLFormElement> {
-    return cy.get('.govuk-fieldset')
-  }
-
-  get radioButtonPrisonerRole(): PageElement<HTMLElement> {
-    return cy.get('#prisonerRole')
-  }
-
-  get radioButtonOtherPrisonerRole(): PageElement<HTMLElement> {
-    return cy.get('#otherPrisonerRole-2')
-  }
-
-  get radioButtonReason(): PageElement<HTMLElement> {
-    return cy.get('#reason')
-  }
-
-  get radioButtonRestrictionType(): PageElement<HTMLElement> {
-    return cy.get('#restrictionType')
   }
 
   getAddCommentBox(): PageElement<HTMLElement> {

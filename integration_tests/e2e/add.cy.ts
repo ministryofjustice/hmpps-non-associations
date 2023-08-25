@@ -43,10 +43,10 @@ context('Add non-association page', () => {
     cy.task('stubCreateNonAssociation')
 
     const addDetailsPage = Page.verifyOnPage(AddPage)
-    addDetailsPage.radioButtonPrisonerRole.click()
-    addDetailsPage.radioButtonOtherPrisonerRole.click()
-    addDetailsPage.radioButtonReason.click()
-    addDetailsPage.radioButtonRestrictionType.click()
+    addDetailsPage.getRadioButtonForPrisonerRole('Perpetrator').click()
+    addDetailsPage.getRadioButtonOtherPrisonerRole('Victim').click()
+    addDetailsPage.getRadioButtonReason('Threat').click()
+    addDetailsPage.getRadioButtonRestrictionType('Cell only').click()
     addDetailsPage.getAddCommentBox().type('Andrew is a bully')
     addDetailsPage.getSaveButton().click()
 
