@@ -1,4 +1,4 @@
-import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
+import { davidJones } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import ClosePage from '../pages/nonAssociations/close'
 import CloseConfirmationPage from '../pages/nonAssociations/closeConfirmation'
@@ -13,7 +13,7 @@ context('Close prisoner non-association page', () => {
     cy.task('stubSignIn')
     cy.task('stubAuthUser')
     cy.task('stubNomisUserCaseloads')
-    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: davidJones.prisonerNumber, result: davidJones })
+    cy.task('stubOffenderSearchGetPrisoner')
     cy.task('stubListNonAssociations')
     cy.signIn()
 
@@ -22,7 +22,6 @@ context('Close prisoner non-association page', () => {
   })
 
   it('should allow closing a non-association', () => {
-    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: fredMills.prisonerNumber, result: fredMills })
     cy.task('stubGetNonAssociation')
 
     listPage.getViewLinkForRow(0).click()

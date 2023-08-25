@@ -10,7 +10,7 @@ context('List non-associations page', () => {
     cy.task('stubSignIn')
     cy.task('stubAuthUser')
     cy.task('stubNomisUserCaseloads')
-    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: davidJones.prisonerNumber, result: davidJones })
+    cy.task('stubOffenderSearchGetPrisoner')
     cy.task('stubListNonAssociations')
     cy.signIn()
 
