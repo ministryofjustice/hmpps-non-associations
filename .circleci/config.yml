@@ -17,6 +17,10 @@ parameters:
     type: string
     default: 18.17-browsers
 
+  cypress-videos:
+    type: string
+    default: 'false'
+
 jobs:
   build:
     executor:
@@ -97,13 +101,15 @@ jobs:
           command: sleep 5
       - run:
           name: Run integration tests
-          command: npm run int-test
+          command: npm run int-test -- --config video=<< pipeline.parameters.cypress-videos >>
       - store_test_results:
           path: test_results
       - store_artifacts:
-          path: integration-tests/videos
+          name: 'Uploading cypress videos'
+          path: integration_tests/videos
       - store_artifacts:
-          path: integration-tests/screenshots
+          name: 'Uploading cypress screenshots'
+          path: integration_tests/screenshots
 
 workflows:
   version: 2
