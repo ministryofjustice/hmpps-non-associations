@@ -1,9 +1,9 @@
 import { davidJones } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
+import ListPage from '../pages/nonAssociations/list'
 
-context('Prisoner non associations Page', () => {
-  let listPage: ListPrisonerNonAssociations
+context('List non-associations page', () => {
+  let listPage: ListPage
 
   beforeEach(() => {
     cy.task('reset')
@@ -15,7 +15,7 @@ context('Prisoner non associations Page', () => {
     cy.signIn()
 
     cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPrisonerNonAssociations, 'David Jones’')
+    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
   })
 
   it('has correct title', () => {

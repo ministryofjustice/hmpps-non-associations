@@ -1,12 +1,12 @@
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
-import UpdatePrisonerDetails from '../pages/nonAssociations/updatePrisonerDetails'
-import UpdatePrisonerConfirmation from '../pages/nonAssociations/updatePrisonerConfirmation'
-import ViewNonAssociation from '../pages/nonAssociations/viewNonAssociation'
+import ListPage from '../pages/nonAssociations/list'
+import ViewPage from '../pages/nonAssociations/view'
+import UpdatePage from '../pages/nonAssociations/update'
+import UpdateConfirmationPage from '../pages/nonAssociations/updateConfirmation'
 
-context('Update prisoner non associations page', () => {
-  let listPage: ListPrisonerNonAssociations
+context('Update prisoner non-association page', () => {
+  let listPage: ListPage
 
   beforeEach(() => {
     cy.task('reset')
@@ -18,23 +18,23 @@ context('Update prisoner non associations page', () => {
     cy.signIn()
 
     cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPrisonerNonAssociations, 'David Jones’')
+    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
   })
 
-  it('should allow updating a non association ', () => {
+  it('should allow updating a non-association', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: fredMills.prisonerNumber, result: fredMills })
     cy.task('stubGetNonAssociation')
 
     listPage.getViewLinkForRow(0).click()
-    const viewPage = Page.verifyOnPage(ViewNonAssociation, 'David Jones', 'Fred Mills')
+    const viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
     viewPage.updateButton.click()
 
     cy.task('stubUpdateNonAssociation')
 
-    const updatePage = Page.verifyOnPage(UpdatePrisonerDetails)
+    const updatePage = Page.verifyOnPage(UpdatePage)
     updatePage.getUpdateCommentBox().type(' and IR456456')
     updatePage.getUpdateButton().click()
 
-    Page.verifyOnPage(UpdatePrisonerConfirmation)
+    Page.verifyOnPage(UpdateConfirmationPage)
   })
 })

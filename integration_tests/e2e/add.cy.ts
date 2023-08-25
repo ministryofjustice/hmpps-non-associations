@@ -1,12 +1,12 @@
 import { davidJones, andrewBrown } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import AddPrisonerSearch from '../pages/nonAssociations/addPrisonerSearch'
-import AddPrisonerDetails from '../pages/nonAssociations/addPrisonerDetails'
-import AddPrisonerConfirmation from '../pages/nonAssociations/addPrisonerConfirmation'
-import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
+import AddPage from '../pages/nonAssociations/add'
+import AddConfirmationPage from '../pages/nonAssociations/addConfirmation'
+import ListPage from '../pages/nonAssociations/list'
+import PrisonerSearchPage from '../pages/nonAssociations/prisonerSearch'
 
-context('Add prisoner non associations page', () => {
-  let listPage: ListPrisonerNonAssociations
+context('Add non-association page', () => {
+  let listPage: ListPage
 
   beforeEach(() => {
     cy.task('reset')
@@ -18,15 +18,15 @@ context('Add prisoner non associations page', () => {
     cy.signIn()
 
     cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPrisonerNonAssociations, 'David Jones’')
+    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
   })
 
-  it('navigate to add non association', () => {
+  it('navigate to add non-association', () => {
     listPage.addButton.click()
     cy.title().should('eq', 'Search for a prisoner')
   })
 
-  it('should allow adding a new non association', () => {
+  it('should allow adding a new non-association', () => {
     cy.task('stubOffenderSearchResults', {
       prisonId: 'MDI',
       term: 'Andrew',
@@ -35,14 +35,14 @@ context('Add prisoner non associations page', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: andrewBrown.prisonerNumber, result: andrewBrown })
 
     listPage.addButton.click()
-    const prisonerSearchPage = Page.verifyOnPage(AddPrisonerSearch)
+    const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
     prisonerSearchPage.getInputField().type('Andrew')
     prisonerSearchPage.getSearchButton().click()
     prisonerSearchPage.getSelectPrisonerLink().click()
 
     cy.task('stubCreateNonAssociation')
 
-    const addDetailsPage = Page.verifyOnPage(AddPrisonerDetails)
+    const addDetailsPage = Page.verifyOnPage(AddPage)
     addDetailsPage.radioButtonPrisonerRole.click()
     addDetailsPage.radioButtonOtherPrisonerRole.click()
     addDetailsPage.radioButtonReason.click()
@@ -50,6 +50,6 @@ context('Add prisoner non associations page', () => {
     addDetailsPage.getAddCommentBox().type('Andrew is a bully')
     addDetailsPage.getSaveButton().click()
 
-    Page.verifyOnPage(AddPrisonerConfirmation)
+    Page.verifyOnPage(AddConfirmationPage)
   })
 })

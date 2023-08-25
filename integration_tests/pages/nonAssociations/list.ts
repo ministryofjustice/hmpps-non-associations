@@ -1,6 +1,6 @@
 import Page, { type PageElement } from '../page'
 
-export default class ListPrisonerNonAssociations extends Page {
+export default class ListPage extends Page {
   constructor(private readonly prisonerName: string) {
     super(`${prisonerName} non-associations`)
   }

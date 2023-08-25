@@ -1,12 +1,12 @@
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
-import ClosePrisonerDetails from '../pages/nonAssociations/closePrisonerDetails'
-import ClosePrisonerConfirmation from '../pages/nonAssociations/closePrisonerConfirmation'
-import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
-import ViewNonAssociation from '../pages/nonAssociations/viewNonAssociation'
+import ClosePage from '../pages/nonAssociations/close'
+import CloseConfirmationPage from '../pages/nonAssociations/closeConfirmation'
+import ListPage from '../pages/nonAssociations/list'
+import ViewPage from '../pages/nonAssociations/view'
 
-context('Close prisoner non associations page', () => {
-  let listPage: ListPrisonerNonAssociations
+context('Close prisoner non-association page', () => {
+  let listPage: ListPage
 
   beforeEach(() => {
     cy.task('reset')
@@ -18,23 +18,23 @@ context('Close prisoner non associations page', () => {
     cy.signIn()
 
     cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPrisonerNonAssociations, 'David Jones’')
+    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
   })
 
-  it('should allow closing a non association ', () => {
+  it('should allow closing a non-association', () => {
     cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: fredMills.prisonerNumber, result: fredMills })
     cy.task('stubGetNonAssociation')
 
     listPage.getViewLinkForRow(0).click()
-    const viewPage = Page.verifyOnPage(ViewNonAssociation, 'David Jones', 'Fred Mills')
+    const viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
     viewPage.closeButton.click()
 
     cy.task('stubCloseNonAssociation')
 
-    const closePage = Page.verifyOnPage(ClosePrisonerDetails)
+    const closePage = Page.verifyOnPage(ClosePage)
     closePage.getCloseCommentBox().type('They are now friends')
     closePage.getCloseButton().click()
 
-    Page.verifyOnPage(ClosePrisonerConfirmation)
+    Page.verifyOnPage(CloseConfirmationPage)
   })
 })

@@ -1,6 +1,6 @@
 import Page, { type PageElement } from '../page'
 
-export default class ViewNonAssociation extends Page {
+export default class ViewPage extends Page {
   constructor(
     private readonly prisonerName: string,
     private readonly otherPrisonerName: string,
