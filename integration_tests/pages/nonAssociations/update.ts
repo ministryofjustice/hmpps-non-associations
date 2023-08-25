@@ -2,7 +2,7 @@ import Page, { type PageElement } from '../page'
 
 export default class UpdatePage extends Page {
   constructor() {
-    super(`Non-association details`)
+    super('Non-association details')
   }
 
   getUpdateCommentBox(): PageElement<HTMLElement> {

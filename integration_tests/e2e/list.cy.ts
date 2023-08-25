@@ -21,7 +21,7 @@ context('List non-associations page', () => {
   })
 
   it('has correct title', () => {
-    cy.title().should('eq', `David Jones’ non-associations`)
+    cy.title().should('eq', 'David Jones’ non-associations')
   })
 
   it('has correct breadcrumb', () => {
