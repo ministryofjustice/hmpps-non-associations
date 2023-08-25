@@ -12,8 +12,4 @@ export default class AddPage extends BaseAddUpdatePage {
   getAddCommentBox(): PageElement<HTMLElement> {
     return cy.get('#add-comment')
   }
-
-  getSaveButton(): PageElement<HTMLElement> {
-    return cy.get('button[class="govuk-button"]')
-  }
 }

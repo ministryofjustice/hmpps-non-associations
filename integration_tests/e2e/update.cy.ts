@@ -33,7 +33,7 @@ context('Update prisoner non-association page', () => {
 
     const updatePage = Page.verifyOnPage(UpdatePage)
     updatePage.getUpdateCommentBox().type(' and IR456456')
-    updatePage.getUpdateButton().click()
+    updatePage.saveButton.click()
 
     Page.verifyOnPage(UpdateConfirmationPage)
   })

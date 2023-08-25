@@ -6,14 +6,22 @@ export default abstract class BaseAddUpdatePage extends Page {
   abstract formId: string
 
   get form(): PageElement<HTMLFormElement> {
-    return cy.get('.govuk-fieldset')
+    return cy.get('form')
+  }
+
+  get saveButton(): PageElement<HTMLButtonElement> {
+    return this.form.find('.govuk-button').contains<HTMLButtonElement>('Save')
+  }
+
+  get cancelButton(): PageElement<HTMLAnchorElement> {
+    return this.form.find('.govuk-button').contains<HTMLAnchorElement>('Cancel')
   }
 
   private getRadioButton(
     name: 'prisonerRole' | 'otherPrisonerRole' | 'reason' | 'restrictionType',
     label: string,
   ): PageElement<HTMLInputElement> {
-    return cy.get(`#${this.formId}-${name}`).contains(label).prev()
+    return this.form.find(`#${this.formId}-${name}`).contains(label).prev()
   }
 
   getRadioButtonForPrisonerRole(role: Role[keyof Role]): PageElement<HTMLInputElement> {
