@@ -47,7 +47,7 @@ context('Add non-association page', () => {
     addDetailsPage.getRadioButtonOtherPrisonerRole('Victim').click()
     addDetailsPage.getRadioButtonReason('Threat').click()
     addDetailsPage.getRadioButtonRestrictionType('Cell only').click()
-    addDetailsPage.getAddCommentBox().type('Andrew is a bully')
+    addDetailsPage.commentBox.type('Andrew is a bully')
     addDetailsPage.saveButton.click()
 
     Page.verifyOnPage(AddConfirmationPage)

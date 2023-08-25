@@ -1,5 +1,3 @@
-import { type PageElement } from '../page'
-
 import BaseAddUpdatePage from './baseAddUpdate'
 
 export default class UpdatePage extends BaseAddUpdatePage {
@@ -7,9 +5,5 @@ export default class UpdatePage extends BaseAddUpdatePage {
 
   constructor() {
     super('Non-association details')
-  }
-
-  getUpdateCommentBox(): PageElement<HTMLElement> {
-    return cy.get('#update-comment')
   }
 }

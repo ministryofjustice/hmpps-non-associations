@@ -41,4 +41,8 @@ export default abstract class BaseAddUpdatePage extends Page {
   ): PageElement<HTMLInputElement> {
     return this.getRadioButton('restrictionType', restrictionType)
   }
+
+  get commentBox(): PageElement<HTMLTextAreaElement> {
+    return this.form.find('.govuk-textarea')
+  }
 }

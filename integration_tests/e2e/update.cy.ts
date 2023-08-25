@@ -32,7 +32,7 @@ context('Update prisoner non-association page', () => {
     cy.task('stubUpdateNonAssociation')
 
     const updatePage = Page.verifyOnPage(UpdatePage)
-    updatePage.getUpdateCommentBox().type(' and IR456456')
+    updatePage.commentBox.type(' and IR456456')
     updatePage.saveButton.click()
 
     Page.verifyOnPage(UpdateConfirmationPage)
