@@ -4,10 +4,11 @@ import path from 'path'
 import type { SuperAgentRequest } from 'superagent'
 
 import applicationInfo from '../../server/applicationInfo'
+import { staffMary, staffMark, staffBarry } from '../../server/data/testData/prisonApi'
 import { stubFor } from './wiremock'
 
 export default {
-  stubPrisonApiPing: (): SuperAgentRequest => {
+  stubPrisonApiPing(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -21,7 +22,7 @@ export default {
     })
   },
 
-  stubPrisonApiGetPhoto: (): SuperAgentRequest => {
+  stubPrisonApiGetPhoto(): SuperAgentRequest {
     const imagePath = path.join(applicationInfo().packageJsonPath, 'assets', 'images', 'prisoner.jpeg')
     const imageContents = fs.readFileSync(imagePath, { encoding: 'base64' })
 
@@ -32,11 +33,28 @@ export default {
       },
       response: {
         status: 200,
-        headers: {
-          'Content-Type': 'images/jpeg',
-        },
+        headers: { 'Content-Type': 'images/jpeg' },
         base64Body: imageContents,
       },
     })
+  },
+
+  /** Stub all 3 mock staff */
+  stubPrisonApiGetStaffDetails(): Promise<unknown> {
+    return Promise.all(
+      [staffMary, staffMark, staffBarry].map(staffDetails => {
+        return stubFor({
+          request: {
+            method: 'GET',
+            url: `/prisonApi/api/users/${staffDetails.username}`,
+          },
+          response: {
+            status: 200,
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+            jsonBody: staffDetails,
+          },
+        })
+      }),
+    )
   },
 }

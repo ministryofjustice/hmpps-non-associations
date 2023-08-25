@@ -13,6 +13,7 @@ context('Add non-association page', () => {
     cy.task('stubSignIn')
     cy.task('stubAuthUser')
     cy.task('stubNomisUserCaseloads')
+    cy.task('stubPrisonApiGetPhoto')
     cy.task('stubOffenderSearchGetPrisoner')
     cy.task('stubListNonAssociations')
     cy.signIn()
