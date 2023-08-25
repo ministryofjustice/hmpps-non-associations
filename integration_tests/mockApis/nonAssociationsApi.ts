@@ -64,7 +64,7 @@ export default {
     })
   },
 
-  stubGetNonAssociationForClose: () => {
+  stubGetNonAssociation: () => {
     return stubFor({
       request: {
         method: 'GET',
@@ -74,20 +74,6 @@ export default {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
-      },
-    })
-  },
-
-  stubGetNonAssociationForUpdate: () => {
-    return stubFor({
-      request: {
-        method: 'GET',
-        url: '/nonAssociationsApi/non-associations/102',
-      },
-      response: {
-        status: 200,
-        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, andrewBrown.prisonerNumber),
       },
     })
   },

@@ -171,7 +171,7 @@ describe('Non-associations list page', () => {
           expect(res.text).toContain('27 July 2023')
           expect(res.text).toContain('by Mary Johnson')
           expect(res.text).toContain('by Mark Simmons')
-          expect(res.text).not.toContain('Actions')
+          expect(res.text).toContain('Actions')
           // no message
           expect(res.text).not.toContain('This prisoner has no open non-associations')
           expect(res.text).not.toContain('This prisoner has no closed non-associations')

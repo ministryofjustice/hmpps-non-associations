@@ -3,25 +3,32 @@ import Page from '../pages/page'
 import ClosePrisonerDetails from '../pages/nonAssociations/closePrisonerDetails'
 import ClosePrisonerConfirmation from '../pages/nonAssociations/closePrisonerConfirmation'
 import ListPrisonerNonAssociations from '../pages/nonAssociations/listPrisonerNonAssociations'
+import ViewNonAssociation from '../pages/nonAssociations/viewNonAssociation'
 
 context('Close prisoner non associations page', () => {
+  let listPage: ListPrisonerNonAssociations
+
   beforeEach(() => {
     cy.task('reset')
     cy.task('stubSignIn')
     cy.task('stubAuthUser')
     cy.task('stubNomisUserCaseloads')
-    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A1234BC', result: davidJones })
+    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: davidJones.prisonerNumber, result: davidJones })
     cy.task('stubListNonAssociations')
     cy.signIn()
-    cy.visit('/prisoner/A1234BC/non-associations')
+
+    cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
+    listPage = Page.verifyOnPage(ListPrisonerNonAssociations, 'David Jones’')
   })
 
   it('should allow closing a non association ', () => {
-    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: 'A1235EF', result: fredMills })
-    cy.task('stubGetNonAssociationForClose')
+    cy.task('stubOffenderSearchGetPrisonerResult', { prisonerNumber: fredMills.prisonerNumber, result: fredMills })
+    cy.task('stubGetNonAssociation')
 
-    const homePage = Page.verifyOnPage(ListPrisonerNonAssociations)
-    homePage.getCloseNonAssociation().click()
+    listPage.getViewLinkForRow(0).click()
+    const viewPage = Page.verifyOnPage(ViewNonAssociation, 'David Jones', 'Fred Mills')
+    viewPage.closeButton.click()
+
     cy.task('stubCloseNonAssociation')
 
     const closePage = Page.verifyOnPage(ClosePrisonerDetails)

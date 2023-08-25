@@ -68,7 +68,7 @@ export default function listRoutes(service: Services): Router {
       const sortBy = form.fields.sort.value
       const sortDirection = form.fields.order.value
       tableHead = sortableTableHead({
-        columns: listing === 'closed' ? tableColumns.slice(0, -1) : tableColumns,
+        columns: tableColumns,
         sortColumn: sortBy,
         order: sortDirection,
         urlPrefix: '?',

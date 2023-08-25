@@ -1,31 +1,35 @@
 import Page, { type PageElement } from '../page'
 
 export default class ListPrisonerNonAssociations extends Page {
-  constructor() {
-    super(`David Jones’ non-associations`)
+  constructor(private readonly prisonerName: string) {
+    super(`${prisonerName} non-associations`)
   }
 
-  getClosedNonAssociations(): PageElement<HTMLElement> {
-    return cy.contains('Closed')
+  get addButton(): PageElement<HTMLAnchorElement> {
+    return cy.get('.govuk-button').contains<HTMLAnchorElement>('Add new non-association')
   }
 
-  getClosedNonAssociationsParent(): PageElement<HTMLElement> {
-    return cy.get('.govuk-tabs__list-item').eq(1)
+  get tabs(): PageElement<HTMLLIElement> {
+    return cy.get('.govuk-tabs__list-item')
   }
 
-  getAlphabeticallySortedNonAssociations(): PageElement<HTMLElement> {
-    return cy.contains('Prisoner details')
+  get openTab(): PageElement<HTMLLIElement> {
+    return this.tabs.eq(0)
   }
 
-  getAddNewNonAssociation(): PageElement<HTMLElement> {
-    return cy.contains('Add new non-association')
+  get closedTab(): PageElement<HTMLLIElement> {
+    return this.tabs.eq(1)
   }
 
-  getCloseNonAssociation(): PageElement<HTMLElement> {
-    return cy.get('a:contains(Close)').eq(1)
+  get table(): PageElement<HTMLTableElement> {
+    return cy.get('.app-sortable-table')
   }
 
-  getUpdateNonAssociation(): PageElement<HTMLElement> {
-    return cy.get('a:contains(Update)').eq(1)
+  get tableRows(): PageElement<HTMLTableRowElement> {
+    return this.table.find('tbody tr')
+  }
+
+  getViewLinkForRow(row: number): PageElement<HTMLAnchorElement> {
+    return this.tableRows.eq(row).find('td').last().find('a')
   }
 }

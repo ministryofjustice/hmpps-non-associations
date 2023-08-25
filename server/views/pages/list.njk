@@ -96,26 +96,19 @@
     {% endset %}
 
     {% set actions %}
-      <a href="{{ routeUrls.update(prisonerNumber, nonAssociation.id) }}">Update</a> | <br />
-      <a href="{{ routeUrls.close(prisonerNumber, nonAssociation.id) }}">Close</a>
+      <a href="{{ routeUrls.view(prisonerNumber, nonAssociation.id) }}">View details</a>
     {% endset %}
 
-    {% set tableRow = [
+    {% set _ = tableRows.push([
       {html: otherPrisonerPhoto, classes: "app-list__cell--photo"},
       {html: otherPrisonerProfileLink, classes: "app-list__cell--prisoner"},
       {html: reason, classes: "app-list__cell--reason"},
       {html: role, classes: "app-list__cell--role"},
       {html: restrictionType, classes: "app-list__cell--restriction-type"},
-      {html: comment, classes: "app-list__cell--comment" if listing == "open" else "app-list__cell--comment--wide"},
-      {html: lastUpdated, classes: "app-list__cell--date-updated"}
-    ] %}
-    {% if listing === "open" %}
-      {% set _ = tableRow.push(
-        {html: actions, classes: "app-list__cell--actions"}
-      ) %}
-    {% endif %}
-
-    {% set _ = tableRows.push(tableRow) %}
+      {html: comment, classes: "app-list__cell--comment"},
+      {html: lastUpdated, classes: "app-list__cell--date-updated"},
+      {html: actions, classes: "app-list__cell--actions"}
+    ]) %}
   {% endfor %}
 
   {% set caption -%}
