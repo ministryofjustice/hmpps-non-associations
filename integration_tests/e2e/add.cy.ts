@@ -1,25 +1,17 @@
-import { davidJones, andrewBrown } from '../../server/data/testData/offenderSearch'
+import { andrewBrown } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import AddPage from '../pages/nonAssociations/add'
 import AddConfirmationPage from '../pages/nonAssociations/addConfirmation'
 import ListPage from '../pages/nonAssociations/list'
 import PrisonerSearchPage from '../pages/nonAssociations/prisonerSearch'
+import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('Add non-association page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    cy.task('reset')
-    cy.task('stubSignIn')
-    cy.task('stubAuthUser')
-    cy.task('stubNomisUserCaseloads')
-    cy.task('stubPrisonApiGetPhoto')
-    cy.task('stubOffenderSearchGetPrisoner')
-    cy.task('stubListNonAssociations')
-    cy.signIn()
-
-    cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
+    resetBasicStubs()
+    listPage = navigateToDavidJonesNonAssociations()
   })
 
   it('navigate to add non-association', () => {

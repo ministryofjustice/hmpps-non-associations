@@ -1,25 +1,16 @@
-import { davidJones } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import ClosePage from '../pages/nonAssociations/close'
 import CloseConfirmationPage from '../pages/nonAssociations/closeConfirmation'
 import ListPage from '../pages/nonAssociations/list'
 import ViewPage from '../pages/nonAssociations/view'
+import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('Close prisoner non-association page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    cy.task('reset')
-    cy.task('stubSignIn')
-    cy.task('stubAuthUser')
-    cy.task('stubNomisUserCaseloads')
-    cy.task('stubPrisonApiGetPhoto')
-    cy.task('stubOffenderSearchGetPrisoner')
-    cy.task('stubListNonAssociations')
-    cy.signIn()
-
-    cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
+    resetBasicStubs()
+    listPage = navigateToDavidJonesNonAssociations()
   })
 
   it('should allow closing a non-association', () => {

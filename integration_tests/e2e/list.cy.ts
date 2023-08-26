@@ -1,23 +1,13 @@
 import { davidJones, fredMills, oscarJones } from '../../server/data/testData/offenderSearch'
-import Page from '../pages/page'
 import ListPage from '../pages/nonAssociations/list'
+import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('List non-associations page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    cy.task('reset')
-    cy.task('stubSignIn')
-    cy.task('stubAuthUser')
-    cy.task('stubNomisUserCaseloads')
-    cy.task('stubPrisonApiGetPhoto')
-    cy.task('stubPrisonApiGetStaffDetails')
-    cy.task('stubOffenderSearchGetPrisoner')
-    cy.task('stubListNonAssociations')
-    cy.signIn()
-
-    cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
-    listPage = Page.verifyOnPage(ListPage, 'David Jones’')
+    resetBasicStubs()
+    listPage = navigateToDavidJonesNonAssociations()
   })
 
   it('has correct title', () => {
