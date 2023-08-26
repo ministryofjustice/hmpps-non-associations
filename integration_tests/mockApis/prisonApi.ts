@@ -22,6 +22,9 @@ export default {
     })
   },
 
+  /**
+   * Use generic photo for all prisoners
+   */
   stubPrisonApiGetPhoto(): SuperAgentRequest {
     const imagePath = path.join(applicationInfo().packageJsonPath, 'assets', 'images', 'prisoner.jpeg')
     const imageContents = fs.readFileSync(imagePath, { encoding: 'base64' })
@@ -39,7 +42,9 @@ export default {
     })
   },
 
-  /** Stub all 3 mock staff */
+  /**
+   * Stub getting details of all 3 mock staff
+   */
   stubPrisonApiGetStaffDetails(): Promise<unknown> {
     return Promise.all(
       [staffMary, staffMark, staffBarry].map(staffDetails => {

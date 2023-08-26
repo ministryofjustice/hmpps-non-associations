@@ -17,6 +17,9 @@ export default {
     })
   },
 
+  /**
+   * Stub the current user’s prison as HMP Moorland
+   */
   stubNomisUserCaseloads(): SuperAgentRequest {
     return stubFor({
       request: {

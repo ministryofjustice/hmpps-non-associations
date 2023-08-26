@@ -19,7 +19,9 @@ export default {
     })
   },
 
-  /** Stubs all 4 mock prisoners */
+  /**
+   * Stub gettings details for all 4 mock prisoners
+   */
   stubOffenderSearchGetPrisoner(): Promise<unknown> {
     return Promise.all(
       [davidJones, fredMills, oscarJones, andrewBrown].map(prisoner => {
@@ -38,6 +40,9 @@ export default {
     )
   },
 
+  /**
+   * Stub searching for a prisoner
+   */
   stubOffenderSearchResults({
     prisonId,
     term,

@@ -31,11 +31,12 @@ export default {
     })
   },
 
+  /**
+   * Stub the list of non-associations for David Jones
+   */
   stubListNonAssociations({
-    prisonerNumber = davidJones.prisonerNumber,
     returning = 'twoOpen',
   }: {
-    prisonerNumber?: string
     returning?: 'none' | 'oneOpen' | 'twoOpen' | 'oneClosed' | 'twoClosed'
   } = {}): SuperAgentRequest {
     let nonAssociationsList: NonAssociationsList
@@ -50,11 +51,11 @@ export default {
     } else if (returning === 'twoClosed') {
       nonAssociationsList = davidJones2ClosedNonAssociations
     }
-
+    const url = `/nonAssociationsApi/prisoner/${encodeURIComponent(davidJones.prisonerNumber)}/non-associations`
     return stubFor({
       request: {
         method: 'GET',
-        urlPathPattern: `/nonAssociationsApi/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
+        urlPathPattern: url,
       },
       response: {
         status: 200,
@@ -64,6 +65,9 @@ export default {
     })
   },
 
+  /**
+   * Stub the non-association between David Jones and Fred Mills
+   */
   stubGetNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
@@ -78,6 +82,9 @@ export default {
     })
   },
 
+  /**
+   * Stub creating a non-association between David Jones and Andrew Brown
+   */
   stubCreateNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
@@ -92,6 +99,9 @@ export default {
     })
   },
 
+  /**
+   * Stub updating a non-association between David Jones and Oscar Jones
+   */
   stubUpdateNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
@@ -106,6 +116,9 @@ export default {
     })
   },
 
+  /**
+   * Stub closing a non-association between David Jones and Fred Mills
+   */
   stubCloseNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
