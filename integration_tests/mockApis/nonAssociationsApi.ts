@@ -17,7 +17,7 @@ import { andrewBrown, davidJones, fredMills, oscarJones } from '../../server/dat
  */
 
 export default {
-  stubNonAssociationsApiPing: (): SuperAgentRequest => {
+  stubNonAssociationsApiPing(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -31,13 +31,13 @@ export default {
     })
   },
 
-  stubListNonAssociations: ({
+  stubListNonAssociations({
     prisonerNumber = davidJones.prisonerNumber,
     returning = 'twoOpen',
   }: {
     prisonerNumber?: string
     returning?: 'none' | 'oneOpen' | 'twoOpen' | 'oneClosed' | 'twoClosed'
-  } = {}): SuperAgentRequest => {
+  } = {}): SuperAgentRequest {
     let nonAssociationsList: NonAssociationsList
     if (returning === 'none') {
       nonAssociationsList = davidJones0NonAssociations
@@ -64,7 +64,7 @@ export default {
     })
   },
 
-  stubGetNonAssociation: () => {
+  stubGetNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -78,7 +78,7 @@ export default {
     })
   },
 
-  stubCreateNonAssociation: () => {
+  stubCreateNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'POST',
@@ -92,7 +92,7 @@ export default {
     })
   },
 
-  stubUpdateNonAssociation: () => {
+  stubUpdateNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'PATCH',
@@ -106,7 +106,7 @@ export default {
     })
   },
 
-  stubCloseNonAssociation: () => {
+  stubCloseNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'PUT',

@@ -3,7 +3,7 @@ import type { SuperAgentRequest } from 'superagent'
 import { stubFor } from './wiremock'
 
 export default {
-  stubNomisUserRolesApiPing: (): SuperAgentRequest => {
+  stubNomisUserRolesApiPing(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -17,7 +17,7 @@ export default {
     })
   },
 
-  stubNomisUserCaseloads: (): SuperAgentRequest => {
+  stubNomisUserCaseloads(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
