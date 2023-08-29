@@ -8,6 +8,14 @@ export default class ViewPage extends Page {
     super(`Non-association: ${prisonerName} and ${otherPrisonerName}`)
   }
 
+  get keyPrisonerBox(): PageElement<HTMLDivElement> {
+    return cy.get('.app-key-prisoner-details')
+  }
+
+  get otherPrisonerBox(): PageElement<HTMLDivElement> {
+    return cy.get('.app-view__other-prisoner-details')
+  }
+
   get updateButton(): PageElement<HTMLAnchorElement> {
     return cy.get('.govuk-button').contains<HTMLAnchorElement>('Update')
   }

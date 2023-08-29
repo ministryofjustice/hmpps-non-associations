@@ -23,6 +23,8 @@ context('Close prisoner non-association page', () => {
     cy.task('stubCloseNonAssociation')
 
     const closePage = Page.verifyOnPage(ClosePage)
+    closePage.checkLastBreadcrumb('Non-associations')
+
     closePage.getCloseCommentBox().type('They are now friends')
     closePage.getCloseButton().click()
 

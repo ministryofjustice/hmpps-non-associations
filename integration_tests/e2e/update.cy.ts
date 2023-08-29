@@ -23,6 +23,8 @@ context('Update prisoner non-association page', () => {
     cy.task('stubUpdateNonAssociation')
 
     const updatePage = Page.verifyOnPage(UpdatePage)
+    updatePage.checkLastBreadcrumb('Non-associations')
+
     updatePage.commentBox.type(' and IR456456')
     updatePage.saveButton.click()
 

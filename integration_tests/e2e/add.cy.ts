@@ -27,7 +27,10 @@ context('Add non-association page', () => {
     })
 
     listPage.addButton.click()
+
     const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
+    prisonerSearchPage.checkLastBreadcrumb('Non-associations')
+
     prisonerSearchPage.getInputField().type('Andrew')
     prisonerSearchPage.getSearchButton().click()
     prisonerSearchPage.getSelectPrisonerLink().click()
@@ -35,6 +38,8 @@ context('Add non-association page', () => {
     cy.task('stubCreateNonAssociation')
 
     const addDetailsPage = Page.verifyOnPage(AddPage)
+    addDetailsPage.checkLastBreadcrumb('Non-associations')
+
     addDetailsPage.getRadioButtonForPrisonerRole('Perpetrator').click()
     addDetailsPage.getRadioButtonOtherPrisonerRole('Victim').click()
     addDetailsPage.getRadioButtonReason('Threat').click()
