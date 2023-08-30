@@ -11,6 +11,7 @@ import closeRoutes from './close'
 import listRoutes from './list'
 import viewRoutes from './view'
 import updateRoutes from './update'
+import getFrontendComponents from '../middleware/dpsFrontEndComponents'
 
 export type FlashMessages = {
   information?: string[]
@@ -46,6 +47,8 @@ export default function routes(services: Services): Router {
       res.send(photoData)
     }
   })
+
+  get('/', getFrontendComponents(services))
 
   router.use(urlTemplates.list, listRoutes(services))
 

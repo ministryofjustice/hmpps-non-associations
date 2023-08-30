@@ -113,6 +113,11 @@ export default {
     },
     frontendComponents: {
       url: get('COMPONENT_API_URL', 'http://localhost:8082', requiredInProduction),
+      timeout: {
+        response: Number(get('COMPONENT_API_TIMEOUT_SECONDS', 20000)),
+        deadline: Number(get('COMPONENT_API_TIMEOUT_SECONDS', 20000)),
+      },
+      agent: new AgentConfig(Number(get('COMPONENT_API_TIMEOUT_SECONDS', 20000))),
     },
   },
   googleAnalyticsMeasurementId: get('GOOGLE_ANALYTICS_MEASUREMENT_ID', ''),
