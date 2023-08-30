@@ -60,11 +60,9 @@
       <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
         <span class="govuk-visually-hidden"> View prisoner profile for </span>
         {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
-        <br />
-        {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
       </a>
       <br />
-      {{ nonAssociation.otherPrisonerDetails.cellLocation }}
+      {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
     {% endset %}
 
     {% set reason %}

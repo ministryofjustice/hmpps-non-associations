@@ -5,7 +5,11 @@ import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { NonAssociationsApi, type SortBy, type SortDirection } from '../data/nonAssociationsApi'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import {
+  OffenderSearchClient,
+  type OffenderSearchResultTransfer,
+  type OffenderSearchResultOut,
+} from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import {
   davidJones0NonAssociations,
@@ -26,7 +30,13 @@ jest.mock('../data/nonAssociationsApi', () => {
   const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
-jest.mock('../data/offenderSearch')
+jest.mock('../data/offenderSearch', () => {
+  // ensures that constants and functions are preserved
+  type Module = typeof import('../data/offenderSearch')
+  const realModule = jest.requireActual<Module>('../data/offenderSearch')
+  const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
+  return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
+})
 jest.mock('../data/prisonApi')
 
 // mock "key" prisoner
@@ -113,6 +123,98 @@ describe('Non-associations list page', () => {
         .expect(res => {
           expect(res.text).toContain('Jones, David')
         })
+    })
+  })
+
+  describe('should show key prisoner location', () => {
+    beforeEach(() => {
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    })
+
+    describe('when they’re being transferred', () => {
+      beforeEach(() => {
+        const prisonerBeingTransferred = {
+          ...prisoner,
+          prisonId: 'TRN',
+          prisonName: 'Transfer',
+          locationDescription: 'Transfer',
+        } satisfies OffenderSearchResultTransfer
+        delete prisonerBeingTransferred.cellLocation
+        offenderSearchClient.getPrisoner.mockResolvedValue(prisonerBeingTransferred)
+      })
+
+      it('when listing open non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
+          ...davidJones1OpenNonAssociation,
+          prisonId: 'TRN',
+        })
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Transfer')
+          })
+      })
+
+      it('when listing closed non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
+          ...davidJones1ClosedNonAssociation,
+          prisonId: 'TRN',
+        })
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber, true))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Transfer')
+          })
+      })
+    })
+
+    describe('when they’re outside prison', () => {
+      beforeEach(() => {
+        const prisonerOutside = {
+          ...prisoner,
+          prisonId: 'OUT',
+          prisonName: 'Outside',
+          locationDescription: 'Outside - released from Moorland (HMP)',
+        } satisfies OffenderSearchResultOut
+        delete prisonerOutside.cellLocation
+        offenderSearchClient.getPrisoner.mockResolvedValue(prisonerOutside)
+      })
+
+      it('when listing open non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
+          ...davidJones1OpenNonAssociation,
+          prisonId: 'OUT',
+        })
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Outside - released from Moorland (HMP)')
+          })
+      })
+
+      it('when listing closed non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
+          ...davidJones1ClosedNonAssociation,
+          prisonId: 'OUT',
+        })
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber, true))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Outside - released from Moorland (HMP)')
+          })
+      })
     })
   })
 
