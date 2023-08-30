@@ -13,7 +13,7 @@ import {
   restrictionTypeOptions,
   maxCommentLength,
 } from '../data/nonAssociationsApi'
-import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
+import { isOutside, OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
@@ -44,6 +44,13 @@ export default function addRoutes(service: Services): Router {
         const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
         const prisonerName = nameOfPerson(prisoner)
         const otherPrisonerName = nameOfPerson(otherPrisoner)
+
+        if (isOutside(prisoner)) {
+          throw new NotFound(`Cannot add a non-association to someone outside prison: ${prisonerNumber}`)
+        }
+        if (isOutside(otherPrisoner)) {
+          throw new NotFound(`Cannot add a non-association to someone outside prison: ${otherPrisonerNumber}`)
+        }
 
         Object.assign(res.locals, { prisoner, prisonerName, otherPrisoner, otherPrisonerName })
 

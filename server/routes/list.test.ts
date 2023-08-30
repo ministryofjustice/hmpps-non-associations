@@ -218,6 +218,63 @@ describe('Non-associations list page', () => {
     })
   })
 
+  describe('adding a new non-association to prisoners', () => {
+    const prisonerBeingTransferred = {
+      ...prisoner,
+      prisonId: 'TRN',
+      prisonName: 'Transfer',
+      locationDescription: 'Transfer',
+    } satisfies OffenderSearchResultTransfer
+    delete prisonerBeingTransferred.cellLocation
+
+    const prisonerOutside = {
+      ...prisoner,
+      prisonId: 'OUT',
+      prisonName: 'Outside',
+      locationDescription: 'Outside - released from Moorland (HMP)',
+    } satisfies OffenderSearchResultOut
+    delete prisonerOutside.cellLocation
+
+    beforeEach(() => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones0NonAssociations)
+    })
+
+    it.each([
+      {
+        scenario: 'in prison',
+        keyPrisoner: prisoner,
+      },
+      {
+        scenario: 'being transferred',
+        keyPrisoner: prisonerBeingTransferred,
+      },
+    ])('who are $scenario should be allowed', ({ keyPrisoner }) => {
+      offenderSearchClient.getPrisoner.mockResolvedValue(keyPrisoner)
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber, true))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).toContain('Add new non-association')
+          expect(res.text).toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+        })
+    })
+
+    it('who are outside should not be allowed', () => {
+      offenderSearchClient.getPrisoner.mockResolvedValue(prisonerOutside)
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber, true))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).not.toContain('Add new non-association')
+          expect(res.text).not.toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+        })
+    })
+  })
+
   describe('should list all non-associations for a prisoner', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2OpenNonAssociations)

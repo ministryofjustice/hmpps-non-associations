@@ -1,9 +1,10 @@
 import { Router } from 'express'
+import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
-import { OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
+import { isOutside, OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
 import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
@@ -40,6 +41,10 @@ export default function prisonerSearchRoutes(service: Services): Router {
       const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
       const offenderSearchClient = new OffenderSearchClient(systemToken)
       const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+
+      if (isOutside(prisoner)) {
+        throw new NotFound(`Cannot add a non-association to someone outside prison: ${prisonerNumber}`)
+      }
 
       const form: PrisonerSearchForm | null = res.locals.submittedForm
 
