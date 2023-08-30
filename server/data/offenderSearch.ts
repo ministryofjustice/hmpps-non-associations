@@ -28,6 +28,14 @@ export interface OffenderSearchResultOut extends BaseOffenderSearchResult {
 
 export type OffenderSearchResult = OffenderSearchResultIn | OffenderSearchResultTransfer | OffenderSearchResultOut
 
+export function isBeingTransferred(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultTransfer {
+  return prisoner.prisonId === 'TRN'
+}
+
+export function isOutside(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultOut {
+  return prisoner.prisonId === 'OUT'
+}
+
 export type OffenderSearchResults = {
   content: OffenderSearchResult[]
   totalElements: number

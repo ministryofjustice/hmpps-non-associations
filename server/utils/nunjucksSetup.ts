@@ -8,7 +8,7 @@ import config from '../config'
 import type { Services } from '../services'
 import { checkedItems, multipleCheckedItems } from './checkedItems'
 import format from './format'
-import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson } from './utils'
+import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson, prisonerLocation } from './utils'
 
 export default function nunjucksSetup(app: express.Express, services: Services): void {
   app.set('view engine', 'njk')
@@ -50,11 +50,12 @@ export default function nunjucksSetup(app: express.Express, services: Services):
     },
   )
 
-  // name formatting
+  // name and description formatting
   njkEnv.addFilter('convertToTitleCase', convertToTitleCase)
   njkEnv.addFilter('initialiseName', initialiseName)
   njkEnv.addFilter('nameOfPerson', nameOfPerson)
   njkEnv.addFilter('reversedNameOfPerson', reversedNameOfPerson)
+  njkEnv.addFilter('prisonerLocation', prisonerLocation)
   njkEnv.addFilter('possessiveName', format.possessiveName)
 
   // date & number formatting

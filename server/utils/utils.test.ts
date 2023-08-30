@@ -1,4 +1,5 @@
-import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson } from './utils'
+import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson, prisonerLocation } from './utils'
+import { davidJones, fredMills, joePeters, maxClarke } from '../data/testData/offenderSearch'
 
 describe('convert to title case', () => {
   it.each([
@@ -56,5 +57,40 @@ describe('display of prisoner names', () => {
         person.expected,
       )
     })
+  })
+})
+
+describe('prisoners’ locations', () => {
+  it.each([davidJones, fredMills])(
+    'for people who are in prison with a known cell location (e.g. $cellLocation)',
+    prisoner => {
+      expect(prisonerLocation(prisoner)).toEqual(prisoner.cellLocation)
+    },
+  )
+
+  it('for people who are in prison without a known cell location', () => {
+    const prisoner = { ...davidJones }
+    delete prisoner.cellLocation
+    expect(prisonerLocation(prisoner)).toEqual('Not known')
+  })
+
+  it('for people being transferred', () => {
+    expect(prisonerLocation(maxClarke)).toEqual('Transfer')
+  })
+
+  it('for people being transferred without a location description', () => {
+    const prisoner = { ...maxClarke }
+    delete prisoner.locationDescription
+    expect(prisonerLocation(prisoner)).toEqual('Transfer')
+  })
+
+  it('for people outside prison', () => {
+    expect(prisonerLocation(joePeters)).toEqual('Outside - released from Moorland (HMP)')
+  })
+
+  it('for people outside prison without a location description', () => {
+    const prisoner = { ...joePeters }
+    delete prisoner.locationDescription
+    expect(prisonerLocation(prisoner)).toEqual('Outside')
   })
 })
