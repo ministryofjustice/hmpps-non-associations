@@ -4,6 +4,7 @@ import request from 'supertest'
 import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
+import { outsidePrisonId } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
@@ -99,7 +100,7 @@ describe('Add non-association details page', () => {
   it('should return 404 if prisoner is outside prison', () => {
     const prisonerOutside = {
       ...prisoner,
-      prisonId: 'OUT',
+      prisonId: outsidePrisonId,
       prisonName: 'Outside',
       locationDescription: 'Outside - released from Moorland (HMP)',
     } satisfies OffenderSearchResultOut
@@ -120,7 +121,7 @@ describe('Add non-association details page', () => {
   it('should return 404 if other prisoner is outside prison', () => {
     const prisonerOutside = {
       ...otherPrisoner,
-      prisonId: 'OUT',
+      prisonId: outsidePrisonId,
       prisonName: 'Outside',
       locationDescription: 'Outside - released from Moorland (HMP)',
     } satisfies OffenderSearchResultOut

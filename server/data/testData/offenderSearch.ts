@@ -1,3 +1,4 @@
+import { transferPrisonId, outsidePrisonId } from '../constants'
 import type {
   OffenderSearchClient,
   OffenderSearchResultIn,
@@ -48,7 +49,7 @@ export const andrewBrown: OffenderSearchResultIn = {
 }
 
 export const maxClarke: OffenderSearchResultTransfer = {
-  prisonId: 'TRN',
+  prisonId: transferPrisonId,
   prisonName: 'Transfer',
   bookingId: 12349,
   prisonerNumber: 'C1234CC',
@@ -58,7 +59,7 @@ export const maxClarke: OffenderSearchResultTransfer = {
 }
 
 export const joePeters: OffenderSearchResultOut = {
-  prisonId: 'OUT',
+  prisonId: outsidePrisonId,
   prisonName: 'Outside',
   bookingId: 12348,
   prisonerNumber: 'B1234BB',
