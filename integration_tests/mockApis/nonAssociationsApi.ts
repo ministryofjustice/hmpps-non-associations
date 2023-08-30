@@ -17,7 +17,7 @@ import { andrewBrown, davidJones, fredMills, oscarJones } from '../../server/dat
  */
 
 export default {
-  stubNonAssociationsApiPing: (): SuperAgentRequest => {
+  stubNonAssociationsApiPing(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -31,13 +31,14 @@ export default {
     })
   },
 
-  stubListNonAssociations: ({
-    prisonerNumber = davidJones.prisonerNumber,
+  /**
+   * Stub the list of non-associations for David Jones
+   */
+  stubListNonAssociations({
     returning = 'twoOpen',
   }: {
-    prisonerNumber?: string
     returning?: 'none' | 'oneOpen' | 'twoOpen' | 'oneClosed' | 'twoClosed'
-  } = {}): SuperAgentRequest => {
+  } = {}): SuperAgentRequest {
     let nonAssociationsList: NonAssociationsList
     if (returning === 'none') {
       nonAssociationsList = davidJones0NonAssociations
@@ -50,11 +51,11 @@ export default {
     } else if (returning === 'twoClosed') {
       nonAssociationsList = davidJones2ClosedNonAssociations
     }
-
+    const url = `/nonAssociationsApi/prisoner/${encodeURIComponent(davidJones.prisonerNumber)}/non-associations`
     return stubFor({
       request: {
         method: 'GET',
-        urlPathPattern: `/nonAssociationsApi/prisoner/${encodeURIComponent(prisonerNumber)}/non-associations`,
+        urlPathPattern: url,
       },
       response: {
         status: 200,
@@ -64,7 +65,10 @@ export default {
     })
   },
 
-  stubGetNonAssociationForClose: () => {
+  /**
+   * Stub the non-association between David Jones and Fred Mills
+   */
+  stubGetNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'GET',
@@ -78,21 +82,10 @@ export default {
     })
   },
 
-  stubGetNonAssociationForUpdate: () => {
-    return stubFor({
-      request: {
-        method: 'GET',
-        url: '/nonAssociationsApi/non-associations/102',
-      },
-      response: {
-        status: 200,
-        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, andrewBrown.prisonerNumber),
-      },
-    })
-  },
-
-  stubCreateNonAssociation: () => {
+  /**
+   * Stub creating a non-association between David Jones and Andrew Brown
+   */
+  stubCreateNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'POST',
@@ -106,7 +99,10 @@ export default {
     })
   },
 
-  stubUpdateNonAssociation: () => {
+  /**
+   * Stub updating a non-association between David Jones and Oscar Jones
+   */
+  stubUpdateNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'PATCH',
@@ -120,7 +116,10 @@ export default {
     })
   },
 
-  stubCloseNonAssociation: () => {
+  /**
+   * Stub closing a non-association between David Jones and Fred Mills
+   */
+  stubCloseNonAssociation(): SuperAgentRequest {
     return stubFor({
       request: {
         method: 'PUT',

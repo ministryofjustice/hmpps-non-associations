@@ -171,7 +171,7 @@ describe('Non-associations list page', () => {
           expect(res.text).toContain('27 July 2023')
           expect(res.text).toContain('by Mary Johnson')
           expect(res.text).toContain('by Mark Simmons')
-          expect(res.text).not.toContain('Actions')
+          expect(res.text).toContain('Actions')
           // no message
           expect(res.text).not.toContain('This prisoner has no open non-associations')
           expect(res.text).not.toContain('This prisoner has no closed non-associations')
@@ -192,8 +192,8 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
 
-          expect(res.text).toContain('Open (2)')
-          expect(res.text).toContain('Closed (0)')
+          expect(res.text).toContain('Open (2 people)')
+          expect(res.text).toContain('Closed (0 people)')
         })
     })
 
@@ -209,8 +209,8 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
 
-          expect(res.text).toContain('Open (1)')
-          expect(res.text).toContain('Closed (2)')
+          expect(res.text).toContain('Open (1 person)')
+          expect(res.text).toContain('Closed (2 people)')
         })
     })
   })

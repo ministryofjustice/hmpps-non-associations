@@ -2,13 +2,11 @@ import Page from '../pages/page'
 import IndexPage from '../pages/index'
 import AuthSignInPage from '../pages/authSignIn'
 import AuthManageDetailsPage from '../pages/authManageDetails'
+import { resetBasicStubs } from './index'
 
 context('SignIn', () => {
   beforeEach(() => {
-    cy.task('reset')
-    cy.task('stubSignIn')
-    cy.task('stubAuthUser')
-    cy.task('stubNomisUserCaseloads')
+    resetBasicStubs()
   })
 
   it('Unauthenticated user directed to auth', () => {
