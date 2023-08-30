@@ -5,11 +5,11 @@
 
 {% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
 
-{% macro peopleCount(number) %}
+{% macro displayCount(number) %}
   {%- if number == 1 -%}
-    1 person
+    1 record
   {%- else -%}
-    {{ number }} people
+    {{ number }} records
   {%- endif -%}
 {% endmacro %}
 
@@ -39,12 +39,12 @@
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber) }}">
-          Open ({{ peopleCount(nonAssociationsList.openCount) }})
+          Open ({{ displayCount(nonAssociationsList.openCount) }})
         </a>
       </li>
       <li class="govuk-tabs__list-item {% if listing === "closed" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber, true) }}">
-          Closed ({{ peopleCount(nonAssociationsList.closedCount) }})
+          Closed ({{ displayCount(nonAssociationsList.closedCount) }})
         </a>
       </li>
     </ul>

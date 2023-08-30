@@ -294,8 +294,8 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
 
-          expect(res.text).toContain('Open (2 people)')
-          expect(res.text).toContain('Closed (0 people)')
+          expect(res.text).toContain('Open (2 records)')
+          expect(res.text).toContain('Closed (0 records)')
         })
     })
 
@@ -311,8 +311,8 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
 
-          expect(res.text).toContain('Open (1 person)')
-          expect(res.text).toContain('Closed (2 people)')
+          expect(res.text).toContain('Open (1 record)')
+          expect(res.text).toContain('Closed (2 records)')
         })
     })
   })
