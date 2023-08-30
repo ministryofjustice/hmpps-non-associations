@@ -31,7 +31,7 @@ const tableColumns: SortableTableColumns<
   { column: 'role', escapedHtml: 'Role', classes: 'app-list__cell--role', unsortable: true },
   {
     column: 'restrictionType',
-    escapedHtml: 'Where to keep apart',
+    escapedHtml: 'Where&nbsp;to keep&nbsp;apart',
     classes: 'app-list__cell--restriction-type',
     unsortable: true,
   },
