@@ -111,6 +111,9 @@ export default {
       },
       agent: new AgentConfig(Number(get('HMPPS_NON_ASSOCIATIONS_API_TIMEOUT_RESPONSE', 60000))),
     },
+    frontendComponents: {
+      url: get('COMPONENT_API_URL', 'http://localhost:8082', requiredInProduction),
+    },
   },
   googleAnalyticsMeasurementId: get('GOOGLE_ANALYTICS_MEASUREMENT_ID', ''),
   domain: get('INGRESS_URL', 'http://localhost:3000', requiredInProduction),
