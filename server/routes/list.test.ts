@@ -148,6 +148,8 @@ describe('Non-associations list page', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1OpenNonAssociation,
           prisonId: transferPrisonId,
+          prisonName: 'Transfer',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -163,6 +165,8 @@ describe('Non-associations list page', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1ClosedNonAssociation,
           prisonId: transferPrisonId,
+          prisonName: 'Transfer',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -191,6 +195,8 @@ describe('Non-associations list page', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1OpenNonAssociation,
           prisonId: outsidePrisonId,
+          prisonName: 'Outside',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -206,6 +212,8 @@ describe('Non-associations list page', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1ClosedNonAssociation,
           prisonId: outsidePrisonId,
+          prisonName: 'Outside',
+          cellLocation: undefined,
         })
 
         return request(app)
