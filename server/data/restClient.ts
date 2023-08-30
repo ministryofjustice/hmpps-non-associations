@@ -33,8 +33,6 @@ interface StreamRequest {
   errorLogger?: (e: UnsanitisedError) => void
 }
 
-type RestClientBuilder<T> = (token: string) => T
-
 export function RestClientBuilder(name: string, config: ApiConfig) {
   return (token: string): RestClient => new RestClient(name, config, token)
 }

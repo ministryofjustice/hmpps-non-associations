@@ -119,6 +119,9 @@ export default {
       },
       agent: new AgentConfig(Number(get('COMPONENT_API_TIMEOUT_SECONDS', 20000))),
     },
+    serviceUrls: {
+      digitalPrisons: get('DIGITAL_PRISONS_URL', 'http://localhost:3001', requiredInProduction),
+    },
   },
   googleAnalyticsMeasurementId: get('GOOGLE_ANALYTICS_MEASUREMENT_ID', ''),
   domain: get('INGRESS_URL', 'http://localhost:3000', requiredInProduction),

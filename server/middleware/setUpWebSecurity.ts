@@ -15,6 +15,20 @@ export default function setUpWebSecurity(): Router {
     res.locals.cspNonce = crypto.randomBytes(16).toString('hex')
     next()
   })
+
+  const scriptSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
+  const styleSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
+  const formAction = [`'self' ${config.apis.hmppsAuth.externalUrl} ${config.apis.serviceUrls.digitalPrisons}`]
+  const imgSrc = ["'self'", 'data:']
+  const fontSrc = ["'self'"]
+
+  if (config.apis.frontendComponents.url) {
+    scriptSrc.push(config.apis.frontendComponents.url)
+    styleSrc.push(config.apis.frontendComponents.url)
+    imgSrc.push(config.apis.frontendComponents.url)
+    fontSrc.push(config.apis.frontendComponents.url)
+  }
+
   router.use(
     helmet({
       contentSecurityPolicy: {
