@@ -1,4 +1,4 @@
-import { andrewBrown } from '../../server/data/testData/offenderSearch'
+import { fredMills } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import AddPage from '../pages/nonAssociations/add'
 import AddConfirmationPage from '../pages/nonAssociations/addConfirmation'
@@ -22,8 +22,8 @@ context('Add non-association page', () => {
   it('should allow adding a new non-association', () => {
     cy.task('stubOffenderSearchResults', {
       prisonId: 'MDI',
-      term: 'Andrew',
-      results: [andrewBrown],
+      term: 'mills',
+      results: [fredMills],
     })
 
     listPage.addButton.click()
@@ -31,7 +31,7 @@ context('Add non-association page', () => {
     const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
     prisonerSearchPage.checkLastBreadcrumb('Non-associations')
 
-    prisonerSearchPage.getInputField().type('Andrew')
+    prisonerSearchPage.getInputField().type('mills')
     prisonerSearchPage.getSearchButton().click()
     prisonerSearchPage.getSelectPrisonerLink().click()
 
@@ -44,7 +44,7 @@ context('Add non-association page', () => {
     addDetailsPage.getRadioButtonOtherPrisonerRole('Victim').click()
     addDetailsPage.getRadioButtonReason('Threat').click()
     addDetailsPage.getRadioButtonRestrictionType('Cell only').click()
-    addDetailsPage.commentBox.type('Andrew is a bully')
+    addDetailsPage.commentBox.type('David is a bully')
     addDetailsPage.saveButton.click()
 
     Page.verifyOnPage(AddConfirmationPage)

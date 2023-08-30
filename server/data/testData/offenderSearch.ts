@@ -39,13 +39,13 @@ export const oscarJones: OffenderSearchResultIn = {
 }
 
 export const andrewBrown: OffenderSearchResultIn = {
-  prisonId: 'MDI',
-  prisonName: 'Moorland (HMP)',
+  prisonId: 'LEI',
+  prisonName: 'Leeds (HMP)',
   bookingId: 56789,
   prisonerNumber: 'A5678CS',
   firstName: 'ANDREW',
   lastName: 'BROWN',
-  cellLocation: '1-1-004',
+  cellLocation: '2-4-001',
 }
 
 export const maxClarke: OffenderSearchResultTransfer = {
