@@ -40,8 +40,10 @@ export default function addRoutes(service: Services): Router {
 
         const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
-        const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
-        const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
+        const [prisoner, otherPrisoner] = await Promise.all([
+          offenderSearchClient.getPrisoner(prisonerNumber),
+          offenderSearchClient.getPrisoner(otherPrisonerNumber),
+        ])
         const prisonerName = nameOfPerson(prisoner)
         const otherPrisonerName = nameOfPerson(otherPrisoner)
 

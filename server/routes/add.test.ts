@@ -63,7 +63,7 @@ describe('Add non-association details page', () => {
       .expect(404)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       })
   })
 
