@@ -26,18 +26,23 @@ const tableColumns: SortableTableColumns<
     classes: 'app-list__cell--photo',
     unsortable: true,
   },
-  { column: 'LAST_NAME', escapedHtml: 'Prisoner details', classes: 'app-list__cell--prisoner' },
+  { column: 'LAST_NAME', escapedHtml: 'Name', classes: 'app-list__cell--prisoner' },
   { column: 'reason', escapedHtml: 'Reason', classes: 'app-list__cell--reason', unsortable: true },
   { column: 'role', escapedHtml: 'Role', classes: 'app-list__cell--role', unsortable: true },
   {
     column: 'restrictionType',
-    escapedHtml: 'Where to keep apart',
+    escapedHtml: 'Where to keep apart',
     classes: 'app-list__cell--restriction-type',
     unsortable: true,
   },
   { column: 'comment', escapedHtml: 'Comments', classes: 'app-list__cell--comment', unsortable: true },
   { column: 'WHEN_UPDATED', escapedHtml: 'Last updated', classes: 'app-list__cell--date-updated' },
-  { column: 'actions', escapedHtml: 'Actions', classes: 'app-list__cell--actions', unsortable: true },
+  {
+    column: 'actions',
+    escapedHtml: '<span class="govuk-visually-hidden">Actions</span>',
+    classes: 'app-list__cell--actions',
+    unsortable: true,
+  },
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,7 +68,7 @@ export default function listRoutes(service: Services): Router {
       const sortBy = form.fields.sort.value
       const sortDirection = form.fields.order.value
       tableHead = sortableTableHead({
-        columns: listing === 'closed' ? tableColumns.slice(0, -1) : tableColumns,
+        columns: tableColumns,
         sortColumn: sortBy,
         order: sortDirection,
         urlPrefix: '?',
@@ -92,6 +97,7 @@ export default function listRoutes(service: Services): Router {
     res.render('pages/list.njk', {
       messages,
       listing,
+      prisoner,
       prisonerNumber,
       prisonerName: nameOfPerson(prisoner),
       prisonName: prisoner.prisonName,

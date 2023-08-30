@@ -1,8 +1,8 @@
 import Page, { type PageElement } from '../page'
 
-export default class AddPrisonerSearch extends Page {
+export default class PrisonerSearchPage extends Page {
   constructor() {
-    super(`Search for a prisoner`)
+    super('Search for a prisoner')
   }
 
   getInputField(): PageElement<HTMLInputElement> {

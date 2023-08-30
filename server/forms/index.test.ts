@@ -59,7 +59,7 @@ describe('Form handling', () => {
     const form = new SimpleForm()
     form.load({ query: ' ' })
 
-    it(`it doesn't have errors`, () => {
+    it('it doesn’t have errors', () => {
       expect(form.hasErrors).toBeFalsy()
     })
 

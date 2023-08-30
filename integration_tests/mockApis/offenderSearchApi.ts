@@ -2,6 +2,7 @@ import type { SuperAgentRequest } from 'superagent'
 
 import { stubFor } from './wiremock'
 import { OffenderSearchClient, type OffenderSearchResult } from '../../server/data/offenderSearch'
+import { davidJones, fredMills, oscarJones, andrewBrown } from '../../server/data/testData/offenderSearch'
 
 export default {
   stubOffenderSearchPing(): SuperAgentRequest {
@@ -18,26 +19,30 @@ export default {
     })
   },
 
-  stubOffenderSearchGetPrisonerResult({
-    prisonerNumber,
-    result,
-  }: {
-    prisonerNumber: string
-    result: OffenderSearchResult
-  }): SuperAgentRequest {
-    return stubFor({
-      request: {
-        method: 'GET',
-        urlPattern: `/offenderSearchApi/prisoner/${encodeURIComponent(prisonerNumber)}`,
-      },
-      response: {
-        status: 200,
-        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: result,
-      },
-    })
+  /**
+   * Stub gettings details for all 4 mock prisoners
+   */
+  stubOffenderSearchGetPrisoner(): Promise<unknown> {
+    return Promise.all(
+      [davidJones, fredMills, oscarJones, andrewBrown].map(prisoner => {
+        return stubFor({
+          request: {
+            method: 'GET',
+            urlPattern: `/offenderSearchApi/prisoner/${encodeURIComponent(prisoner.prisonerNumber)}`,
+          },
+          response: {
+            status: 200,
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+            jsonBody: prisoner,
+          },
+        })
+      }),
+    )
   },
 
+  /**
+   * Stub searching for a prisoner
+   */
   stubOffenderSearchResults({
     prisonId,
     term,

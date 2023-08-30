@@ -7,7 +7,7 @@ export default class TokenStore {
 
   constructor(private readonly client: RedisClient) {
     client.on('error', error => {
-      logger.error(error, `Redis error`)
+      logger.error(error, 'Redis error')
     })
   }
 

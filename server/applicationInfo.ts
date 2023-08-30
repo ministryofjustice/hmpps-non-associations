@@ -32,7 +32,6 @@ export default (): ApplicationInfo => {
  * This function finds the application root where the package.json file resides
  */
 function findPackageJson(): string {
-  // eslint-disable-next-line no-restricted-syntax
   for (const p of [path.dirname(__dirname), path.dirname(path.dirname(__dirname))]) {
     try {
       fs.accessSync(path.join(p, 'package.json'), fs.constants.R_OK)

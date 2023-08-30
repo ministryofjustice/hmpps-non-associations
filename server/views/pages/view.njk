@@ -2,7 +2,9 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
-{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "moj/components/badge/macro.njk" import mojBadge %}
+
+{% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
 
 {% set pageTitle = "Non-association details" %}
 
@@ -13,32 +15,14 @@
     {{ prisonerName }} and {{ otherPrisonerName }}
   </h1>
 
-  <div class="app-view__key-prisoner-details">
-    <img src="{{ routeUrls.prisonerPhoto(prisonerNumber) }}" alt="Photo of {{ prisonerName }}" class="app-prisoner-photo--small" />
-
-    <dl>
-      <dt class="govuk-visually-hidden">Prisoner</dt>
-      <a href="{{ dpsUrl }}/prisoner/{{ prisonerNumber }}">
-        {{ prisoner| reversedNameOfPerson }}
-      </a>
-      <br />
-      {{ prisonerNumber }}
-    </dl>
-
-    <dl>
-      <dt>Location</dt>
-      <dd>
-        {{ prisoner.cellLocation }}
-      </dd>
-    </dl>
-
+  {% call keyPrisonerDetails(routeUrls, prisoner) %}
     <dl>
       <dt>Role</dt>
       <dd>
         {{ nonAssociation.firstPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.secondPrisonerRoleDescription }}
       </dd>
     </dl>
-  </div>
+  {% endcall %}
 
   <div class="govuk-grid-row govuk-!-margin-top-8">
     <div class="govuk-grid-column-two-thirds app-view__other-prisoner-details">
@@ -125,10 +109,10 @@
 
       {% if nonAssociation.isClosed %}
         <p>
-          {{govukTag({
+          {{ mojBadge({
             text: "Closed",
-            classes: "govuk-tag--red"
-          })}}
+            classes: "moj-badge--red"
+          }) }}
         </p>
       {% endif %}
 
