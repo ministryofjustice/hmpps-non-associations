@@ -36,6 +36,10 @@ export function isOutside(prisoner: OffenderSearchResult): prisoner is OffenderS
   return prisoner.prisonId === 'OUT'
 }
 
+export function isInPrison(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultIn {
+  return !isBeingTransferred(prisoner) && !isOutside(prisoner)
+}
+
 export type OffenderSearchResults = {
   content: OffenderSearchResult[]
   totalElements: number
