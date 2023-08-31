@@ -4,7 +4,7 @@ import request from 'supertest'
 import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
 import { davidJones, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
 jest.mock('../data/hmppsAuthClient')
@@ -43,6 +43,25 @@ describe('Search for a prisoner page', () => {
       stack: 'Not Found',
     }
     offenderSearchClient.getPrisoner.mockRejectedValue(error)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .expect(404)
+      .expect(res => {
+        expect(res.text).not.toContain('Jones, David')
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+      })
+  })
+
+  it('should return 404 if prisoner is outside prison', () => {
+    const prisonerOutside = {
+      ...prisoner,
+      prisonId: 'OUT',
+      prisonName: 'Outside',
+      locationDescription: 'Outside - released from Moorland (HMP)',
+    } satisfies OffenderSearchResultOut
+    delete prisonerOutside.cellLocation
+    offenderSearchClient.getPrisoner.mockResolvedValue(prisonerOutside)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))

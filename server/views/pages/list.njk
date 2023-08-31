@@ -3,6 +3,16 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
+{% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
+
+{% macro displayCount(number) %}
+  {%- if number == 1 -%}
+    1 record
+  {%- else -%}
+    {{ number }} records
+  {%- endif -%}
+{% endmacro %}
+
 {% set pageTitle = prisonerName | possessiveName + " non-associations" %}
 
 {% block content %}
@@ -13,25 +23,30 @@
   <h1 class="govuk-heading-l">
     {{ prisonerName | possessiveName}} non-associations
   </h1>
-  <p class="govuk-!-text-align-right">
-    {{ govukButton({
-      text: "Add new non-association",
-      classes: "app-button--blue",
-      element: "a",
-      href: routeUrls.prisonerSearch(prisonerNumber)
-    }) }}
-  </p>
 
-  <nav>
+  {% call keyPrisonerDetails(routeUrls, prisoner) %}
+    {% if not prisoner | isOutside %}
+      <div class="app-key-prisoner-details--align-right">
+        {{ govukButton({
+          text: "Add new non-association",
+          classes: "app-button--blue",
+          element: "a",
+          href: routeUrls.prisonerSearch(prisonerNumber)
+        }) }}
+      </div>
+    {% endif %}
+  {% endcall %}
+
+  <nav class="govuk-!-margin-top-6">
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber) }}">
-          Open ({{ nonAssociationsList.openCount }})
+          Open ({{ displayCount(nonAssociationsList.openCount) }})
         </a>
       </li>
       <li class="govuk-tabs__list-item {% if listing === "closed" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber, true) }}">
-          Closed ({{ nonAssociationsList.closedCount }})
+          Closed ({{ displayCount(nonAssociationsList.closedCount) }})
         </a>
       </li>
     </ul>
@@ -47,11 +62,9 @@
       <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
         <span class="govuk-visually-hidden"> View prisoner profile for </span>
         {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
-        <br />
-        {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
       </a>
       <br />
-      {{ nonAssociation.otherPrisonerDetails.cellLocation }}
+      {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
     {% endset %}
 
     {% set reason %}
@@ -83,26 +96,19 @@
     {% endset %}
 
     {% set actions %}
-      <a href="{{ routeUrls.update(prisonerNumber, nonAssociation.id) }}">Update</a> | <br />
-      <a href="{{ routeUrls.close(prisonerNumber, nonAssociation.id) }}">Close</a>
+      <a href="{{ routeUrls.view(prisonerNumber, nonAssociation.id) }}">View details</a>
     {% endset %}
 
-    {% set tableRow = [
+    {% set _ = tableRows.push([
       {html: otherPrisonerPhoto, classes: "app-list__cell--photo"},
       {html: otherPrisonerProfileLink, classes: "app-list__cell--prisoner"},
       {html: reason, classes: "app-list__cell--reason"},
       {html: role, classes: "app-list__cell--role"},
       {html: restrictionType, classes: "app-list__cell--restriction-type"},
-      {html: comment, classes: "app-list__cell--comment" if listing == "open" else "app-list__cell--comment--wide"},
-      {html: lastUpdated, classes: "app-list__cell--date-updated"}
-    ] %}
-    {% if listing === "open" %}
-      {% set _ = tableRow.push(
-        {html: actions, classes: "app-list__cell--actions"}
-      ) %}
-    {% endif %}
-
-    {% set _ = tableRows.push(tableRow) %}
+      {html: comment, classes: "app-list__cell--comment"},
+      {html: lastUpdated, classes: "app-list__cell--date-updated"},
+      {html: actions, classes: "app-list__cell--actions"}
+    ]) %}
   {% endfor %}
 
   {% set caption -%}
