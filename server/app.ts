@@ -15,6 +15,8 @@ import setUpStaticResources from './middleware/setUpStaticResources'
 import setUpWebRequestParsing from './middleware/setupRequestParsing'
 import setUpWebSecurity from './middleware/setUpWebSecurity'
 import setUpWebSession from './middleware/setUpWebSession'
+import setUpEnvironmentName from './middleware/setUpEnvironmentName'
+import getDpsFrontendComponents from './middleware/dpsFrontEndComponents'
 
 import config from './config'
 import routes from './routes'
@@ -34,6 +36,7 @@ export default function createApp(services: Services): express.Application {
   app.use(setUpWebSession())
   app.use(setUpWebRequestParsing())
   app.use(setUpStaticResources())
+  setUpEnvironmentName(app)
   nunjucksSetup(app, services)
   app.use(setUpAuthentication())
   app.use(authorisationMiddleware())
