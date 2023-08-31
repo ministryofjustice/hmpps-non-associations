@@ -271,7 +271,9 @@ describe('Non-associations API REST client', () => {
 
   describe('grouping locations of non-association lists', () => {
     function expectThreeGroups(groups: NonAssociationGroups) {
-      if ('samePrison' in groups && 'otherPrisons' in groups && 'transferOrOutside' in groups) {
+      if (groups.type === 'threeGroups') {
+        expect('samePrison' in groups && 'otherPrisons' in groups && 'transferOrOutside' in groups).toBeTruthy()
+
         expect(
           groups.transferOrOutside.some(
             item =>
@@ -374,7 +376,9 @@ describe('Non-associations API REST client', () => {
     })
 
     function expectTwoGroups(groups: NonAssociationGroups) {
-      if ('anyPrison' in groups && 'transferOrOutside' in groups) {
+      if (groups.type === 'twoGroups') {
+        expect('anyPrison' in groups && 'transferOrOutside' in groups).toBeTruthy()
+
         expect(
           groups.transferOrOutside.some(
             item =>
