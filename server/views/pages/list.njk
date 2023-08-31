@@ -5,11 +5,11 @@
 
 {% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
 
-{% macro peopleCount(number) %}
+{% macro displayCount(number) %}
   {%- if number == 1 -%}
-    1 person
+    1 record
   {%- else -%}
-    {{ number }} people
+    {{ number }} records
   {%- endif -%}
 {% endmacro %}
 
@@ -25,26 +25,28 @@
   </h1>
 
   {% call keyPrisonerDetails(routeUrls, prisoner) %}
-    <div class="app-key-prisoner-details--align-right">
-      {{ govukButton({
-        text: "Add new non-association",
-        classes: "app-button--blue",
-        element: "a",
-        href: routeUrls.prisonerSearch(prisonerNumber)
-      }) }}
-    </div>
+    {% if not prisoner | isOutside %}
+      <div class="app-key-prisoner-details--align-right">
+        {{ govukButton({
+          text: "Add new non-association",
+          classes: "app-button--blue",
+          element: "a",
+          href: routeUrls.prisonerSearch(prisonerNumber)
+        }) }}
+      </div>
+    {% endif %}
   {% endcall %}
 
   <nav class="govuk-!-margin-top-6">
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber) }}">
-          Open ({{ peopleCount(nonAssociationsList.openCount) }})
+          Open ({{ displayCount(nonAssociationsList.openCount) }})
         </a>
       </li>
       <li class="govuk-tabs__list-item {% if listing === "closed" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber, true) }}">
-          Closed ({{ peopleCount(nonAssociationsList.closedCount) }})
+          Closed ({{ displayCount(nonAssociationsList.closedCount) }})
         </a>
       </li>
     </ul>
@@ -60,11 +62,9 @@
       <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
         <span class="govuk-visually-hidden"> View prisoner profile for </span>
         {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
-        <br />
-        {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
       </a>
       <br />
-      {{ nonAssociation.otherPrisonerDetails.cellLocation }}
+      {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
     {% endset %}
 
     {% set reason %}

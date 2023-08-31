@@ -1,14 +1,43 @@
 import config from '../config'
 import RestClient from './restClient'
 
-export type OffenderSearchResult = {
-  prisonId: string
-  prisonName: string
+interface BaseOffenderSearchResult {
   bookingId: number
   prisonerNumber: string
   firstName: string
   lastName: string
+}
+
+export interface OffenderSearchResultIn extends BaseOffenderSearchResult {
+  prisonId: string
+  prisonName: string
   cellLocation: string
+}
+
+export interface OffenderSearchResultTransfer extends BaseOffenderSearchResult {
+  prisonId: 'TRN'
+  prisonName: string
+  locationDescription: string
+}
+
+export interface OffenderSearchResultOut extends BaseOffenderSearchResult {
+  prisonId: 'OUT'
+  prisonName: string
+  locationDescription: string
+}
+
+export type OffenderSearchResult = OffenderSearchResultIn | OffenderSearchResultTransfer | OffenderSearchResultOut
+
+export function isBeingTransferred(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultTransfer {
+  return prisoner.prisonId === 'TRN'
+}
+
+export function isOutside(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultOut {
+  return prisoner.prisonId === 'OUT'
+}
+
+export function isInPrison(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultIn {
+  return !isBeingTransferred(prisoner) && !isOutside(prisoner)
 }
 
 export type OffenderSearchResults = {

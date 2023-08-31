@@ -1,4 +1,6 @@
-import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson } from './utils'
+import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson, prisonerLocation } from './utils'
+import { isBeingTransferred, isOutside, isInPrison } from '../data/offenderSearch'
+import { davidJones, fredMills, joePeters, maxClarke } from '../data/testData/offenderSearch'
 
 describe('convert to title case', () => {
   it.each([
@@ -56,5 +58,64 @@ describe('display of prisoner names', () => {
         person.expected,
       )
     })
+  })
+})
+
+describe('prisoners’ locations', () => {
+  it.each([davidJones, fredMills])(
+    'for people who are in prison with a known cell location (e.g. $cellLocation)',
+    prisoner => {
+      expect(prisonerLocation(prisoner)).toEqual(prisoner.cellLocation)
+
+      expect(isBeingTransferred(prisoner)).toBeFalsy()
+      expect(isOutside(prisoner)).toBeFalsy()
+      expect(isInPrison(prisoner)).toBeTruthy()
+    },
+  )
+
+  it('for people who are in prison without a known cell location', () => {
+    const prisoner = { ...davidJones }
+    delete prisoner.cellLocation
+    expect(prisonerLocation(prisoner)).toEqual('Not known')
+
+    expect(isBeingTransferred(prisoner)).toBeFalsy()
+    expect(isOutside(prisoner)).toBeFalsy()
+    expect(isInPrison(prisoner)).toBeTruthy()
+  })
+
+  it('for people being transferred', () => {
+    expect(prisonerLocation(maxClarke)).toEqual('Transfer')
+
+    expect(isBeingTransferred(maxClarke)).toBeTruthy()
+    expect(isOutside(maxClarke)).toBeFalsy()
+    expect(isInPrison(maxClarke)).toBeFalsy()
+  })
+
+  it('for people being transferred without a location description', () => {
+    const prisoner = { ...maxClarke }
+    delete prisoner.locationDescription
+    expect(prisonerLocation(prisoner)).toEqual('Transfer')
+
+    expect(isBeingTransferred(prisoner)).toBeTruthy()
+    expect(isOutside(prisoner)).toBeFalsy()
+    expect(isInPrison(prisoner)).toBeFalsy()
+  })
+
+  it('for people outside prison', () => {
+    expect(prisonerLocation(joePeters)).toEqual('Outside - released from Moorland (HMP)')
+
+    expect(isBeingTransferred(joePeters)).toBeFalsy()
+    expect(isOutside(joePeters)).toBeTruthy()
+    expect(isInPrison(joePeters)).toBeFalsy()
+  })
+
+  it('for people outside prison without a location description', () => {
+    const prisoner = { ...joePeters }
+    delete prisoner.locationDescription
+    expect(prisonerLocation(prisoner)).toEqual('Outside')
+
+    expect(isBeingTransferred(prisoner)).toBeFalsy()
+    expect(isOutside(prisoner)).toBeTruthy()
+    expect(isInPrison(prisoner)).toBeFalsy()
   })
 })

@@ -30,6 +30,8 @@ context('List non-associations page', () => {
 
   it('should have open tab selected', () => {
     listPage.openTab.should('have.class', 'govuk-tabs__list-item--selected')
+    listPage.openTab.should('contain.text', '2 records')
+    listPage.closedTab.should('contain.text', '0 records')
   })
 
   it('should show a table of open non-associations', () => {
