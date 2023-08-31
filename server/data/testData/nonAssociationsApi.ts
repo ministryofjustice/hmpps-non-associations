@@ -6,6 +6,7 @@ import type {
   OpenNonAssociation,
   ClosedNonAssociation,
 } from '../nonAssociationsApi'
+import type { OffenderSearchResult } from '../offenderSearch'
 import { davidJones, fredMills, oscarJones } from './offenderSearch'
 
 /**
@@ -125,6 +126,79 @@ export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAsso
       whenUpdated: new Date('2023-07-27T12:34:56'),
     }
   }),
+}
+
+/**
+ * NB: Most tests should use the properly curated David Jones non-association lists!
+ * The returned non-associations all have the same comments, roles, reasons, restriction types, dates, immutable counts
+ */
+export function mockNonAssociationsList(
+  prisoner: OffenderSearchResult,
+  otherPrisoners: {
+    prisoner: OffenderSearchResult
+    open?: boolean
+  }[],
+): NonAssociationsList {
+  const [minOpenCount, minClosedCount] = otherPrisoners.reduce(
+    ([openCount, closedCount], { open }) => {
+      if (open === false) {
+        return [openCount, closedCount + 1]
+      }
+      return [openCount + 1, closedCount]
+    },
+    [0, 0],
+  )
+
+  return {
+    prisonId: prisoner.prisonId,
+    prisonName: prisoner.prisonName,
+    prisonerNumber: prisoner.prisonerNumber,
+    firstName: prisoner.firstName,
+    lastName: prisoner.lastName,
+    cellLocation: 'cellLocation' in prisoner ? prisoner.cellLocation : undefined,
+    openCount: minOpenCount,
+    closedCount: minClosedCount,
+    nonAssociations: otherPrisoners.map(({ prisoner: otherPrisoner, open }, index) => {
+      const nonAssociation: OpenNonAssociationsListItem = {
+        id: 101 + index,
+        role: 'PERPETRATOR',
+        roleDescription: 'Perpetrator',
+        reason: 'VIOLENCE',
+        reasonDescription: 'Violence',
+        restrictionType: 'LANDING',
+        restrictionTypeDescription: 'Cell and landing',
+        comment: 'This mock data should be avoided for most tests',
+        authorisedBy: 'abc12a',
+        updatedBy: 'abc12a',
+        whenCreated: new Date('2023-08-30T12:34:56'),
+        whenUpdated: new Date('2023-08-30T12:34:56'),
+        otherPrisonerDetails: {
+          prisonId: otherPrisoner.prisonId,
+          prisonName: otherPrisoner.prisonName,
+          prisonerNumber: otherPrisoner.prisonerNumber,
+          firstName: otherPrisoner.firstName,
+          lastName: otherPrisoner.lastName,
+          role: 'VICTIM',
+          roleDescription: 'Victim',
+          cellLocation: 'cellLocation' in otherPrisoner ? otherPrisoner.cellLocation : undefined,
+        },
+        isClosed: false,
+        closedBy: null,
+        closedReason: null,
+        closedAt: null,
+      }
+      if (open === false) {
+        return {
+          ...nonAssociation,
+          isClosed: true,
+          closedBy: 'lev79n',
+          closedReason: 'Problem solved',
+          closedAt: new Date('2023-08-31T12:34:56'),
+        } satisfies ClosedNonAssociationsListItem
+      }
+      return nonAssociation
+    }),
+  }
 }
 
 export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open?: true): OpenNonAssociation
