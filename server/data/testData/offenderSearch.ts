@@ -48,6 +48,16 @@ export const andrewBrown: OffenderSearchResultIn = {
   cellLocation: '2-4-001',
 }
 
+export const walterSmith: OffenderSearchResultIn = {
+  prisonId: 'BXI',
+  prisonName: 'Brixton (HMP)',
+  bookingId: 56790,
+  prisonerNumber: 'A5679NW',
+  firstName: 'WALTER',
+  lastName: 'SMITH',
+  cellLocation: '2-4-002',
+}
+
 export const maxClarke: OffenderSearchResultTransfer = {
   prisonId: transferPrisonId,
   prisonName: 'Transfer',
@@ -68,7 +78,7 @@ export const joePeters: OffenderSearchResultOut = {
   locationDescription: 'Outside - released from Moorland (HMP)',
 }
 
-export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters]
+export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, walterSmith, maxClarke, joePeters]
 
 export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumber => {
   const result = mockPrisoners.find(prisoner => prisoner.prisonerNumber === prisonerNumber)
