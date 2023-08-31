@@ -1,13 +1,14 @@
 import { davidJones, fredMills, oscarJones } from '../../server/data/testData/offenderSearch'
 import ListPage from '../pages/nonAssociations/list'
-import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('List non-associations page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    resetBasicStubs()
-    listPage = navigateToDavidJonesNonAssociations()
+    cy.resetBasicStubs()
+    cy.navigateToDavidJonesNonAssociations().then(result => {
+      listPage = result
+    })
   })
 
   it('has correct title', () => {

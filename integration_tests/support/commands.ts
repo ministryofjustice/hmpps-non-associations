@@ -1,3 +1,6 @@
+import { davidJones } from '../../server/data/testData/offenderSearch'
+import Page from '../pages/page'
+import ListPage from '../pages/nonAssociations/list'
 import GoogleAnalyticsTracker, { type GtagCall } from './googleAnalyticsTracker'
 
 Cypress.Commands.add('signIn', (options = { failOnStatusCode: true }): Cypress.Chainable<Cypress.AUTWindow> => {
@@ -14,4 +17,25 @@ Cypress.Commands.add('trackGoogleAnalyticsCalls', (): Cypress.Chainable<GoogleAn
     }
   })
   return cy.wrap(tracker)
+})
+
+Cypress.Commands.add('resetBasicStubs', () => {
+  cy.task('reset')
+  cy.task('stubSignIn')
+  cy.task('stubAuthUser')
+  cy.task('stubNomisUserCaseloads')
+})
+
+Cypress.Commands.add('navigateToDavidJonesNonAssociations', () => {
+  cy.signIn()
+
+  cy.task('stubPrisonApiGetPhoto')
+  cy.task('stubPrisonApiGetStaffDetails')
+  cy.task('stubOffenderSearchGetPrisoner')
+  cy.task('stubListNonAssociations')
+
+  cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
+  const listPage = Page.verifyOnPage(ListPage, 'David Jones’')
+
+  return cy.wrap(listPage)
 })

@@ -1,10 +1,9 @@
 import Page from '../pages/page'
 import IndexPage from '../pages/index'
-import { resetBasicStubs } from './index'
 
 context('Index page', () => {
   beforeEach(() => {
-    resetBasicStubs()
+    cy.resetBasicStubs()
   })
 
   it('should show expected header and footer elements', () => {

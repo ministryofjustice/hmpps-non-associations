@@ -4,14 +4,15 @@ import AddPage from '../pages/nonAssociations/add'
 import AddConfirmationPage from '../pages/nonAssociations/addConfirmation'
 import ListPage from '../pages/nonAssociations/list'
 import PrisonerSearchPage from '../pages/nonAssociations/prisonerSearch'
-import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('Add non-association page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    resetBasicStubs()
-    listPage = navigateToDavidJonesNonAssociations()
+    cy.resetBasicStubs()
+    cy.navigateToDavidJonesNonAssociations().then(result => {
+      listPage = result
+    })
   })
 
   it('navigate to add non-association', () => {

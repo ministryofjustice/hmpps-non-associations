@@ -6,7 +6,21 @@ declare namespace Cypress {
      */
     signIn(options?: { failOnStatusCode: boolean }): Chainable<AUTWindow>
 
+    /**
+     * Installs a spy to track calls to global `gtag()`
+     */
     trackGoogleAnalyticsCalls(): Chainable<GoogleAnalyticsTracker>
+
+    /**
+     * Set up stubs needed for all interactions
+     */
+    resetBasicStubs(): Chainable<AUTWindow>
+
+    /**
+     * Set up stubs needed for listing non-associations for David Jones
+     * and navigate to list page
+     */
+    navigateToDavidJonesNonAssociations(): Chainable<ListPage>
   }
 
   /**
