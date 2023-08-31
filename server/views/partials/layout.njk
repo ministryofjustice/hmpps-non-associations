@@ -47,24 +47,13 @@
 {% block bodyStart %}
 {% endblock %}
 
-{% block footer %}
-  {% from "govuk/components/footer/macro.njk" import govukFooter %}
 
-  {{ govukFooter({
-    contentLicence: {text: 'Official sensitive'},
-    meta: {
-      items: [
-        {
-          href: supportUrl + "/feedback-and-support",
-          text: "Get help"
-        },
-        {
-          href: dpsUrl + "/content/terms-conditions",
-          text: "Terms and conditions"
-        }
-      ]
-    }
-  }) }}
+{% block footer %}
+  {% if feComponents.footer %}
+    {{ feComponents.footer | safe }}
+  {% else %}
+    {% include "./footer.njk" %}
+  {% endif %}
 {% endblock %}
 
 {% block bodyEnd %}

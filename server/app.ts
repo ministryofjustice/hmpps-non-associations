@@ -41,6 +41,7 @@ export default function createApp(services: Services): express.Application {
   app.use(setUpCurrentUser(services))
 
   app.use(breadcrumbs())
+  app.use(getDpsFrontendComponents(services))
   app.use(routes(services))
 
   app.use((req, res, next) => next(new NotFound()))
