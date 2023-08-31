@@ -2,7 +2,7 @@ import type { SuperAgentRequest } from 'superagent'
 
 import { stubFor } from './wiremock'
 import { OffenderSearchClient, type OffenderSearchResult } from '../../server/data/offenderSearch'
-import { davidJones, fredMills, oscarJones, andrewBrown } from '../../server/data/testData/offenderSearch'
+import { mockPrisoners } from '../../server/data/testData/offenderSearch'
 
 export default {
   stubOffenderSearchPing(): SuperAgentRequest {
@@ -20,11 +20,11 @@ export default {
   },
 
   /**
-   * Stub gettings details for all 4 mock prisoners
+   * Stub gettings details for all mock prisoners
    */
   stubOffenderSearchGetPrisoner(): Promise<unknown> {
     return Promise.all(
-      [davidJones, fredMills, oscarJones, andrewBrown].map(prisoner => {
+      mockPrisoners.map(prisoner => {
         return stubFor({
           request: {
             method: 'GET',
