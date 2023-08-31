@@ -8,7 +8,8 @@ import config from '../config'
 import type { Services } from '../services'
 import { checkedItems, multipleCheckedItems } from './checkedItems'
 import format from './format'
-import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson } from './utils'
+import { convertToTitleCase, initialiseName, nameOfPerson, reversedNameOfPerson, prisonerLocation } from './utils'
+import { isBeingTransferred, isOutside, isInPrison } from '../data/offenderSearch'
 
 export default function nunjucksSetup(app: express.Express, services: Services): void {
   app.set('view engine', 'njk')
@@ -56,6 +57,12 @@ export default function nunjucksSetup(app: express.Express, services: Services):
   njkEnv.addFilter('nameOfPerson', nameOfPerson)
   njkEnv.addFilter('reversedNameOfPerson', reversedNameOfPerson)
   njkEnv.addFilter('possessiveName', format.possessiveName)
+
+  // prisoner utils
+  njkEnv.addFilter('prisonerLocation', prisonerLocation)
+  njkEnv.addFilter('isBeingTransferred', isBeingTransferred)
+  njkEnv.addFilter('isOutside', isOutside)
+  njkEnv.addFilter('isInPrison', isInPrison)
 
   // date & number formatting
   njkEnv.addFilter('dateAndTime', format.dateAndTime)

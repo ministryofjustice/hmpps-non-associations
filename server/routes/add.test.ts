@@ -5,7 +5,7 @@ import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills } from '../data/testData/offenderSearch'
 
@@ -17,7 +17,13 @@ jest.mock('../data/nonAssociationsApi', () => {
   const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
-jest.mock('../data/offenderSearch')
+jest.mock('../data/offenderSearch', () => {
+  // ensures that sort and order constants are preserved
+  type Module = typeof import('../data/offenderSearch')
+  const realModule = jest.requireActual<Module>('../data/offenderSearch')
+  const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
+  return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
+})
 
 // mock "key" prisoner
 const { prisonerNumber } = davidJones
@@ -57,7 +63,7 @@ describe('Add non-association details page', () => {
       .expect(404)
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       })
   })
 
@@ -87,6 +93,48 @@ describe('Add non-association details page', () => {
       .expect('Content-Type', /html/)
       .expect(() => {
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should return 404 if prisoner is outside prison', () => {
+    const prisonerOutside = {
+      ...prisoner,
+      prisonId: 'OUT',
+      prisonName: 'Outside',
+      locationDescription: 'Outside - released from Moorland (HMP)',
+    } satisfies OffenderSearchResultOut
+    delete prisonerOutside.cellLocation
+
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisonerOutside)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+
+    return request(app)
+      .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
+      .expect(404)
+      .expect(res => {
+        expect(res.text).not.toContain('Jones, David')
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+      })
+  })
+
+  it('should return 404 if other prisoner is outside prison', () => {
+    const prisonerOutside = {
+      ...otherPrisoner,
+      prisonId: 'OUT',
+      prisonName: 'Outside',
+      locationDescription: 'Outside - released from Moorland (HMP)',
+    } satisfies OffenderSearchResultOut
+    delete prisonerOutside.cellLocation
+
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisonerOutside)
+
+    return request(app)
+      .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
+      .expect(404)
+      .expect(res => {
+        expect(res.text).not.toContain('Jones, David')
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       })
   })
 

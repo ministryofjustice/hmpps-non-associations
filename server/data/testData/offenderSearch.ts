@@ -1,7 +1,13 @@
-import type { OffenderSearchClient, OffenderSearchResult, OffenderSearchResults } from '../offenderSearch'
+import type {
+  OffenderSearchClient,
+  OffenderSearchResultIn,
+  OffenderSearchResultOut,
+  OffenderSearchResultTransfer,
+  OffenderSearchResults,
+} from '../offenderSearch'
 import { SanitisedError } from '../../sanitisedError'
 
-export const davidJones: OffenderSearchResult = {
+export const davidJones: OffenderSearchResultIn = {
   prisonId: 'MDI',
   prisonName: 'Moorland (HMP)',
   bookingId: 12345,
@@ -11,7 +17,7 @@ export const davidJones: OffenderSearchResult = {
   cellLocation: '1-1-001',
 }
 
-export const fredMills: OffenderSearchResult = {
+export const fredMills: OffenderSearchResultIn = {
   prisonId: 'MDI',
   prisonName: 'Moorland (HMP)',
   bookingId: 12346,
@@ -21,7 +27,7 @@ export const fredMills: OffenderSearchResult = {
   cellLocation: '1-1-002',
 }
 
-export const oscarJones: OffenderSearchResult = {
+export const oscarJones: OffenderSearchResultIn = {
   prisonId: 'MDI',
   prisonName: 'Moorland (HMP)',
   bookingId: 12347,
@@ -31,7 +37,7 @@ export const oscarJones: OffenderSearchResult = {
   cellLocation: '1-1-003',
 }
 
-export const andrewBrown: OffenderSearchResult = {
+export const andrewBrown: OffenderSearchResultIn = {
   prisonId: 'MDI',
   prisonName: 'Moorland (HMP)',
   bookingId: 56789,
@@ -41,25 +47,41 @@ export const andrewBrown: OffenderSearchResult = {
   cellLocation: '1-1-004',
 }
 
+export const maxClarke: OffenderSearchResultTransfer = {
+  prisonId: 'TRN',
+  prisonName: 'Transfer',
+  bookingId: 12349,
+  prisonerNumber: 'C1234CC',
+  firstName: 'MAX',
+  lastName: 'CLARKE',
+  locationDescription: 'Transfer',
+}
+
+export const joePeters: OffenderSearchResultOut = {
+  prisonId: 'OUT',
+  prisonName: 'Outside',
+  bookingId: 12348,
+  prisonerNumber: 'B1234BB',
+  firstName: 'JOE',
+  lastName: 'PETERS',
+  locationDescription: 'Outside - released from Moorland (HMP)',
+}
+
+export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters]
+
 export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumber => {
+  const result = mockPrisoners.find(prisoner => prisoner.prisonerNumber === prisonerNumber)
+  if (result) {
+    return Promise.resolve(result)
+  }
+
   const error: SanitisedError = {
     name: 'Error',
     status: 404,
     message: 'Not Found',
     stack: 'Not Found',
   }
-  switch (prisonerNumber) {
-    case davidJones.prisonerNumber:
-      return Promise.resolve(davidJones)
-    case fredMills.prisonerNumber:
-      return Promise.resolve(fredMills)
-    case oscarJones.prisonerNumber:
-      return Promise.resolve(oscarJones)
-    case andrewBrown.prisonerNumber:
-      return Promise.resolve(andrewBrown)
-    default:
-      return Promise.reject(error)
-  }
+  return Promise.reject(error)
 }
 
 export const sampleOffenderSearchResults: OffenderSearchResults = {

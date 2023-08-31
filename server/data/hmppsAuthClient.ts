@@ -49,7 +49,7 @@ export default class HmppsAuthClient {
   }
 
   getUser(token: string): Promise<User> {
-    logger.info(`Getting user details: calling HMPPS Auth`)
+    logger.info('Getting user details: calling HMPPS Auth')
     return HmppsAuthClient.restClient(token).get<User>({ path: '/api/user/me' })
   }
 

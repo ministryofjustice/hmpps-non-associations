@@ -8,7 +8,14 @@ import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
-import { davidJones, fredMills, oscarJones, mockGetPrisoner } from '../data/testData/offenderSearch'
+import {
+  davidJones,
+  fredMills,
+  oscarJones,
+  maxClarke,
+  joePeters,
+  mockGetPrisoner,
+} from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
 
 jest.mock('../data/hmppsAuthClient')
@@ -19,7 +26,13 @@ jest.mock('../data/nonAssociationsApi', () => {
   const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
-jest.mock('../data/offenderSearch')
+jest.mock('../data/offenderSearch', () => {
+  // ensures that constants and functions are preserved
+  type Module = typeof import('../data/offenderSearch')
+  const realModule = jest.requireActual<Module>('../data/offenderSearch')
+  const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
+  return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
+})
 jest.mock('../data/prisonApi')
 
 // mock "key" prisoner
@@ -144,6 +157,7 @@ describe('View non-association details page', () => {
       const perpetratorPosition = res.text.indexOf('Perpetrator')
       const victimPosition = res.text.indexOf('Victim')
       expect(perpetratorPosition).toBeLessThan(victimPosition)
+      expect(res.text.indexOf('1-1-001')).toBeLessThan(res.text.indexOf('1-1-002'))
     }
 
     function expectFredMillsFirst(res: request.Response) {
@@ -152,6 +166,7 @@ describe('View non-association details page', () => {
       const perpetratorPosition = res.text.indexOf('Perpetrator')
       const victimPosition = res.text.indexOf('Victim')
       expect(perpetratorPosition).toBeGreaterThan(victimPosition)
+      expect(res.text.indexOf('1-1-002')).toBeLessThan(res.text.indexOf('1-1-001'))
     }
 
     describe('of open non-association', () => {
@@ -212,6 +227,91 @@ describe('View non-association details page', () => {
             expectClosed(res)
             expectFredMillsFirst(res)
           })
+      })
+    })
+  })
+
+  describe('location', () => {
+    beforeEach(() => {
+      offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    })
+
+    describe('of key prisoner', () => {
+      describe.each([
+        {
+          scenario: 'being transferred',
+          key: maxClarke.prisonerNumber,
+          other: davidJones.prisonerNumber,
+          expectedLocation: 'Transfer',
+        },
+        {
+          scenario: 'outside prison',
+          key: joePeters.prisonerNumber,
+          other: davidJones.prisonerNumber,
+          expectedLocation: 'Outside - released from Moorland (HMP)',
+        },
+      ])('should show if they are $scenario', ({ key, other, expectedLocation }) => {
+        function expectCorrectLocation() {
+          return request(app)
+            .get(routeUrls.view(key, nonAssociation.id))
+            .expect(200)
+            .expect('Content-Type', /html/)
+            .expect(res => {
+              expect(res.text).toContain(expectedLocation)
+              expect(res.text).toContain(davidJones.cellLocation)
+              expect(res.text.indexOf(expectedLocation)).toBeLessThan(res.text.indexOf(davidJones.cellLocation))
+            })
+        }
+
+        it('when viewing a open non-association', () => {
+          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other))
+          return expectCorrectLocation()
+        })
+
+        it('when viewing a closed non-association', () => {
+          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other, false))
+          return expectCorrectLocation()
+        })
+      })
+    })
+
+    describe('of other prisoner', () => {
+      describe.each([
+        {
+          scenario: 'being transferred',
+          key: davidJones.prisonerNumber,
+          other: maxClarke.prisonerNumber,
+          expectedLocation: 'Transfer',
+        },
+        {
+          scenario: 'outside prison',
+          key: davidJones.prisonerNumber,
+          other: joePeters.prisonerNumber,
+          expectedLocation: 'Outside - released from Moorland (HMP)',
+        },
+      ])('should show if they are $scenario', ({ key, other, expectedLocation }) => {
+        function expectCorrectLocation() {
+          return request(app)
+            .get(routeUrls.view(key, nonAssociation.id))
+            .expect(200)
+            .expect('Content-Type', /html/)
+            .expect(res => {
+              expect(res.text).toContain(expectedLocation)
+              expect(res.text).toContain(davidJones.cellLocation)
+              expect(res.text.indexOf(expectedLocation)).toBeGreaterThan(res.text.indexOf(davidJones.cellLocation))
+            })
+        }
+
+        it('when viewing a open non-association', () => {
+          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other))
+          return expectCorrectLocation()
+        })
+
+        it('when viewing a closed non-association', () => {
+          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other, false))
+          return expectCorrectLocation()
+        })
       })
     })
   })

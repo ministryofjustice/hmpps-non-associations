@@ -1,3 +1,5 @@
+import { isBeingTransferred, isOutside, type OffenderSearchResult } from '../data/offenderSearch'
+
 const properCase = (word: string): string =>
   word.length >= 1 ? word[0].toUpperCase() + word.toLowerCase().slice(1) : word
 
@@ -41,4 +43,17 @@ export const reversedNameOfPerson = (prisoner: { firstName: string; lastName: st
     return convertToTitleCase(prisoner.lastName)
   }
   return `${convertToTitleCase(prisoner.lastName)}, ${convertToTitleCase(prisoner.firstName)}`
+}
+
+/**
+ * Display location of a prisoner in prison, during transfer and outside/released
+ */
+export const prisonerLocation = (prisoner: OffenderSearchResult): string => {
+  if (isBeingTransferred(prisoner)) {
+    return prisoner.locationDescription ?? 'Transfer'
+  }
+  if (isOutside(prisoner)) {
+    return prisoner.locationDescription ?? 'Outside'
+  }
+  return prisoner.cellLocation ?? 'Not known'
 }
