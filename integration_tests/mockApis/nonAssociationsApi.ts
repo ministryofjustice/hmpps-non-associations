@@ -10,7 +10,7 @@ import {
   davidJones2ClosedNonAssociations,
   mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
-import { davidJones, fredMills, oscarJones } from '../../server/data/testData/offenderSearch'
+import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
@@ -111,7 +111,7 @@ export default {
       response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, oscarJones.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
       },
     })
   },
