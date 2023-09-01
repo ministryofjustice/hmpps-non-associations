@@ -2,6 +2,7 @@ import { type RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
 
 import logger from '../../logger'
+import format from '../utils/format'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
@@ -23,32 +24,31 @@ import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
-const tableColumns: SortableTableColumns<
-  'photo' | 'LAST_NAME' | 'reason' | 'role' | 'restrictionType' | 'WHEN_UPDATED' | 'actions'
-> = [
-  {
+type Columns = 'photo' | 'LAST_NAME' | 'reason' | 'role' | 'restrictionType' | 'WHEN_UPDATED' | 'actions'
+const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
+  photo: {
     column: 'photo',
     escapedHtml: '<span class="govuk-visually-hidden">Photo</span>',
     classes: 'app-list__cell--photo',
     unsortable: true,
   },
-  { column: 'LAST_NAME', escapedHtml: 'Name', classes: 'app-list__cell--prisoner' },
-  { column: 'reason', escapedHtml: 'Reason', classes: 'app-list__cell--reason', unsortable: true },
-  { column: 'role', escapedHtml: 'Role', classes: 'app-list__cell--role', unsortable: true },
-  {
+  LAST_NAME: { column: 'LAST_NAME', escapedHtml: 'Name', classes: 'app-list__cell--prisoner' },
+  reason: { column: 'reason', escapedHtml: 'Reason', classes: 'app-list__cell--reason', unsortable: true },
+  role: { column: 'role', escapedHtml: 'Role', classes: 'app-list__cell--role', unsortable: true },
+  restrictionType: {
     column: 'restrictionType',
     escapedHtml: 'Where&nbsp;to keep&nbsp;apart',
     classes: 'app-list__cell--restriction-type',
     unsortable: true,
   },
-  { column: 'WHEN_UPDATED', escapedHtml: 'Last updated', classes: 'app-list__cell--date-updated' },
-  {
+  WHEN_UPDATED: { column: 'WHEN_UPDATED', escapedHtml: 'Last updated', classes: 'app-list__cell--date-updated' },
+  actions: {
     column: 'actions',
     escapedHtml: '<span class="govuk-visually-hidden">Actions</span>',
     classes: 'app-list__cell--actions',
     unsortable: true,
   },
-]
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function listRoutes(service: Services): Router {
@@ -62,6 +62,7 @@ export default function listRoutes(service: Services): Router {
     const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+    const prisonerName = nameOfPerson(prisoner)
 
     const messages: FlashMessages = {}
     let tableHead: HeaderCell[]
@@ -74,7 +75,18 @@ export default function listRoutes(service: Services): Router {
       const sortBy = form.fields.sort.value
       const sortDirection = form.fields.order.value
       tableHead = sortableTableHead({
-        columns: tableColumns,
+        columns: [
+          tableColumns.photo,
+          tableColumns.LAST_NAME,
+          tableColumns.reason,
+          {
+            ...tableColumns.role,
+            escapedHtml: `${format.possessiveName(prisonerName)} role`,
+          },
+          tableColumns.restrictionType,
+          tableColumns.WHEN_UPDATED,
+          tableColumns.actions,
+        ],
         sortColumn: sortBy,
         order: sortDirection,
         urlPrefix: '?',
@@ -106,7 +118,7 @@ export default function listRoutes(service: Services): Router {
       listing,
       prisoner,
       prisonerNumber,
-      prisonerName: nameOfPerson(prisoner),
+      prisonerName,
       nonAssociationsList,
       nonAssociationGroups,
       tableHead,

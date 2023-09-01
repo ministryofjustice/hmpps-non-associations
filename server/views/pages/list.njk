@@ -71,7 +71,15 @@
         {{ prisonerName }} has no open non-associations in {{ prisoner.prisonName }}.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(routeUrls, prisoner.prisonName, tableHead, prisoner, nonAssociationGroups.samePrison, listing, emptyMessageHtml) }}
+    {{ nonAssociationGroup(
+      routeUrls,
+      prisoner.prisonName,
+      tableHead,
+      prisoner,
+      nonAssociationGroups.samePrison,
+      listing,
+      emptyMessageHtml
+    ) }}
 
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
@@ -80,7 +88,15 @@
         {{ prisonerName }} has no open non-associations in other establishments.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(routeUrls, 'Other establishments', tableHead, prisoner, nonAssociationGroups.otherPrisons, listing, emptyMessageHtml) }}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'Other establishments',
+      tableHead,
+      prisoner,
+      nonAssociationGroups.otherPrisons,
+      listing,
+      emptyMessageHtml
+    ) }}
 
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
@@ -89,7 +105,15 @@
         {{ prisonerName }} has no open non-associations outside an establishment.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(routeUrls, 'Not currently in an establishment', tableHead, prisoner, nonAssociationGroups.transferOrOutside, listing, emptyMessageHtml) }}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'Not currently in an establishment',
+      tableHead,
+      prisoner,
+      nonAssociationGroups.transferOrOutside,
+      listing,
+      emptyMessageHtml
+    ) }}
 
   {% elif nonAssociationGroups.type == "twoGroups" %}
 
@@ -100,7 +124,15 @@
         {{ prisonerName }} has no open non-associations in an establishment.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(routeUrls, 'In establishments', tableHead, prisoner, nonAssociationGroups.anyPrison, listing, emptyMessageHtml) }}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'In establishments',
+      tableHead,
+      prisoner,
+      nonAssociationGroups.anyPrison,
+      listing,
+      emptyMessageHtml
+    ) }}
 
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
@@ -109,7 +141,15 @@
         {{ prisonerName }} has no open non-associations outside an establishment.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(routeUrls, 'Not currently in an establishment', tableHead, prisoner, nonAssociationGroups.transferOrOutside, listing, emptyMessageHtml) }}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'Not currently in an establishment',
+      tableHead,
+      prisoner,
+      nonAssociationGroups.transferOrOutside,
+      listing,
+      emptyMessageHtml
+    ) }}
 
   {% endif %}
 

@@ -45,7 +45,7 @@ context('List non-associations page', () => {
       expect(fredMillsRow[1]).to.contain(fredMills.prisonerNumber)
       expect(fredMillsRow[1]).to.contain('Mills, Fred')
       expect(fredMillsRow[2]).to.contain('Violence')
-      expect(fredMillsRow[3]).to.contain('Victim')
+      expect(fredMillsRow[3]).to.contain('Perpetrator')
       expect(fredMillsRow[4]).to.contain('Cell and landing')
       expect(fredMillsRow[5]).to.contain('26/07/2023')
 

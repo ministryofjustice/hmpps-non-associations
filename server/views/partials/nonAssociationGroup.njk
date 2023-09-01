@@ -1,11 +1,11 @@
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
-{% macro nonAssociationGroup(routeUrls, heading, tableHead, prisoner, nonAssociations, listing, emptyMessageHtml) %}
+{% macro nonAssociationGroup(routeUrls, heading, tableHead, prisoner, nonAssociationsGroup, listing, emptyMessageHtml) %}
 
   <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ heading }}</h2>
 
   {% set tableRows = [] %}
-  {% for nonAssociation in nonAssociations %}
+  {% for nonAssociation in nonAssociationsGroup %}
     {% set otherPrisonerPhoto %}
       <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }}" class="app-prisoner-photo" />
     {% endset %}
@@ -24,7 +24,7 @@
     {% endset %}
 
     {% set role %}
-      {{ nonAssociation.otherPrisonerDetails.roleDescription }}
+      {{ nonAssociation.roleDescription }}
     {% endset %}
 
     {% set restrictionType %}

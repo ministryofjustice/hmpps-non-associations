@@ -278,6 +278,10 @@ describe('Non-associations list page', () => {
         // table
         expect(res.text).toContain('app-sortable-table')
         expect(res.text).toContain('Mills, Fred')
+        expect(res.text).toContain('Perpetrator')
+        expect(res.text).not.toContain('Victim')
+        expect(res.text).toContain('Jones, Oscar')
+        expect(res.text).toContain('Not relevant')
         expect(res.text).toContain('Cell and landing')
         if (this.open) {
           expect(res.text).toContain('26/07/2023')
