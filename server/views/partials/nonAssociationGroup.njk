@@ -37,8 +37,6 @@
 
     {% set lastUpdated %}
       {{ nonAssociation.whenUpdated | shortDate }}
-      <br />
-      by {{ nonAssociation.updatedBy | default("(not specified)", true) }}
     {% endset %}
 
     {% set actions %}

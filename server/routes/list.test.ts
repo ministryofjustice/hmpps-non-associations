@@ -288,8 +288,6 @@ describe('Non-associations list page', () => {
           expect(res.text).not.toContain('26/07/2023')
           expect(res.text).toContain('27/07/2023')
         }
-        expect(res.text).toContain('by Mary Johnson')
-        expect(res.text).toContain('by Mark Simmons')
         expect(res.text).toContain('Actions')
       }
 
@@ -609,7 +607,7 @@ describe('Non-associations list page', () => {
     })
   })
 
-  describe('should display “System” instead of internal system username as the authoriser', () => {
+  describe('should display look up staff usernames (despite not being presented)', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
         ...davidJones2OpenNonAssociations,
@@ -633,10 +631,6 @@ describe('Non-associations list page', () => {
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('NON_ASSOCIATIONS_API')
-
-          // table
-          expect(res.text).toContain('by Mary Johnson')
-          expect(res.text).toContain('by System')
         })
     })
 
@@ -664,15 +658,11 @@ describe('Non-associations list page', () => {
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('lev79n')
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('NON_ASSOCIATIONS_API')
-
-          // table
-          expect(res.text).toContain('by Mary Johnson')
-          expect(res.text).toContain('by System')
         })
     })
   })
 
-  describe('should only look up unique staff usernames', () => {
+  describe('should only look up unique staff usernames (despite not being presented)', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
         ...davidJones2OpenNonAssociations,
@@ -694,10 +684,6 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
-
-          // table
-          expect(res.text).toContain('by Mary Johnson')
-          expect(res.text).not.toContain('by System')
         })
     })
 
@@ -723,67 +709,6 @@ describe('Non-associations list page', () => {
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('lev79n')
-
-          // table
-          expect(res.text).toContain('by Mary Johnson')
-          expect(res.text).not.toContain('by System')
-        })
-    })
-  })
-
-  describe('should display “(not specified)” when authorised-by is not given', () => {
-    it('when listing open non-associations', () => {
-      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
-        ...davidJones2OpenNonAssociations,
-        nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
-          return {
-            ...nonAssociation,
-            authorisedBy: '',
-            updatedBy: '',
-          }
-        }),
-      })
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-
-      return request(app)
-        .get(routeUrls.list(prisonerNumber))
-        .expect(200)
-        .expect('Content-Type', /html/)
-        .expect(res => {
-          expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('')
-
-          // table
-          expect(res.text).toContain('by (not specified)')
-        })
-    })
-
-    it('when listing closed non-associations', () => {
-      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
-        ...davidJones2ClosedNonAssociations,
-        nonAssociations: davidJones2ClosedNonAssociations.nonAssociations.map(nonAssociation => {
-          return {
-            ...nonAssociation,
-            authorisedBy: '',
-            updatedBy: '',
-            closedBy: '',
-          }
-        }),
-      })
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-
-      return request(app)
-        .get(routeUrls.list(prisonerNumber, true))
-        .expect(200)
-        .expect('Content-Type', /html/)
-        .expect(res => {
-          expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('')
-
-          // table
-          expect(res.text).toContain('by (not specified)')
         })
     })
   })
