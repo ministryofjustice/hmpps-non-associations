@@ -1,0 +1,84 @@
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% macro nonAssociationGroup(routeUrls, heading, tableHead, prisoner, nonAssociations, listing) %}
+
+  <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ heading }}</h2>
+
+  {% set tableRows = [] %}
+  {% for nonAssociation in nonAssociations %}
+    {% set otherPrisonerPhoto %}
+      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }}" class="app-prisoner-photo" />
+    {% endset %}
+
+    {% set otherPrisonerProfileLink %}
+      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
+        <span class="govuk-visually-hidden">View prisoner profile for</span>
+        {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
+      </a>
+      <br />
+      {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
+    {% endset %}
+
+    {% set reason %}
+      {{ nonAssociation.reasonDescription }}
+    {% endset %}
+
+    {% set role %}
+      {{ nonAssociation.otherPrisonerDetails.roleDescription }}
+    {% endset %}
+
+    {% set restrictionType %}
+      {{ nonAssociation.restrictionTypeDescription }}
+    {% endset %}
+
+    {% set comment %}
+      {{ nonAssociation.closedReason if listing == "closed" else nonAssociation.comment }}
+    {% endset %}
+
+    {% set lastUpdated %}
+      {{ nonAssociation.whenUpdated | date }}
+      <br />
+      by {{ nonAssociation.updatedBy | default("(not specified)", true) }}
+    {% endset %}
+
+    {% set actions %}
+      <a href="{{ routeUrls.view(prisoner.prisonerNumber, nonAssociation.id) }}">View details</a>
+    {% endset %}
+
+    {% set _ = tableRows.push([
+      {html: otherPrisonerPhoto, classes: "app-list__cell--photo"},
+      {html: otherPrisonerProfileLink, classes: "app-list__cell--prisoner"},
+      {html: reason, classes: "app-list__cell--reason"},
+      {html: role, classes: "app-list__cell--role"},
+      {html: restrictionType, classes: "app-list__cell--restriction-type"},
+      {html: comment, classes: "app-list__cell--comment"},
+      {html: lastUpdated, classes: "app-list__cell--date-updated"},
+      {html: actions, classes: "app-list__cell--actions"}
+    ]) %}
+  {% endfor %}
+
+  {% set caption -%}
+    Non-associations for {{ prisonerName }}
+  {%- endset %}
+
+  {% if tableRows.length > 0 %}
+
+    <div class="app-sortable-table-container govuk-!-margin-bottom-9">
+      {{ govukTable({
+        caption: caption,
+        captionClasses: "govuk-visually-hidden",
+        classes: "app-sortable-table",
+        head: tableHead,
+        rows: tableRows
+      }) }}
+    </div>
+
+  {% else %}
+
+    <p>
+      No non-associations.
+    </p>
+
+  {% endif %}
+
+{% endmacro %}

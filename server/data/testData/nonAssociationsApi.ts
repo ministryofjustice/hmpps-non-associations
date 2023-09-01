@@ -1,3 +1,4 @@
+import { transferPrisonId, outsidePrisonId } from '../constants'
 import type {
   NonAssociationsList,
   OpenNonAssociationsListItem,
@@ -126,6 +127,90 @@ export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAsso
       whenUpdated: new Date('2023-07-27T12:34:56'),
     }
   }),
+}
+
+export function mockMovePrisonerInNonAssociationsList(
+  nonAssociations: NonAssociationsList,
+  prisonId: string,
+  prisonName?: string,
+): NonAssociationsList {
+  if (prisonId === transferPrisonId) {
+    return {
+      ...nonAssociations,
+      prisonId,
+      prisonName: 'Transfer',
+      cellLocation: undefined,
+    }
+  }
+
+  if (prisonId === outsidePrisonId) {
+    return {
+      ...nonAssociations,
+      prisonId,
+      prisonName: 'Outside',
+      cellLocation: undefined,
+    }
+  }
+
+  return {
+    ...nonAssociations,
+    prisonId,
+    prisonName: prisonName ?? 'Some prison',
+  }
+}
+
+export function mockMoveOtherPrisonersInNonAssociationsList(
+  nonAssociations: NonAssociationsList,
+  prisonId: string,
+  prisonName?: string,
+): NonAssociationsList {
+  if (prisonId === transferPrisonId) {
+    return {
+      ...nonAssociations,
+      nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName: 'Transfer',
+            cellLocation: undefined,
+          },
+        }
+      }),
+    }
+  }
+
+  if (prisonId === outsidePrisonId) {
+    return {
+      ...nonAssociations,
+      nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName: 'Outside',
+            cellLocation: undefined,
+          },
+        }
+      }),
+    }
+  }
+
+  return {
+    ...nonAssociations,
+    nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
+      return {
+        ...nonAssociation,
+        otherPrisonerDetails: {
+          ...nonAssociation.otherPrisonerDetails,
+          prisonId,
+          prisonName: prisonName ?? 'Some prison',
+        },
+      }
+    }),
+  }
 }
 
 /**

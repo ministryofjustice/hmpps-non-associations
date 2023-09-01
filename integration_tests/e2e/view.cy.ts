@@ -10,7 +10,7 @@ context('View non-association details page', () => {
     cy.navigateToDavidJonesNonAssociations().then(listPage => {
       cy.task('stubGetNonAssociation')
 
-      listPage.getViewLinkForRow(0).click()
+      listPage.getViewLinkForRow(0, 0).click()
       viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
     })
   })

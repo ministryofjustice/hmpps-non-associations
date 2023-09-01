@@ -36,7 +36,9 @@ context('List non-associations page', () => {
   })
 
   it('should show a table of open non-associations', () => {
-    listPage.tableRowContents.then(rows => {
+    listPage.tables.should('have.length', 1)
+
+    listPage.getTableRowContents(0).then(rows => {
       expect(rows).to.have.length(2)
       const [fredMillsRow, oscarJonesRow] = rows
 

@@ -5,7 +5,13 @@ import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import HmppsAuthClient from '../data/hmppsAuthClient'
-import { NonAssociationsApi, type NonAssociationsList, lookupStaffInNonAssociations } from '../data/nonAssociationsApi'
+import {
+  NonAssociationsApi,
+  type NonAssociationsList,
+  type NonAssociationGroups,
+  lookupStaffInNonAssociations,
+  groupListByLocation,
+} from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import { createRedisClient } from '../data/redisClient'
@@ -61,6 +67,7 @@ export default function listRoutes(service: Services): Router {
     const messages: FlashMessages = {}
     let tableHead: HeaderCell[]
     let nonAssociationsList: NonAssociationsList
+    let nonAssociationGroups: NonAssociationGroups
 
     const form = new ListForm()
     form.submit(req.query)
@@ -84,6 +91,7 @@ export default function listRoutes(service: Services): Router {
           sortDirection,
         })
         nonAssociationsList = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
+        nonAssociationGroups = groupListByLocation(nonAssociationsList)
       } catch (error) {
         logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
         messages.warning = ['Non-associations could not be loaded, please try again']
@@ -100,8 +108,8 @@ export default function listRoutes(service: Services): Router {
       prisoner,
       prisonerNumber,
       prisonerName: nameOfPerson(prisoner),
-      prisonName: prisoner.prisonName,
       nonAssociationsList,
+      nonAssociationGroups,
       tableHead,
       form,
     })
