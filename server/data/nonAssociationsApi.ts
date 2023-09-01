@@ -459,6 +459,10 @@ export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociati
   return nonAssociations.map(nonAssociation => lookupStaff(findStaffUser, nonAssociation))
 }
 
+interface NonAssociationNoGroups {
+  type: 'noGroups'
+}
+
 interface NonAssociationGroupsWithPrison<Item extends BaseNonAssociationsListItem> {
   type: 'threeGroups'
   samePrison: Item[]
@@ -474,7 +478,7 @@ interface NonAssociationGroupsWithoutPrison<Item extends BaseNonAssociationsList
 
 export type NonAssociationGroups<
   Item extends BaseNonAssociationsListItem = OpenNonAssociationsListItem | ClosedNonAssociationsListItem,
-> = NonAssociationGroupsWithPrison<Item> | NonAssociationGroupsWithoutPrison<Item>
+> = NonAssociationNoGroups | NonAssociationGroupsWithPrison<Item> | NonAssociationGroupsWithoutPrison<Item>
 
 /**
  * Groups items within a {@link NonAssociationsList} into:
@@ -492,6 +496,10 @@ export type NonAssociationGroups<
 export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
   list: NonAssociationsList<Item>,
 ): NonAssociationGroups<Item> {
+  if (list.nonAssociations.length === 0) {
+    return { type: 'noGroups' } satisfies NonAssociationNoGroups
+  }
+
   if (list.prisonId === transferPrisonId || list.prisonId === outsidePrisonId) {
     // key prisoner is not in a prison
     const groups: NonAssociationGroupsWithoutPrison<Item> = {
