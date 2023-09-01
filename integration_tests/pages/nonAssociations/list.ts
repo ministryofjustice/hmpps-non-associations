@@ -29,6 +29,10 @@ export default class ListPage extends Page {
     return cy.get('.app-sortable-table')
   }
 
+  getTableHeader(table: number): PageElement<HTMLTableCellElement> {
+    return this.tables.eq(table).find('thead tr th')
+  }
+
   getTableRows(table: number): PageElement<HTMLTableRowElement> {
     return this.tables.eq(table).find('tbody tr')
   }

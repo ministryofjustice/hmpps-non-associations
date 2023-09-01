@@ -19,6 +19,7 @@ import {
 } from '../data/testData/nonAssociationsApi'
 import { davidJones, mockMovePrisoner } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
+import { Table } from './list'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -217,7 +218,7 @@ describe('Non-associations list page', () => {
     })
 
     class ExpectNonAssociationList {
-      private table: 'same' | 'other' | 'any' | 'outside'
+      private table: Table
 
       // eslint-disable-next-line no-empty-function
       constructor(private readonly open = true) {}
@@ -283,6 +284,10 @@ describe('Non-associations list page', () => {
         expect(res.text).toContain('Jones, Oscar')
         expect(res.text).toContain('Not relevant')
         expect(res.text).toContain('Cell and landing')
+        if (this.table === 'same') {
+          expect(res.text).toContain('1-1-002')
+          expect(res.text).toContain('1-1-003')
+        }
         if (this.open) {
           expect(res.text).toContain('26/07/2023')
         } else {
@@ -550,6 +555,7 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledWith('A1234BC', {
             includeOpen: true,
             includeClosed: false,
+            includeOtherPrisons: true,
             sortBy: 'WHEN_UPDATED',
             sortDirection: 'DESC',
           })
@@ -569,6 +575,7 @@ describe('Non-associations list page', () => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledWith('A1234BC', {
             includeOpen: false,
             includeClosed: true,
+            includeOtherPrisons: true,
             sortBy: 'WHEN_UPDATED',
             sortDirection: 'DESC',
           })

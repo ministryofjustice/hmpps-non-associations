@@ -73,8 +73,8 @@
     {% endset %}
     {{ nonAssociationGroup(
       routeUrls,
-      prisoner.prisonName,
-      tableHead,
+      'same',
+      tableHeads.same,
       prisoner,
       nonAssociationGroups.samePrison,
       listing,
@@ -90,8 +90,8 @@
     {% endset %}
     {{ nonAssociationGroup(
       routeUrls,
-      'Other establishments',
-      tableHead,
+      'other',
+      tableHeads.other,
       prisoner,
       nonAssociationGroups.otherPrisons,
       listing,
@@ -107,8 +107,8 @@
     {% endset %}
     {{ nonAssociationGroup(
       routeUrls,
-      'Not currently in an establishment',
-      tableHead,
+      'outside',
+      tableHeads.outside,
       prisoner,
       nonAssociationGroups.transferOrOutside,
       listing,
@@ -126,8 +126,8 @@
     {% endset %}
     {{ nonAssociationGroup(
       routeUrls,
-      'In establishments',
-      tableHead,
+      'any',
+      tableHeads.any,
       prisoner,
       nonAssociationGroups.anyPrison,
       listing,
@@ -143,8 +143,8 @@
     {% endset %}
     {{ nonAssociationGroup(
       routeUrls,
-      'Not currently in an establishment',
-      tableHead,
+      'outside',
+      tableHeads.outside,
       prisoner,
       nonAssociationGroups.transferOrOutside,
       listing,
