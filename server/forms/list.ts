@@ -4,23 +4,24 @@ import { BaseForm } from './index'
 export const tables = ['same', 'other', 'any', 'outside'] as const
 export type Table = (typeof tables)[number]
 
-export type ListData = {
-  sort: SortBy
-  order: SortDirection
-}
+export type ListData = Record<`${Table}Sort`, SortBy> & Record<`${Table}Order`, SortDirection>
 
 export default class ListForm extends BaseForm<ListData> {
   protected validate(): void {
-    this.data.sort = this.data.sort ?? 'WHEN_UPDATED'
-    if (!sortByOptions.includes(this.data.sort)) {
-      this.addError('sort', 'Invalid sort column')
-      delete this.data.sort
-    }
+    for (const table of tables) {
+      const sortKey = `${table}Sort` as const
+      this.data[sortKey] = this.data[sortKey] ?? 'WHEN_UPDATED'
+      if (!sortByOptions.includes(this.data[sortKey])) {
+        this.addError(sortKey, 'Invalid sort column')
+        delete this.data[sortKey]
+      }
 
-    this.data.order = this.data.order ?? 'DESC'
-    if (!sortDirectionOptions.includes(this.data.order)) {
-      this.addError('order', 'Invalid order')
-      delete this.data.order
+      const orderKey = `${table}Order` as const
+      this.data[orderKey] = this.data[orderKey] ?? 'DESC'
+      if (!sortDirectionOptions.includes(this.data[orderKey])) {
+        this.addError(orderKey, 'Invalid order')
+        delete this.data[orderKey]
+      }
     }
   }
 }

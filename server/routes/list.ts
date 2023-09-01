@@ -97,9 +97,6 @@ export default function listRoutes(service: Services): Router {
     const form = new ListForm()
     form.submit(req.query)
     if (!form.hasErrors) {
-      const sortBy = form.fields.sort.value
-      const sortDirection = form.fields.order.value
-
       const api = new NonAssociationsApi(res.locals.user.token)
       const prisonApi = new PrisonApi(res.locals.user.token)
       try {
@@ -107,19 +104,32 @@ export default function listRoutes(service: Services): Router {
           includeOpen: listing === 'open',
           includeClosed: listing === 'closed',
           includeOtherPrisons: true,
-          sortBy,
-          sortDirection,
         })
         nonAssociationsList = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
         nonAssociationGroups = groupListByLocation(nonAssociationsList)
 
         if (nonAssociationGroups.type === 'threeGroups') {
-          tableHeads.same = makeTableHead('same', prisonerName, sortBy, sortDirection)
-          tableHeads.other = makeTableHead('other', prisonerName, sortBy, sortDirection)
-          tableHeads.outside = makeTableHead('outside', prisonerName, sortBy, sortDirection)
+          tableHeads.same = makeTableHead('same', prisonerName, form.fields.sameSort.value, form.fields.sameOrder.value)
+          tableHeads.other = makeTableHead(
+            'other',
+            prisonerName,
+            form.fields.otherSort.value,
+            form.fields.otherOrder.value,
+          )
+          tableHeads.outside = makeTableHead(
+            'outside',
+            prisonerName,
+            form.fields.outsideSort.value,
+            form.fields.outsideOrder.value,
+          )
         } else if (nonAssociationGroups.type === 'twoGroups') {
-          tableHeads.any = makeTableHead('any', prisonerName, sortBy, sortDirection)
-          tableHeads.outside = makeTableHead('outside', prisonerName, sortBy, sortDirection)
+          tableHeads.any = makeTableHead('any', prisonerName, form.fields.anySort.value, form.fields.anyOrder.value)
+          tableHeads.outside = makeTableHead(
+            'outside',
+            prisonerName,
+            form.fields.outsideSort.value,
+            form.fields.outsideOrder.value,
+          )
         }
       } catch (error) {
         logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)

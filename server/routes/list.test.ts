@@ -19,7 +19,7 @@ import {
 } from '../data/testData/nonAssociationsApi'
 import { davidJones, mockMovePrisoner } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
-import { Table } from '../forms/list'
+import type { ListData, Table } from '../forms/list'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -541,13 +541,21 @@ describe('Non-associations list page', () => {
     })
   })
 
-  describe('should call api asking for sorted non-associations with most recently updated first', () => {
+  describe('should call api asking for unsorted non-associations irrespective of table sorting options', () => {
+    const sortOptions: Partial<ListData> = {
+      sameSort: 'LAST_NAME',
+      otherSort: 'PRISONER_NUMBER',
+      outsideSort: 'WHEN_UPDATED',
+      outsideOrder: 'DESC',
+    }
+
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber))
+        .query(sortOptions)
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(() => {
@@ -556,8 +564,6 @@ describe('Non-associations list page', () => {
             includeOpen: true,
             includeClosed: false,
             includeOtherPrisons: true,
-            sortBy: 'WHEN_UPDATED',
-            sortDirection: 'DESC',
           })
         })
     })
@@ -568,6 +574,7 @@ describe('Non-associations list page', () => {
 
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
+        .query(sortOptions)
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(() => {
@@ -576,8 +583,6 @@ describe('Non-associations list page', () => {
             includeOpen: false,
             includeClosed: true,
             includeOtherPrisons: true,
-            sortBy: 'WHEN_UPDATED',
-            sortDirection: 'DESC',
           })
         })
     })
@@ -587,7 +592,7 @@ describe('Non-associations list page', () => {
     it('when listing open non-associations', () => {
       return request(app)
         .get(routeUrls.list(prisonerNumber))
-        .query({ sort: 'age' })
+        .query({ sameSort: 'age' })
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -602,7 +607,7 @@ describe('Non-associations list page', () => {
     it('when listing closed non-associations', () => {
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
-        .query({ sort: 'age' })
+        .query({ sameSort: 'age' })
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
