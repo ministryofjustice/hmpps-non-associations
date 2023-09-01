@@ -221,13 +221,13 @@ describe('Non-associations list page', () => {
       private table: Table
 
       // eslint-disable-next-line no-empty-function
-      constructor(private readonly open = true) {}
+      constructor(private readonly closed = false) {}
 
       shouldHaveThreeGroups(table: 'same' | 'other' | 'outside'): request.Test {
         this.table = table
 
         return request(app)
-          .get(routeUrls.list(prisonerNumber, !this.open))
+          .get(routeUrls.list(prisonerNumber, this.closed))
           .expect(200)
           .expect('Content-Type', /html/)
           .expect(res => {
@@ -246,7 +246,7 @@ describe('Non-associations list page', () => {
         this.table = table
 
         return request(app)
-          .get(routeUrls.list(prisonerNumber, !this.open))
+          .get(routeUrls.list(prisonerNumber, this.closed))
           .expect(200)
           .expect('Content-Type', /html/)
           .expect(res => {
@@ -265,7 +265,7 @@ describe('Non-associations list page', () => {
         expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
 
         // staff lookups
-        if (this.open) {
+        if (!this.closed) {
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
@@ -288,7 +288,7 @@ describe('Non-associations list page', () => {
           expect(res.text).toContain('1-1-002')
           expect(res.text).toContain('1-1-003')
         }
-        if (this.open) {
+        if (!this.closed) {
           expect(res.text).toContain('26/07/2023')
         } else {
           expect(res.text).not.toContain('26/07/2023')
@@ -298,51 +298,51 @@ describe('Non-associations list page', () => {
       }
 
       private shouldShowMessages(res: request.Response, tables: ExpectNonAssociationList['table'][]) {
-        const messages: { message: string; open: boolean; table: ExpectNonAssociationList['table'] }[] = [
+        const messages: { message: string; closed: boolean; table: ExpectNonAssociationList['table'] }[] = [
           {
             message: 'David Jones has no open non-associations in Moorland (HMP)',
-            open: true,
+            closed: false,
             table: 'same',
           },
           {
             message: 'David Jones has no closed non-associations in Moorland (HMP)',
-            open: false,
+            closed: true,
             table: 'same',
           },
           {
             message: 'David Jones has no open non-associations in other establishments',
-            open: true,
+            closed: false,
             table: 'other',
           },
           {
             message: 'David Jones has no closed non-associations in other establishments',
-            open: false,
+            closed: true,
             table: 'other',
           },
           {
             message: 'David Jones has no open non-associations in an establishment',
-            open: true,
+            closed: false,
             table: 'any',
           },
           {
             message: 'David Jones has no closed non-associations in an establishment',
-            open: false,
+            closed: true,
             table: 'any',
           },
           {
             message: 'David Jones has no open non-associations outside an establishment',
-            open: true,
+            closed: false,
             table: 'outside',
           },
           {
             message: 'David Jones has no closed non-associations outside an establishment',
-            open: false,
+            closed: true,
             table: 'outside',
           },
         ]
 
-        for (const { message, open, table } of messages) {
-          if (open !== this.open) {
+        for (const { message, closed, table } of messages) {
+          if (closed !== this.closed) {
             // all messages from opposite tab should not show
             expect(res.text).not.toContain(message)
           } else if (table === this.table) {
@@ -387,7 +387,7 @@ describe('Non-associations list page', () => {
         it('in the same prison', () => {
           nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2ClosedNonAssociations)
 
-          return new ExpectNonAssociationList(false).shouldHaveThreeGroups('same')
+          return new ExpectNonAssociationList(true).shouldHaveThreeGroups('same')
         })
 
         it('in other prisons', () => {
@@ -395,7 +395,7 @@ describe('Non-associations list page', () => {
             mockMoveOtherPrisonersInNonAssociationsList(davidJones2ClosedNonAssociations, 'LEI', 'Leeds (HMP)'),
           )
 
-          return new ExpectNonAssociationList(false).shouldHaveThreeGroups('other')
+          return new ExpectNonAssociationList(true).shouldHaveThreeGroups('other')
         })
 
         it('outside prison', () => {
@@ -403,7 +403,7 @@ describe('Non-associations list page', () => {
             mockMoveOtherPrisonersInNonAssociationsList(davidJones2ClosedNonAssociations, outsidePrisonId),
           )
 
-          return new ExpectNonAssociationList(false).shouldHaveThreeGroups('outside')
+          return new ExpectNonAssociationList(true).shouldHaveThreeGroups('outside')
         })
       })
     })
@@ -440,7 +440,7 @@ describe('Non-associations list page', () => {
             mockMovePrisonerInNonAssociationsList(davidJones2ClosedNonAssociations, transferPrisonId),
           )
 
-          return new ExpectNonAssociationList(false).shouldHaveTwoGroups('any')
+          return new ExpectNonAssociationList(true).shouldHaveTwoGroups('any')
         })
 
         it('outside prison', () => {
@@ -451,7 +451,7 @@ describe('Non-associations list page', () => {
             ),
           )
 
-          return new ExpectNonAssociationList(false).shouldHaveTwoGroups('outside')
+          return new ExpectNonAssociationList(true).shouldHaveTwoGroups('outside')
         })
       })
     })
@@ -488,7 +488,7 @@ describe('Non-associations list page', () => {
             mockMovePrisonerInNonAssociationsList(davidJones2ClosedNonAssociations, outsidePrisonId),
           )
 
-          return new ExpectNonAssociationList(false).shouldHaveTwoGroups('any')
+          return new ExpectNonAssociationList(true).shouldHaveTwoGroups('any')
         })
 
         it('outside prison', () => {
@@ -499,7 +499,7 @@ describe('Non-associations list page', () => {
             ),
           )
 
-          return new ExpectNonAssociationList(false).shouldHaveTwoGroups('outside')
+          return new ExpectNonAssociationList(true).shouldHaveTwoGroups('outside')
         })
       })
     })

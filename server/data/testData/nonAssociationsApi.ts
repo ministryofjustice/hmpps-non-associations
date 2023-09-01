@@ -221,12 +221,12 @@ export function mockNonAssociationsList(
   prisoner: OffenderSearchResult,
   otherPrisoners: {
     prisoner: OffenderSearchResult
-    open?: boolean
+    closed?: boolean
   }[],
 ): NonAssociationsList {
   const [minOpenCount, minClosedCount] = otherPrisoners.reduce(
-    ([openCount, closedCount], { open }) => {
-      if (open === false) {
+    ([openCount, closedCount], { closed }) => {
+      if (closed) {
         return [openCount, closedCount + 1]
       }
       return [openCount + 1, closedCount]
@@ -243,7 +243,7 @@ export function mockNonAssociationsList(
     cellLocation: 'cellLocation' in prisoner ? prisoner.cellLocation : undefined,
     openCount: minOpenCount,
     closedCount: minClosedCount,
-    nonAssociations: otherPrisoners.map(({ prisoner: otherPrisoner, open }, index) => {
+    nonAssociations: otherPrisoners.map(({ prisoner: otherPrisoner, closed }, index) => {
       const nonAssociation: OpenNonAssociationsListItem = {
         id: 101 + index,
         role: 'PERPETRATOR',
@@ -272,7 +272,7 @@ export function mockNonAssociationsList(
         closedReason: null,
         closedAt: null,
       }
-      if (open === false) {
+      if (closed) {
         return {
           ...nonAssociation,
           isClosed: true,
@@ -286,13 +286,21 @@ export function mockNonAssociationsList(
   }
 }
 
-export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open?: true): OpenNonAssociation
 export function mockNonAssociation(
   prisonerNumber: string,
   otherPrisonerNumber: string,
-  open: false,
+  closed?: false,
+): OpenNonAssociation
+export function mockNonAssociation(
+  prisonerNumber: string,
+  otherPrisonerNumber: string,
+  closed: true,
 ): ClosedNonAssociation
-export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: string, open = true): NonAssociation {
+export function mockNonAssociation(
+  prisonerNumber: string,
+  otherPrisonerNumber: string,
+  closed = false,
+): NonAssociation {
   const data: Omit<NonAssociation, 'isClosed' | 'closedBy' | 'closedReason' | 'closedAt'> = {
     id: 101,
     firstPrisonerNumber: prisonerNumber,
@@ -311,7 +319,7 @@ export function mockNonAssociation(prisonerNumber: string, otherPrisonerNumber: 
     whenCreated: new Date('2023-07-21T08:14:21'),
     whenUpdated: new Date('2023-07-21T08:14:21'),
   }
-  if (open) {
+  if (!closed) {
     return {
       ...data,
       isClosed: false,

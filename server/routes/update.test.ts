@@ -100,7 +100,7 @@ describe('Update non-association page', () => {
   })
 
   it('should return 404 if the non-association is closed', () => {
-    const closedNonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner.prisonerNumber, false)
+    const closedNonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner.prisonerNumber, true)
 
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(closedNonAssociation)
 
