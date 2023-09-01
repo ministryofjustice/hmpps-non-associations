@@ -21,12 +21,10 @@ import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
-import ListForm from '../forms/list'
+import ListForm, { type Table } from '../forms/list'
 import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
-
-export type Table = 'same' | 'other' | 'any' | 'outside'
 
 type Columns = 'photo' | 'LAST_NAME' | 'location' | 'role' | 'restrictionType' | 'WHEN_UPDATED' | 'actions'
 const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {

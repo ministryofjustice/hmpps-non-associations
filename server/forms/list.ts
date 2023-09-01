@@ -1,6 +1,9 @@
 import { sortByOptions, sortDirectionOptions, type SortBy, type SortDirection } from '../data/nonAssociationsApi'
 import { BaseForm } from './index'
 
+export const tables = ['same', 'other', 'any', 'outside'] as const
+export type Table = (typeof tables)[number]
+
 export type ListData = {
   sort: SortBy
   order: SortDirection

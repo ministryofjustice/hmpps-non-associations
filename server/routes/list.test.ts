@@ -19,7 +19,7 @@ import {
 } from '../data/testData/nonAssociationsApi'
 import { davidJones, mockMovePrisoner } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
-import { Table } from './list'
+import { Table } from '../forms/list'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -297,8 +297,8 @@ describe('Non-associations list page', () => {
         expect(res.text).toContain('Actions')
       }
 
-      private shouldShowMessages(res: request.Response, tables: ExpectNonAssociationList['table'][]) {
-        const messages: { message: string; closed: boolean; table: ExpectNonAssociationList['table'] }[] = [
+      private shouldShowMessages(res: request.Response, tables: Table[]) {
+        const messages: { message: string; closed: boolean; table: Table }[] = [
           {
             message: 'David Jones has no open non-associations in Moorland (HMP)',
             closed: false,
