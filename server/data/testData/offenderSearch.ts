@@ -1,3 +1,4 @@
+import { transferPrisonId, outsidePrisonId } from '../constants'
 import type {
   OffenderSearchClient,
   OffenderSearchResultIn,
@@ -38,17 +39,27 @@ export const oscarJones: OffenderSearchResultIn = {
 }
 
 export const andrewBrown: OffenderSearchResultIn = {
-  prisonId: 'MDI',
-  prisonName: 'Moorland (HMP)',
+  prisonId: 'LEI',
+  prisonName: 'Leeds (HMP)',
   bookingId: 56789,
   prisonerNumber: 'A5678CS',
   firstName: 'ANDREW',
   lastName: 'BROWN',
-  cellLocation: '1-1-004',
+  cellLocation: '2-4-001',
+}
+
+export const walterSmith: OffenderSearchResultIn = {
+  prisonId: 'BXI',
+  prisonName: 'Brixton (HMP)',
+  bookingId: 56790,
+  prisonerNumber: 'A5679NW',
+  firstName: 'WALTER',
+  lastName: 'SMITH',
+  cellLocation: '2-4-002',
 }
 
 export const maxClarke: OffenderSearchResultTransfer = {
-  prisonId: 'TRN',
+  prisonId: transferPrisonId,
   prisonName: 'Transfer',
   bookingId: 12349,
   prisonerNumber: 'C1234CC',
@@ -58,7 +69,7 @@ export const maxClarke: OffenderSearchResultTransfer = {
 }
 
 export const joePeters: OffenderSearchResultOut = {
-  prisonId: 'OUT',
+  prisonId: outsidePrisonId,
   prisonName: 'Outside',
   bookingId: 12348,
   prisonerNumber: 'B1234BB',
@@ -67,7 +78,7 @@ export const joePeters: OffenderSearchResultOut = {
   locationDescription: 'Outside - released from Moorland (HMP)',
 }
 
-export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters]
+export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, walterSmith, maxClarke, joePeters]
 
 export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumber => {
   const result = mockPrisoners.find(prisoner => prisoner.prisonerNumber === prisonerNumber)

@@ -1,5 +1,6 @@
 import config from '../config'
 import { nameOfPerson } from '../utils/utils'
+import { transferPrisonId, outsidePrisonId } from './constants'
 import RestClient from './restClient'
 import PrisonApi, { type StaffMember } from './prisonApi'
 
@@ -456,4 +457,79 @@ export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociati
   })
   const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
   return nonAssociations.map(nonAssociation => lookupStaff(findStaffUser, nonAssociation))
+}
+
+interface NonAssociationGroupsWithPrison<Item extends BaseNonAssociationsListItem> {
+  type: 'threeGroups'
+  samePrison: Item[]
+  otherPrisons: Item[]
+  transferOrOutside: Item[]
+}
+
+interface NonAssociationGroupsWithoutPrison<Item extends BaseNonAssociationsListItem> {
+  type: 'twoGroups'
+  anyPrison: Item[]
+  transferOrOutside: Item[]
+}
+
+export type NonAssociationGroups<
+  Item extends BaseNonAssociationsListItem = OpenNonAssociationsListItem | ClosedNonAssociationsListItem,
+> = NonAssociationGroupsWithPrison<Item> | NonAssociationGroupsWithoutPrison<Item>
+
+/**
+ * Groups items within a {@link NonAssociationsList} into:
+ *
+ * * same establishment
+ * * other establishments
+ * * being transferred or outside
+ *
+ * by location with respect to key prisoner’s prison ID
+ * _or_ if the prison ID indicates the key person is being transferred or is outside:
+ *
+ * * any establishment
+ * * being transferred or outside
+ */
+export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
+  list: NonAssociationsList<Item>,
+): NonAssociationGroups<Item> {
+  if (list.prisonId === transferPrisonId || list.prisonId === outsidePrisonId) {
+    // key prisoner is not in a prison
+    const groups: NonAssociationGroupsWithoutPrison<Item> = {
+      type: 'twoGroups',
+      anyPrison: [],
+      transferOrOutside: [],
+    }
+    list.nonAssociations.forEach(item => {
+      if (
+        item.otherPrisonerDetails.prisonId === transferPrisonId ||
+        item.otherPrisonerDetails.prisonId === outsidePrisonId
+      ) {
+        groups.transferOrOutside.push(item)
+      } else {
+        groups.anyPrison.push(item)
+      }
+    })
+    return groups
+  }
+
+  // key prisoner is in some prison
+  const groups: NonAssociationGroupsWithPrison<Item> = {
+    type: 'threeGroups',
+    samePrison: [],
+    otherPrisons: [],
+    transferOrOutside: [],
+  }
+  list.nonAssociations.forEach(item => {
+    if (
+      item.otherPrisonerDetails.prisonId === transferPrisonId ||
+      item.otherPrisonerDetails.prisonId === outsidePrisonId
+    ) {
+      groups.transferOrOutside.push(item)
+    } else if (item.otherPrisonerDetails.prisonId === list.prisonId) {
+      groups.samePrison.push(item)
+    } else {
+      groups.otherPrisons.push(item)
+    }
+  })
+  return groups
 }

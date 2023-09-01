@@ -4,6 +4,7 @@ import request from 'supertest'
 import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
+import { outsidePrisonId } from '../data/constants'
 import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
 import { davidJones, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
@@ -56,7 +57,7 @@ describe('Search for a prisoner page', () => {
   it('should return 404 if prisoner is outside prison', () => {
     const prisonerOutside = {
       ...prisoner,
-      prisonId: 'OUT',
+      prisonId: outsidePrisonId,
       prisonName: 'Outside',
       locationDescription: 'Outside - released from Moorland (HMP)',
     } satisfies OffenderSearchResultOut

@@ -1,23 +1,37 @@
+import { transferPrisonId, outsidePrisonId } from './constants'
 import {
   parseDates,
   lookupStaffInNonAssociation,
   lookupStaffInNonAssociations,
   lookupStaffInArrayOfNonAssociations,
+  groupListByLocation,
 } from './nonAssociationsApi'
 import type {
   NonAssociation,
   NonAssociationsList,
   OpenNonAssociation,
   ClosedNonAssociation,
+  NonAssociationGroups,
 } from './nonAssociationsApi'
 import PrisonApi from './prisonApi'
 import {
+  davidJones0NonAssociations,
   davidJones1OpenNonAssociation,
+  davidJones1ClosedNonAssociation,
   davidJones2OpenNonAssociations,
   davidJones2ClosedNonAssociations,
   mockNonAssociation,
+  mockNonAssociationsList,
 } from './testData/nonAssociationsApi'
-import { davidJones, fredMills, oscarJones } from './testData/offenderSearch'
+import {
+  davidJones,
+  fredMills,
+  oscarJones,
+  andrewBrown,
+  walterSmith,
+  maxClarke,
+  joePeters,
+} from './testData/offenderSearch'
 import { mockGetStaffDetails } from './testData/prisonApi'
 
 jest.mock('./prisonApi')
@@ -251,6 +265,194 @@ describe('Non-associations API REST client', () => {
             expect(nonAssociation.closedBy).toEqual('System')
           }
         })
+      })
+    })
+  })
+
+  describe('grouping locations of non-association lists', () => {
+    function expectThreeGroups(groups: NonAssociationGroups) {
+      if (groups.type === 'threeGroups') {
+        expect('samePrison' in groups && 'otherPrisons' in groups && 'transferOrOutside' in groups).toBeTruthy()
+
+        expect(
+          groups.transferOrOutside.some(
+            item =>
+              item.otherPrisonerDetails.prisonId !== transferPrisonId &&
+              item.otherPrisonerDetails.prisonId !== outsidePrisonId,
+          ),
+        ).toBeFalsy()
+
+        return {
+          toHaveLengths({
+            samePrisonCount,
+            otherPrisonCount,
+            transferOrOutsideCount,
+          }: {
+            samePrisonCount: number
+            otherPrisonCount: number
+            transferOrOutsideCount: number
+          }) {
+            expect(groups.samePrison).toHaveLength(samePrisonCount)
+            expect(groups.otherPrisons).toHaveLength(otherPrisonCount)
+            expect(groups.transferOrOutside).toHaveLength(transferOrOutsideCount)
+
+            const samePrisonSet = new Set(groups.samePrison.map(item => item.otherPrisonerDetails.prisonId))
+            if (samePrisonCount === 0) {
+              expect(samePrisonSet.size).toEqual(0)
+            } else {
+              expect(samePrisonSet.size).toEqual(1)
+            }
+          },
+        }
+      }
+
+      throw new Error('Not 3 groups')
+    }
+
+    it('when the key prisoner is in a prison', () => {
+      expectThreeGroups(groupListByLocation(davidJones0NonAssociations)).toHaveLengths({
+        samePrisonCount: 0,
+        otherPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+      expectThreeGroups(groupListByLocation(davidJones1OpenNonAssociation)).toHaveLengths({
+        samePrisonCount: 1,
+        otherPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+      expectThreeGroups(groupListByLocation(davidJones1ClosedNonAssociation)).toHaveLengths({
+        samePrisonCount: 1,
+        otherPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+
+      expectThreeGroups(groupListByLocation(davidJones2OpenNonAssociations)).toHaveLengths({
+        samePrisonCount: 2,
+        otherPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+      expectThreeGroups(groupListByLocation(davidJones2ClosedNonAssociations)).toHaveLengths({
+        samePrisonCount: 2,
+        otherPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+
+      expectThreeGroups(groupListByLocation(mockNonAssociationsList(davidJones, []))).toHaveLengths({
+        samePrisonCount: 0,
+        otherPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+
+      let nonAssociations = mockNonAssociationsList(davidJones, [
+        { prisoner: fredMills },
+        { prisoner: andrewBrown },
+        { prisoner: maxClarke },
+        { prisoner: joePeters },
+      ])
+      expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        samePrisonCount: 1,
+        otherPrisonCount: 1,
+        transferOrOutsideCount: 2,
+      })
+
+      nonAssociations = mockNonAssociationsList(davidJones, [
+        { prisoner: maxClarke },
+        { prisoner: andrewBrown },
+        { prisoner: fredMills, open: false },
+        { prisoner: joePeters, open: false },
+      ])
+      expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        samePrisonCount: 1,
+        otherPrisonCount: 1,
+        transferOrOutsideCount: 2,
+      })
+
+      nonAssociations = mockNonAssociationsList(fredMills, [{ prisoner: walterSmith }, { prisoner: andrewBrown }])
+      expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        samePrisonCount: 0,
+        otherPrisonCount: 2,
+        transferOrOutsideCount: 0,
+      })
+    })
+
+    function expectTwoGroups(groups: NonAssociationGroups) {
+      if (groups.type === 'twoGroups') {
+        expect('anyPrison' in groups && 'transferOrOutside' in groups).toBeTruthy()
+
+        expect(
+          groups.transferOrOutside.some(
+            item =>
+              item.otherPrisonerDetails.prisonId !== transferPrisonId &&
+              item.otherPrisonerDetails.prisonId !== outsidePrisonId,
+          ),
+        ).toBeFalsy()
+
+        return {
+          toHaveLengths({
+            anyPrisonCount,
+            transferOrOutsideCount,
+          }: {
+            anyPrisonCount: number
+            transferOrOutsideCount: number
+          }) {
+            expect(groups.anyPrison).toHaveLength(anyPrisonCount)
+            expect(groups.transferOrOutside).toHaveLength(transferOrOutsideCount)
+          },
+        }
+      }
+
+      throw new Error('Not 2 groups')
+    }
+
+    it('when the key prisoner is being transferred', () => {
+      let nonAssociations = mockNonAssociationsList(maxClarke, [])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+
+      nonAssociations = mockNonAssociationsList(maxClarke, [{ prisoner: davidJones }])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 1,
+        transferOrOutsideCount: 0,
+      })
+
+      nonAssociations = mockNonAssociationsList(maxClarke, [
+        { prisoner: davidJones },
+        { prisoner: joePeters, open: false },
+      ])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 1,
+        transferOrOutsideCount: 1,
+      })
+
+      nonAssociations = mockNonAssociationsList(maxClarke, [{ prisoner: joePeters }])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 0,
+        transferOrOutsideCount: 1,
+      })
+    })
+
+    it('when the key prisoner is outside', () => {
+      let nonAssociations = mockNonAssociationsList(joePeters, [])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 0,
+        transferOrOutsideCount: 0,
+      })
+
+      nonAssociations = mockNonAssociationsList(joePeters, [
+        { prisoner: davidJones, open: false },
+        { prisoner: fredMills },
+      ])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 2,
+        transferOrOutsideCount: 0,
+      })
+
+      nonAssociations = mockNonAssociationsList(joePeters, [{ prisoner: maxClarke, open: false }])
+      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
+        anyPrisonCount: 0,
+        transferOrOutsideCount: 1,
       })
     })
   })

@@ -3,14 +3,15 @@ import ClosePage from '../pages/nonAssociations/close'
 import CloseConfirmationPage from '../pages/nonAssociations/closeConfirmation'
 import ListPage from '../pages/nonAssociations/list'
 import ViewPage from '../pages/nonAssociations/view'
-import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('Close prisoner non-association page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    resetBasicStubs()
-    listPage = navigateToDavidJonesNonAssociations()
+    cy.resetBasicStubs()
+    cy.navigateToDavidJonesNonAssociations().then(result => {
+      listPage = result
+    })
   })
 
   it('should allow closing a non-association', () => {

@@ -1,4 +1,5 @@
 import config from '../config'
+import { TransferPrisonId, OutsidePrisonId, transferPrisonId, outsidePrisonId } from './constants'
 import RestClient from './restClient'
 
 interface BaseOffenderSearchResult {
@@ -15,13 +16,13 @@ export interface OffenderSearchResultIn extends BaseOffenderSearchResult {
 }
 
 export interface OffenderSearchResultTransfer extends BaseOffenderSearchResult {
-  prisonId: 'TRN'
+  prisonId: TransferPrisonId
   prisonName: string
   locationDescription: string
 }
 
 export interface OffenderSearchResultOut extends BaseOffenderSearchResult {
-  prisonId: 'OUT'
+  prisonId: OutsidePrisonId
   prisonName: string
   locationDescription: string
 }
@@ -29,11 +30,11 @@ export interface OffenderSearchResultOut extends BaseOffenderSearchResult {
 export type OffenderSearchResult = OffenderSearchResultIn | OffenderSearchResultTransfer | OffenderSearchResultOut
 
 export function isBeingTransferred(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultTransfer {
-  return prisoner.prisonId === 'TRN'
+  return prisoner.prisonId === transferPrisonId
 }
 
 export function isOutside(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultOut {
-  return prisoner.prisonId === 'OUT'
+  return prisoner.prisonId === outsidePrisonId
 }
 
 export function isInPrison(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultIn {

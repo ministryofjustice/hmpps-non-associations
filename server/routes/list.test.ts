@@ -4,6 +4,7 @@ import request from 'supertest'
 import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
+import { transferPrisonId, outsidePrisonId } from '../data/constants'
 import { NonAssociationsApi, type SortBy, type SortDirection } from '../data/nonAssociationsApi'
 import {
   OffenderSearchClient,
@@ -135,7 +136,7 @@ describe('Non-associations list page', () => {
       beforeEach(() => {
         const prisonerBeingTransferred = {
           ...prisoner,
-          prisonId: 'TRN',
+          prisonId: transferPrisonId,
           prisonName: 'Transfer',
           locationDescription: 'Transfer',
         } satisfies OffenderSearchResultTransfer
@@ -146,7 +147,9 @@ describe('Non-associations list page', () => {
       it('when listing open non-associations', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1OpenNonAssociation,
-          prisonId: 'TRN',
+          prisonId: transferPrisonId,
+          prisonName: 'Transfer',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -161,7 +164,9 @@ describe('Non-associations list page', () => {
       it('when listing closed non-associations', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1ClosedNonAssociation,
-          prisonId: 'TRN',
+          prisonId: transferPrisonId,
+          prisonName: 'Transfer',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -178,7 +183,7 @@ describe('Non-associations list page', () => {
       beforeEach(() => {
         const prisonerOutside = {
           ...prisoner,
-          prisonId: 'OUT',
+          prisonId: outsidePrisonId,
           prisonName: 'Outside',
           locationDescription: 'Outside - released from Moorland (HMP)',
         } satisfies OffenderSearchResultOut
@@ -189,7 +194,9 @@ describe('Non-associations list page', () => {
       it('when listing open non-associations', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1OpenNonAssociation,
-          prisonId: 'OUT',
+          prisonId: outsidePrisonId,
+          prisonName: 'Outside',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -204,7 +211,9 @@ describe('Non-associations list page', () => {
       it('when listing closed non-associations', () => {
         nonAssociationsApi.listNonAssociations.mockResolvedValueOnce({
           ...davidJones1ClosedNonAssociation,
-          prisonId: 'OUT',
+          prisonId: outsidePrisonId,
+          prisonName: 'Outside',
+          cellLocation: undefined,
         })
 
         return request(app)
@@ -221,7 +230,7 @@ describe('Non-associations list page', () => {
   describe('adding a new non-association to prisoners', () => {
     const prisonerBeingTransferred = {
       ...prisoner,
-      prisonId: 'TRN',
+      prisonId: transferPrisonId,
       prisonName: 'Transfer',
       locationDescription: 'Transfer',
     } satisfies OffenderSearchResultTransfer
@@ -229,7 +238,7 @@ describe('Non-associations list page', () => {
 
     const prisonerOutside = {
       ...prisoner,
-      prisonId: 'OUT',
+      prisonId: outsidePrisonId,
       prisonName: 'Outside',
       locationDescription: 'Outside - released from Moorland (HMP)',
     } satisfies OffenderSearchResultOut
