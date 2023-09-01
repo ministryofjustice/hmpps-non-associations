@@ -728,10 +728,10 @@ describe('Non-associations list page', () => {
           expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
 
           // message
-          expect(res.text).toContain('No non-associations.')
-          // TODO: resurrect once messages are implemented
-          // expect(res.text).toContain('This prisoner has no open non-associations in Moorland (HMP)')
-          // expect(res.text).not.toContain('This prisoner has no closed non-associations')
+          expect(res.text).toContain('David Jones has no open non-associations in Moorland (HMP)')
+          expect(res.text).toContain('David Jones has no open non-associations in other establishments')
+          expect(res.text).toContain('David Jones has no open non-associations outside an establishment')
+          expect(res.text).not.toContain('David Jones has no closed non-associations')
           // no table
           expect(res.text).not.toContain('app-sortable-table')
         })
@@ -749,10 +749,10 @@ describe('Non-associations list page', () => {
           expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
 
           // message
-          expect(res.text).toContain('No non-associations.')
-          // TODO: resurrect once messages are implemented
-          // expect(res.text).toContain('This prisoner has no closed non-associations in Moorland (HMP)')
-          // expect(res.text).not.toContain('This prisoner has no open non-associations')
+          expect(res.text).toContain('David Jones has no closed non-associations in Moorland (HMP)')
+          expect(res.text).toContain('David Jones has no closed non-associations in other establishments')
+          expect(res.text).toContain('David Jones has no closed non-associations outside an establishment')
+          expect(res.text).not.toContain('David Jones has no open non-associations')
           // no table
           expect(res.text).not.toContain('app-sortable-table')
         })
