@@ -48,7 +48,7 @@ context('List non-associations page', () => {
       expect(fredMillsRow[3]).to.contain('Victim')
       expect(fredMillsRow[4]).to.contain('Cell and landing')
       expect(fredMillsRow[5]).to.contain('IR 12133111')
-      expect(fredMillsRow[6]).to.contain('26 July 2023')
+      expect(fredMillsRow[6]).to.contain('26/07/2023')
       expect(fredMillsRow[6]).to.contain('Mary Johnson')
 
       expect(oscarJonesRow[1]).to.contain(oscarJones.prisonerNumber)
@@ -57,7 +57,7 @@ context('List non-associations page', () => {
       expect(oscarJonesRow[3]).to.contain('Not relevant')
       expect(oscarJonesRow[4]).to.contain('Cell only')
       expect(oscarJonesRow[5]).to.contain('Pending court case')
-      expect(oscarJonesRow[6]).to.contain('21 July 2023')
+      expect(oscarJonesRow[6]).to.contain('21/07/2023')
       expect(oscarJonesRow[6]).to.contain('Mark Simmons')
     })
   })

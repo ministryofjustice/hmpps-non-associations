@@ -281,12 +281,12 @@ describe('Non-associations list page', () => {
         expect(res.text).toContain('Cell and landing')
         if (this.open) {
           expect(res.text).toContain('See IR 12133111')
-          expect(res.text).toContain('26 July 2023')
+          expect(res.text).toContain('26/07/2023')
         } else {
           expect(res.text).not.toContain('See IR 12133111')
           expect(res.text).toContain('Problem solved')
-          expect(res.text).not.toContain('26 July 2023')
-          expect(res.text).toContain('27 July 2023')
+          expect(res.text).not.toContain('26/07/2023')
+          expect(res.text).toContain('27/07/2023')
         }
         expect(res.text).toContain('by Mary Johnson')
         expect(res.text).toContain('by Mark Simmons')
