@@ -24,7 +24,7 @@ import type { FlashMessages } from './index'
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
 const tableColumns: SortableTableColumns<
-  'photo' | 'LAST_NAME' | 'reason' | 'role' | 'restrictionType' | 'comment' | 'WHEN_UPDATED' | 'actions'
+  'photo' | 'LAST_NAME' | 'reason' | 'role' | 'restrictionType' | 'WHEN_UPDATED' | 'actions'
 > = [
   {
     column: 'photo',
@@ -41,7 +41,6 @@ const tableColumns: SortableTableColumns<
     classes: 'app-list__cell--restriction-type',
     unsortable: true,
   },
-  { column: 'comment', escapedHtml: 'Comments', classes: 'app-list__cell--comment', unsortable: true },
   { column: 'WHEN_UPDATED', escapedHtml: 'Last updated', classes: 'app-list__cell--date-updated' },
   {
     column: 'actions',

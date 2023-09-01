@@ -31,10 +31,6 @@
       {{ nonAssociation.restrictionTypeDescription }}
     {% endset %}
 
-    {% set comment %}
-      {{ nonAssociation.closedReason if listing == "closed" else nonAssociation.comment }}
-    {% endset %}
-
     {% set lastUpdated %}
       {{ nonAssociation.whenUpdated | shortDate }}
     {% endset %}
@@ -49,7 +45,6 @@
       {html: reason, classes: "app-list__cell--reason"},
       {html: role, classes: "app-list__cell--role"},
       {html: restrictionType, classes: "app-list__cell--restriction-type"},
-      {html: comment, classes: "app-list__cell--comment"},
       {html: lastUpdated, classes: "app-list__cell--date-updated"},
       {html: actions, classes: "app-list__cell--actions"}
     ]) %}
