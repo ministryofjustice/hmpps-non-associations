@@ -541,3 +541,38 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
   })
   return groups
 }
+
+/**
+ * Sort an array of non-association list items
+ */
+export function sortList<Item extends BaseNonAssociationsListItem>(
+  list: Item[],
+  sort: SortBy,
+  order: SortDirection,
+): Item[] {
+  let comparator: (first: BaseNonAssociationsListItem, second: BaseNonAssociationsListItem) => number
+  const reversed = order === 'DESC' ? -1 : 1
+  switch (sort) {
+    case 'WHEN_CREATED':
+      comparator = (first, second) => reversed * (first.whenCreated.valueOf() - second.whenCreated.valueOf())
+      break
+    case 'WHEN_UPDATED':
+      comparator = (first, second) => reversed * (first.whenUpdated.valueOf() - second.whenUpdated.valueOf())
+      break
+    case 'LAST_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.lastName.localeCompare(second.otherPrisonerDetails.lastName)
+      break
+    case 'FIRST_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.firstName.localeCompare(second.otherPrisonerDetails.firstName)
+      break
+    case 'PRISONER_NUMBER':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonerNumber.localeCompare(second.otherPrisonerDetails.prisonerNumber)
+      break
+    default:
+      throw new Error('Unexpected sort-by')
+  }
+  return list.sort(comparator)
+}

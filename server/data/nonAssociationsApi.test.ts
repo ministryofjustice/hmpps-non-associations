@@ -5,10 +5,15 @@ import {
   lookupStaffInNonAssociations,
   lookupStaffInArrayOfNonAssociations,
   groupListByLocation,
+  sortByOptions,
+  sortDirectionOptions,
+  sortList,
 } from './nonAssociationsApi'
 import type {
   NonAssociation,
   NonAssociationsList,
+  OpenNonAssociationsListItem,
+  ClosedNonAssociationsListItem,
   OpenNonAssociation,
   ClosedNonAssociation,
   NonAssociationGroups,
@@ -450,6 +455,48 @@ describe('Non-associations API REST client', () => {
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 0,
         transferOrOutsideCount: 1,
+      })
+    })
+  })
+
+  describe('sorting on non-association lists', () => {
+    describe.each(sortByOptions)('by %s', sort => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const getter = (item: OpenNonAssociationsListItem | ClosedNonAssociationsListItem): any => {
+        switch (sort) {
+          case 'WHEN_CREATED':
+            return item.whenCreated
+          case 'WHEN_UPDATED':
+            return item.whenUpdated
+          case 'LAST_NAME':
+            return item.otherPrisonerDetails.lastName
+          case 'FIRST_NAME':
+            return item.otherPrisonerDetails.firstName
+          case 'PRISONER_NUMBER':
+            return item.otherPrisonerDetails.prisonerNumber
+          default:
+            throw new Error('Unexpected sort-by')
+        }
+      }
+
+      describe.each(sortDirectionOptions)('%s', order => {
+        it('should accept an empty list', () => {
+          const sorted = sortList([], sort, order)
+          expect(sorted).toEqual([])
+        })
+
+        it('should work for longer lists', () => {
+          const items = sortList(davidJones2OpenNonAssociations.nonAssociations, sort, order)
+          const properties = items.map(getter)
+          properties.reduce((first, second) => {
+            if (order === 'DESC') {
+              expect(first > second).toBeTruthy()
+            } else {
+              expect(first < second).toBeTruthy()
+            }
+            return second
+          })
+        })
       })
     })
   })
