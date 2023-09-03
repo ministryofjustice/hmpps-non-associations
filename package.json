@@ -138,7 +138,7 @@
     "@types/express-session": "^1.17.7",
     "@types/http-errors": "^2.0.1",
     "@types/jest": "^29.5.4",
-    "@types/jquery": "^3.5.17",
+    "@types/jquery": "^3.5.18",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^18.17.12",
     "@types/nunjucks": "^3.2.3",
@@ -152,7 +152,7 @@
     "audit-ci": "^6.6.1",
     "concurrently": "^8.2.1",
     "cookie-session": "^2.0.0",
-    "cypress": "^13.0.0",
+    "cypress": "^13.1.0",
     "cypress-multi-reporters": "^1.6.3",
     "dotenv": "^16.3.1",
     "eslint": "^8.48.0",
@@ -177,6 +177,6 @@
     "sass": "^1.66.1",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
-    "typescript": "~5.2.2"
+    "typescript": "~5.1.6"
   }
 }
