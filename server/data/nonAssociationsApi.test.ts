@@ -459,7 +459,32 @@ describe('Non-associations API REST client', () => {
     })
   })
 
-  describe('sorting on non-association lists', () => {
+  describe('sorting non-association lists', () => {
+    // David Jones’ non-associations are all in MDI so move one for sort testing:
+    const prisons = [
+      {
+        prisonId: 'MDI',
+        prisonName: 'Moorland (HMP)',
+      },
+      {
+        prisonId: 'LEI',
+        prisonName: 'Leeds (HMP)',
+      },
+    ]
+    const nonAssociations: OpenNonAssociationsListItem[] = davidJones2OpenNonAssociations.nonAssociations.map(
+      nonAssociation => {
+        const { prisonId, prisonName } = prisons.pop()
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName,
+          },
+        }
+      },
+    )
+
     describe.each(sortByOptions)('by %s', sort => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const getter = (item: OpenNonAssociationsListItem | ClosedNonAssociationsListItem): any => {
@@ -474,6 +499,12 @@ describe('Non-associations API REST client', () => {
             return item.otherPrisonerDetails.firstName
           case 'PRISONER_NUMBER':
             return item.otherPrisonerDetails.prisonerNumber
+          case 'PRISON_ID':
+            return item.otherPrisonerDetails.prisonId
+          case 'PRISON_NAME':
+            return item.otherPrisonerDetails.prisonName
+          case 'CELL_LOCATION':
+            return item.otherPrisonerDetails.cellLocation
           default:
             throw new Error('Unexpected sort-by')
         }
@@ -486,7 +517,7 @@ describe('Non-associations API REST client', () => {
         })
 
         it('should work for longer lists', () => {
-          const items = sortList(davidJones2OpenNonAssociations.nonAssociations, sort, order)
+          const items = sortList(nonAssociations, sort, order)
           const properties = items.map(getter)
           properties.reduce((first, second) => {
             if (order === 'DESC') {

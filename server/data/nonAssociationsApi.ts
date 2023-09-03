@@ -148,7 +148,16 @@ export interface CloseNonAssociationRequest {
   closedBy?: string
 }
 
-export const sortByOptions = ['WHEN_CREATED', 'WHEN_UPDATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const
+export const sortByOptions = [
+  'WHEN_CREATED',
+  'WHEN_UPDATED',
+  'LAST_NAME',
+  'FIRST_NAME',
+  'PRISONER_NUMBER',
+  'PRISON_ID',
+  'PRISON_NAME',
+  'CELL_LOCATION',
+] as const
 export type SortBy = (typeof sortByOptions)[number]
 
 export const sortDirectionOptions = ['ASC', 'DESC'] as const
@@ -570,6 +579,19 @@ export function sortList<Item extends BaseNonAssociationsListItem>(
     case 'PRISONER_NUMBER':
       comparator = (first, second) =>
         reversed * first.otherPrisonerDetails.prisonerNumber.localeCompare(second.otherPrisonerDetails.prisonerNumber)
+      break
+    case 'PRISON_ID':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonId.localeCompare(second.otherPrisonerDetails.prisonId)
+      break
+    case 'PRISON_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonName.localeCompare(second.otherPrisonerDetails.prisonName)
+      break
+    case 'CELL_LOCATION':
+      comparator = (first, second) =>
+        reversed *
+        (first.otherPrisonerDetails.cellLocation ?? '').localeCompare(second.otherPrisonerDetails.cellLocation ?? '')
       break
     default:
       throw new Error('Unexpected sort-by')
