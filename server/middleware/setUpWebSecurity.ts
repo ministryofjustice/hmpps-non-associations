@@ -16,10 +16,14 @@ export default function setUpWebSecurity(): Router {
     next()
   })
 
-  const scriptSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
+  const scriptSrc = [
+    "'self'",
+    '*.google-analytics.com',
+    '*.googletagmanager.com',
+    (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
+  ]
   const styleSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
-  const formAction = [`'self' ${config.apis.hmppsAuth.externalUrl} ${config.apis.serviceUrls.digitalPrisons}`]
-  const imgSrc = ["'self'", 'data:']
+  const imgSrc = ["'self'", 'data:', '*.google-analytics.com', '*.googletagmanager.com']
   const fontSrc = ["'self'"]
 
   if (config.apis.frontendComponents.url) {
@@ -40,15 +44,10 @@ export default function setUpWebSecurity(): Router {
           // <link href="http://example.com/" rel="stylesheet" nonce="{{ cspNonce }}">
           // This ensures only scripts we trust are loaded, and not anything injected into the
           // page by an attacker.
-          imgSrc: ["'self'", '*.google-analytics.com', '*.googletagmanager.com'],
-          scriptSrc: [
-            "'self'",
-            '*.google-analytics.com',
-            '*.googletagmanager.com',
-            (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
-          ],
-          styleSrc: ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`],
-          fontSrc: ["'self'"],
+          imgSrc,
+          scriptSrc,
+          styleSrc,
+          fontSrc,
           formAction: [`'self' ${config.apis.hmppsAuth.externalUrl}`],
           connectSrc: ["'self'", '*.google-analytics.com', '*.googletagmanager.com', '*.analytics.google.com'],
         },

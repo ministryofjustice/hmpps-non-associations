@@ -1,7 +1,7 @@
 import Page from '../pages/page'
 import IndexPage from '../pages/index'
 import AuthSignInPage from '../pages/authSignIn'
-import AuthManageDetailsPage from '../pages/authManageDetails'
+// import AuthManageDetailsPage from '../pages/authManageDetails'
 import { resetBasicStubs } from './index'
 
 context('SignIn', () => {
@@ -35,7 +35,7 @@ context('SignIn', () => {
   // TODO: This need updating to work with the new footer & header
   it('User can manage their details', () => {
     cy.signIn()
-    const indexPage = Page.verifyOnPage(IndexPage)
+    // const indexPage = Page.verifyOnPage(IndexPage)
 
     // indexPage.manageDetails.get('a').invoke('removeAttr', 'target')
     // indexPage.manageDetails.click()
