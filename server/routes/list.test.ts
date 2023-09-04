@@ -25,7 +25,7 @@ import {
 } from '../data/testData/nonAssociationsApi'
 import { davidJones, mockMovePrisoner } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
-import type { ListData, Table } from '../forms/list'
+import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -244,7 +244,7 @@ describe('Non-associations list page', () => {
             expect(res.text).toContain('Not currently in an establishment')
 
             this.shouldShowTable(res)
-            this.shouldShowMessages(res, ['same', 'other', 'outside'])
+            this.shouldShowMessages(res, threeTables)
           })
       }
 
@@ -263,7 +263,7 @@ describe('Non-associations list page', () => {
             expect(res.text).toContain('Not currently in an establishment')
 
             this.shouldShowTable(res)
-            this.shouldShowMessages(res, ['any', 'outside'])
+            this.shouldShowMessages(res, twoTables)
           })
       }
 

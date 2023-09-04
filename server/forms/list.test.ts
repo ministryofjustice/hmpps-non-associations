@@ -99,4 +99,63 @@ describe('ListForm', () => {
       )
     })
   })
+
+  describe('building a url prefix for a table should work', () => {
+    const scenarios: {
+      scenario: string
+      payload: Partial<ListData>
+      groups: 'three' | 'two'
+      table: Table
+      expected: string
+    }[] = [
+      {
+        scenario: 'the payload is empty',
+        payload: {},
+        groups: 'three',
+        table: 'same',
+        expected: '?',
+      },
+      {
+        scenario: 'other tables’ options aren’t provided',
+        payload: { sameSort: 'PRISON_NAME', sameOrder: 'ASC' },
+        groups: 'three',
+        table: 'same',
+        expected: '?',
+      },
+      {
+        scenario: 'another tables’ default options are provided',
+        payload: { sameSort: 'WHEN_UPDATED', sameOrder: 'DESC' },
+        groups: 'three',
+        table: 'outside',
+        expected: '?',
+      },
+      {
+        scenario: 'another tables’ part-default options are provided',
+        payload: { sameSort: 'WHEN_UPDATED', sameOrder: 'ASC' },
+        groups: 'three',
+        table: 'outside',
+        expected: '?sameOrder=ASC&',
+      },
+      {
+        scenario: 'another tables’ non-default options are provided',
+        payload: { sameSort: 'PRISON_NAME', sameOrder: 'ASC' },
+        groups: 'three',
+        table: 'outside',
+        expected: '?sameSort=PRISON_NAME&sameOrder=ASC&',
+      },
+      {
+        scenario: 'all tables have options provided',
+        payload: { anySort: 'WHEN_CREATED', anyOrder: 'ASC', outsideSort: 'WHEN_CREATED', outsideOrder: 'ASC' },
+        groups: 'two',
+        table: 'outside',
+        expected: '?anySort=WHEN_CREATED&anyOrder=ASC&',
+      },
+    ]
+    it.each(scenarios)('when $scenario', ({ payload, groups, table, expected }) => {
+      const form = new ListForm()
+      form.submit(payload)
+      expect(form.hasErrors).toBeFalsy()
+      expect(form.getUrlPrefixForOtherTables(groups, table)).toEqual(expected)
+    })
+  })
 })
