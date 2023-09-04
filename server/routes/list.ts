@@ -70,7 +70,13 @@ const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
   },
 }
 
-function makeTableHead(table: Table, prisonerName: string, sortBy: SortBy, sortDirection: SortDirection): HeaderCell[] {
+function makeTableHead(
+  urlPrefix: string,
+  table: Table,
+  prisonerName: string,
+  sortBy: SortBy,
+  sortDirection: SortDirection,
+): HeaderCell[] {
   const sortParameter: keyof ListData = `${table}Sort`
   const orderParameter: keyof ListData = `${table}Order`
 
@@ -103,7 +109,7 @@ function makeTableHead(table: Table, prisonerName: string, sortBy: SortBy, sortD
     ],
     sortColumn: sortBy,
     order: sortDirection,
-    urlPrefix: '?',
+    urlPrefix,
     sortParameter,
     orderParameter,
   })
@@ -148,7 +154,13 @@ export default function listRoutes(service: Services): Router {
             form.fields.sameSort.value,
             form.fields.sameOrder.value,
           )
-          tableHeads.same = makeTableHead('same', prisonerName, form.fields.sameSort.value, form.fields.sameOrder.value)
+          tableHeads.same = makeTableHead(
+            form.getUrlPrefixForOtherTables('three', 'same'),
+            'same',
+            prisonerName,
+            form.fields.sameSort.value,
+            form.fields.sameOrder.value,
+          )
 
           nonAssociationGroups.otherPrisons = sortList(
             nonAssociationGroups.otherPrisons,
@@ -156,6 +168,7 @@ export default function listRoutes(service: Services): Router {
             form.fields.otherOrder.value,
           )
           tableHeads.other = makeTableHead(
+            form.getUrlPrefixForOtherTables('three', 'other'),
             'other',
             prisonerName,
             form.fields.otherSort.value,
@@ -168,6 +181,7 @@ export default function listRoutes(service: Services): Router {
             form.fields.outsideOrder.value,
           )
           tableHeads.outside = makeTableHead(
+            form.getUrlPrefixForOtherTables('three', 'outside'),
             'outside',
             prisonerName,
             form.fields.outsideSort.value,
@@ -179,7 +193,13 @@ export default function listRoutes(service: Services): Router {
             form.fields.anySort.value,
             form.fields.anyOrder.value,
           )
-          tableHeads.any = makeTableHead('any', prisonerName, form.fields.anySort.value, form.fields.anyOrder.value)
+          tableHeads.any = makeTableHead(
+            form.getUrlPrefixForOtherTables('two', 'any'),
+            'any',
+            prisonerName,
+            form.fields.anySort.value,
+            form.fields.anyOrder.value,
+          )
 
           nonAssociationGroups.transferOrOutside = sortList(
             nonAssociationGroups.transferOrOutside,
@@ -187,6 +207,7 @@ export default function listRoutes(service: Services): Router {
             form.fields.outsideOrder.value,
           )
           tableHeads.outside = makeTableHead(
+            form.getUrlPrefixForOtherTables('two', 'outside'),
             'outside',
             prisonerName,
             form.fields.outsideSort.value,

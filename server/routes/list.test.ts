@@ -22,8 +22,17 @@ import {
   davidJones2ClosedNonAssociations,
   mockMovePrisonerInNonAssociationsList,
   mockMoveOtherPrisonersInNonAssociationsList,
+  mockNonAssociationsList,
 } from '../data/testData/nonAssociationsApi'
-import { davidJones, mockMovePrisoner } from '../data/testData/offenderSearch'
+import {
+  davidJones,
+  fredMills,
+  andrewBrown,
+  walterSmith,
+  maxClarke,
+  joePeters,
+  mockMovePrisoner,
+} from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
 import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
@@ -693,6 +702,60 @@ describe('Non-associations list page', () => {
           })
         })
       })
+    })
+
+    it('should preserve other tables’ sorting options', () => {
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+        mockNonAssociationsList(prisoner, [
+          { prisoner: fredMills },
+          { prisoner: andrewBrown },
+          { prisoner: walterSmith },
+          { prisoner: maxClarke },
+          { prisoner: joePeters },
+        ]),
+      )
+
+      const query: Partial<ListData> = {
+        sameSort: 'WHEN_UPDATED',
+        sameOrder: 'ASC',
+        otherSort: 'LAST_NAME',
+        otherOrder: 'ASC',
+        outsideSort: 'PRISON_NAME',
+        outsideOrder: 'ASC',
+      }
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .query(query)
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          const links = [
+            // "same" table
+            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=LAST_NAME&sameOrder=ASC',
+            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=CELL_LOCATION&sameOrder=ASC',
+            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=WHEN_UPDATED&sameOrder=DESC',
+            // "other" table
+            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=LAST_NAME&otherOrder=DESC',
+            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=PRISON_NAME&otherOrder=ASC',
+            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=WHEN_UPDATED&otherOrder=ASC',
+            // "outside" table
+            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC',
+            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=DESC',
+            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=WHEN_UPDATED&outsideOrder=ASC',
+          ]
+          links.forEach(link => {
+            const hrefAttr = link.replaceAll('&', '&amp;')
+            expect(res.text).toContain(`"${hrefAttr}"`)
+          })
+          // expect all links to appear in specified order in the page
+          const positions = links.map(link => {
+            const hrefAttr = link.replaceAll('&', '&amp;')
+            return res.text.indexOf(`"${hrefAttr}"`)
+          })
+          expect(positions.some(position => position <= 0)).toBeFalsy()
+          expect(positions).toEqual(positions.sort())
+        })
     })
   })
 
