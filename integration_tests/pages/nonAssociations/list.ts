@@ -33,6 +33,10 @@ export default class ListPage extends Page {
     return this.tables.eq(table).find('thead tr th')
   }
 
+  getTableHeaderSortingLink(table: number, column: number): PageElement<HTMLAnchorElement> {
+    return this.getTableHeader(table).eq(column).find('a')
+  }
+
   getTableRows(table: number): PageElement<HTMLTableRowElement> {
     return this.tables.eq(table).find('tbody tr')
   }

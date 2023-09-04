@@ -14,6 +14,7 @@ import {
   type SortDirection,
   lookupStaffInNonAssociations,
   groupListByLocation,
+  sortList,
 } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
@@ -21,12 +22,20 @@ import { createRedisClient } from '../data/redisClient'
 import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
-import ListForm, { type Table } from '../forms/list'
+import ListForm, { type ListData, type Table } from '../forms/list'
 import type { FlashMessages } from './index'
 
 const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
-type Columns = 'photo' | 'LAST_NAME' | 'location' | 'role' | 'restrictionType' | 'WHEN_UPDATED' | 'actions'
+type Columns =
+  | 'photo'
+  | 'LAST_NAME'
+  | 'CELL_LOCATION'
+  | 'PRISON_NAME'
+  | 'role'
+  | 'restrictionType'
+  | 'WHEN_UPDATED'
+  | 'actions'
 const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
   photo: {
     column: 'photo',
@@ -35,7 +44,16 @@ const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
     unsortable: true,
   },
   LAST_NAME: { column: 'LAST_NAME', escapedHtml: 'Name', classes: 'app-list__cell--prisoner' },
-  location: { column: 'location', escapedHtml: 'Location', classes: 'app-list__cell--location', unsortable: true },
+  CELL_LOCATION: {
+    column: 'CELL_LOCATION',
+    escapedHtml: 'Location',
+    classes: 'app-list__cell--location',
+  },
+  PRISON_NAME: {
+    column: 'PRISON_NAME',
+    escapedHtml: 'Establishment',
+    classes: 'app-list__cell--location',
+  },
   role: { column: 'role', escapedHtml: 'Role', classes: 'app-list__cell--role', unsortable: true },
   restrictionType: {
     column: 'restrictionType',
@@ -53,14 +71,28 @@ const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
 }
 
 function makeTableHead(table: Table, prisonerName: string, sortBy: SortBy, sortDirection: SortDirection): HeaderCell[] {
+  const sortParameter: keyof ListData = `${table}Sort`
+  const orderParameter: keyof ListData = `${table}Order`
+
+  let locationColumn: SortableTableColumns<Columns>[number]
+  if (table === 'other' || table === 'any') {
+    locationColumn = tableColumns.PRISON_NAME
+  } else if (table === 'outside') {
+    locationColumn = {
+      ...tableColumns.PRISON_NAME,
+      escapedHtml: 'Location',
+    }
+  } else if (table === 'same') {
+    locationColumn = tableColumns.CELL_LOCATION
+  } else {
+    throw new Error('Unexpected table')
+  }
+
   return sortableTableHead({
     columns: [
       tableColumns.photo,
       tableColumns.LAST_NAME,
-      {
-        ...tableColumns.location,
-        escapedHtml: table === 'other' || table === 'any' ? 'Establishment' : 'Location',
-      },
+      locationColumn,
       {
         ...tableColumns.role,
         escapedHtml: `${format.possessiveName(prisonerName)} role`,
@@ -72,6 +104,8 @@ function makeTableHead(table: Table, prisonerName: string, sortBy: SortBy, sortD
     sortColumn: sortBy,
     order: sortDirection,
     urlPrefix: '?',
+    sortParameter,
+    orderParameter,
   })
 }
 
@@ -109,12 +143,29 @@ export default function listRoutes(service: Services): Router {
         nonAssociationGroups = groupListByLocation(nonAssociationsList)
 
         if (nonAssociationGroups.type === 'threeGroups') {
+          nonAssociationGroups.samePrison = sortList(
+            nonAssociationGroups.samePrison,
+            form.fields.sameSort.value,
+            form.fields.sameOrder.value,
+          )
           tableHeads.same = makeTableHead('same', prisonerName, form.fields.sameSort.value, form.fields.sameOrder.value)
+
+          nonAssociationGroups.otherPrisons = sortList(
+            nonAssociationGroups.otherPrisons,
+            form.fields.otherSort.value,
+            form.fields.otherOrder.value,
+          )
           tableHeads.other = makeTableHead(
             'other',
             prisonerName,
             form.fields.otherSort.value,
             form.fields.otherOrder.value,
+          )
+
+          nonAssociationGroups.transferOrOutside = sortList(
+            nonAssociationGroups.transferOrOutside,
+            form.fields.outsideSort.value,
+            form.fields.outsideOrder.value,
           )
           tableHeads.outside = makeTableHead(
             'outside',
@@ -123,7 +174,18 @@ export default function listRoutes(service: Services): Router {
             form.fields.outsideOrder.value,
           )
         } else if (nonAssociationGroups.type === 'twoGroups') {
+          nonAssociationGroups.anyPrison = sortList(
+            nonAssociationGroups.anyPrison,
+            form.fields.anySort.value,
+            form.fields.anyOrder.value,
+          )
           tableHeads.any = makeTableHead('any', prisonerName, form.fields.anySort.value, form.fields.anyOrder.value)
+
+          nonAssociationGroups.transferOrOutside = sortList(
+            nonAssociationGroups.transferOrOutside,
+            form.fields.outsideSort.value,
+            form.fields.outsideOrder.value,
+          )
           tableHeads.outside = makeTableHead(
             'outside',
             prisonerName,
