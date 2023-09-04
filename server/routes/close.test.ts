@@ -19,7 +19,7 @@ const prisoner = davidJones
 
 // mock non-association
 const openNonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
-const closedNonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false)
+const closedNonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
 
 let app: Express
 let nonAssociationsApi: jest.Mocked<NonAssociationsApi>

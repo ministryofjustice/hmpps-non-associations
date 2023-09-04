@@ -1,9 +1,9 @@
 {% extends "../partials/layout.njk" %}
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/table/macro.njk" import govukTable %}
 
 {% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
+{% from "../partials/nonAssociationGroup.njk" import nonAssociationGroup %}
 
 {% macro displayCount(number) %}
   {%- if number == 1 -%}
@@ -37,7 +37,7 @@
     {% endif %}
   {% endcall %}
 
-  <nav class="govuk-!-margin-top-6">
+  <nav class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
     <ul class="govuk-tabs__list">
       <li class="govuk-tabs__list-item {% if listing === "open" %}govuk-tabs__list-item--selected{% endif %}">
         <a class="govuk-tabs__tab" href="{{ routeUrls.list(prisonerNumber) }}">
@@ -52,90 +52,104 @@
     </ul>
   </nav>
 
-  {% set tableRows = [] %}
-  {% for nonAssociation in nonAssociationsList.nonAssociations %}
-    {% set otherPrisonerPhoto %}
-      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }}" class="app-prisoner-photo" />
-    {% endset %}
+  {% if nonAssociationGroups.type == "noGroups" %}
 
-    {% set otherPrisonerProfileLink %}
-      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
-        <span class="govuk-visually-hidden"> View prisoner profile for </span>
-        {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
-      </a>
-      <br />
-      {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
-    {% endset %}
-
-    {% set reason %}
-      {{ nonAssociation.reasonDescription }}
-    {% endset %}
-
-    {% set role %}
-      {{ nonAssociation.otherPrisonerDetails.roleDescription }}
-    {% endset %}
-
-    {% set restrictionType %}
-      {{ nonAssociation.restrictionTypeDescription }}
-    {% endset %}
-
-    {% set comment %}
-      {{ nonAssociation.closedReason if listing == "closed" else nonAssociation.comment }}
-    {% endset %}
-
-    {% set firstCreated %}
-      {{ nonAssociation.whenCreated | date }}
-      <br />
-      by {{ nonAssociation.authorisedBy | default("(not specified)", true) }}
-    {% endset %}
-
-    {% set lastUpdated %}
-      {{ nonAssociation.whenUpdated | date }}
-      <br />
-      by {{ nonAssociation.updatedBy | default("(not specified)", true) }}
-    {% endset %}
-
-    {% set actions %}
-      <a href="{{ routeUrls.view(prisonerNumber, nonAssociation.id) }}">View details</a>
-    {% endset %}
-
-    {% set _ = tableRows.push([
-      {html: otherPrisonerPhoto, classes: "app-list__cell--photo"},
-      {html: otherPrisonerProfileLink, classes: "app-list__cell--prisoner"},
-      {html: reason, classes: "app-list__cell--reason"},
-      {html: role, classes: "app-list__cell--role"},
-      {html: restrictionType, classes: "app-list__cell--restriction-type"},
-      {html: comment, classes: "app-list__cell--comment"},
-      {html: lastUpdated, classes: "app-list__cell--date-updated"},
-      {html: actions, classes: "app-list__cell--actions"}
-    ]) %}
-  {% endfor %}
-
-  {% set caption -%}
-    Non-associations for {{ prisonerName }}
-  {%- endset %}
-
-  {% if tableRows.length > 0 %}
-
-    <div class="app-sortable-table-container">
-      {{ govukTable({
-        caption: caption,
-        captionClasses: "govuk-visually-hidden",
-        classes: "app-sortable-table",
-        head: tableHead,
-        rows: tableRows
-      }) }}
-    </div>
-
-  {% elif nonAssociationsList %}
-
-    <p class="govuk-!-margin-top-6">
+    <p>
       {% if listing == "closed" %}
-        This prisoner has no closed non-associations in {{ prisonName }}.
+        {{ prisonerName }} has no closed non-associations.
       {% else %}
-        This prisoner has no open non-associations in {{ prisonName }}.
+        {{ prisonerName }} has no open non-associations.
       {% endif %}
     </p>
+
+  {% elif nonAssociationGroups.type == "threeGroups" %}
+
+    {% set emptyMessageHtml %}
+      {% if listing == "closed" %}
+        {{ prisonerName }} has no closed non-associations in {{ prisoner.prisonName }}.
+      {% else %}
+        {{ prisonerName }} has no open non-associations in {{ prisoner.prisonName }}.
+      {% endif %}
+    {% endset %}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'same',
+      tableHeads.same,
+      prisoner,
+      nonAssociationGroups.samePrison,
+      listing,
+      emptyMessageHtml
+    ) }}
+
+    {% set emptyMessageHtml %}
+      {% if listing == "closed" %}
+        {{ prisonerName }} has no closed non-associations in other establishments.
+      {% else %}
+        {{ prisonerName }} has no open non-associations in other establishments.
+      {% endif %}
+    {% endset %}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'other',
+      tableHeads.other,
+      prisoner,
+      nonAssociationGroups.otherPrisons,
+      listing,
+      emptyMessageHtml
+    ) }}
+
+    {% set emptyMessageHtml %}
+      {% if listing == "closed" %}
+        {{ prisonerName }} has no closed non-associations outside an establishment.
+      {% else %}
+        {{ prisonerName }} has no open non-associations outside an establishment.
+      {% endif %}
+    {% endset %}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'outside',
+      tableHeads.outside,
+      prisoner,
+      nonAssociationGroups.transferOrOutside,
+      listing,
+      emptyMessageHtml
+    ) }}
+
+  {% elif nonAssociationGroups.type == "twoGroups" %}
+
+    {% set emptyMessageHtml %}
+      {% if listing == "closed" %}
+        {{ prisonerName }} has no closed non-associations in an establishment.
+      {% else %}
+        {{ prisonerName }} has no open non-associations in an establishment.
+      {% endif %}
+    {% endset %}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'any',
+      tableHeads.any,
+      prisoner,
+      nonAssociationGroups.anyPrison,
+      listing,
+      emptyMessageHtml
+    ) }}
+
+    {% set emptyMessageHtml %}
+      {% if listing == "closed" %}
+        {{ prisonerName }} has no closed non-associations outside an establishment.
+      {% else %}
+        {{ prisonerName }} has no open non-associations outside an establishment.
+      {% endif %}
+    {% endset %}
+    {{ nonAssociationGroup(
+      routeUrls,
+      'outside',
+      tableHeads.outside,
+      prisoner,
+      nonAssociationGroups.transferOrOutside,
+      listing,
+      emptyMessageHtml
+    ) }}
 
   {% endif %}
 

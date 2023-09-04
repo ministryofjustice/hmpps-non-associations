@@ -17,7 +17,7 @@ context('Update prisoner non-association page', () => {
   it('should allow updating a non-association', () => {
     cy.task('stubGetNonAssociation')
 
-    listPage.getViewLinkForRow(0).click()
+    listPage.getViewLinkForRow(0, 0).click()
     const viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
     viewPage.updateButton.click()
 

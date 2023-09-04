@@ -25,20 +25,24 @@ export default class ListPage extends Page {
     return cy.get('.app-key-prisoner-details')
   }
 
-  get table(): PageElement<HTMLTableElement> {
+  get tables(): PageElement<HTMLTableElement> {
     return cy.get('.app-sortable-table')
   }
 
-  get tableRows(): PageElement<HTMLTableRowElement> {
-    return this.table.find('tbody tr')
+  getTableHeader(table: number): PageElement<HTMLTableCellElement> {
+    return this.tables.eq(table).find('thead tr th')
   }
 
-  getViewLinkForRow(row: number): PageElement<HTMLAnchorElement> {
-    return this.tableRows.eq(row).find('td').last().find('a')
+  getTableRows(table: number): PageElement<HTMLTableRowElement> {
+    return this.tables.eq(table).find('tbody tr')
   }
 
-  get tableRowContents(): Cypress.Chainable<string[][]> {
-    return this.tableRows.then(bodyRows => {
+  getViewLinkForRow(table: number, row: number): PageElement<HTMLAnchorElement> {
+    return this.getTableRows(table).eq(row).find('td').last().find('a')
+  }
+
+  getTableRowContents(table: number): Cypress.Chainable<string[][]> {
+    return this.getTableRows(table).then(bodyRows => {
       const rows = bodyRows
         .map((_, row) => {
           const cells: string[] = []
