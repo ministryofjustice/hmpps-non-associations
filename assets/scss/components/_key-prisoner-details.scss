@@ -18,7 +18,12 @@
   }
 
   .app-key-prisoner-details--align-right {
+    align-self: center;
     margin-left: auto;
+
+    .govuk-button {
+      margin-bottom: 0;
+    }
   }
 
   @include govuk-media-query($until: tablet) {

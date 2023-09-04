@@ -67,6 +67,7 @@ export default function nunjucksSetup(app: express.Express, services: Services):
   // date & number formatting
   njkEnv.addFilter('dateAndTime', format.dateAndTime)
   njkEnv.addFilter('date', format.date)
+  njkEnv.addFilter('shortDate', format.shortDate)
   njkEnv.addFilter('thousands', format.thousands)
 
   // utils for GDS & MoJ components
