@@ -6,7 +6,7 @@ export default class ListPage extends Page {
   }
 
   get addButton(): PageElement<HTMLAnchorElement> {
-    return cy.get('.govuk-button').contains<HTMLAnchorElement>('Add new non-association')
+    return cy.get('.hmpps-action-button').contains<HTMLAnchorElement>('Add new non-association')
   }
 
   get tabs(): PageElement<HTMLLIElement> {
