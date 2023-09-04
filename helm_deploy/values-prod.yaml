@@ -2,6 +2,27 @@
 generic-service:
   ingress:
     host: non-associations.hmpps.service.justice.gov.uk
+    modsecurity_enabled: true
+    modsecurity_snippet: |
+      SecRuleEngine On
+      SecDefaultAction "phase:2,pass,log,tag:github_team=hmpps-non-associations"
+      {{ if .Values.ingress.modsecurity_audit_enabled -}}
+      SecAuditEngine RelevantOnly
+      SecAuditLog /var/log/nginx/error.log
+      SecAuditLogType Serial
+      {{ end -}}
+      SecRuleRemoveById 920300
+      SecRuleUpdateActionById 949110 "t:none,deny,status:406,logdata:%{SERVER_NAME}"
+      SecRuleUpdateActionById 959100 "t:none,deny,status:406,logdata:%{SERVER_NAME}"
+      SecRuleUpdateTargetById 942100 "!ARGS"  # disable libinjection testing on request args. to disable all SQLi testing, modify rules in the range 942100-942999
+      SecRuleUpdateTargetById 942430 "!ARGS:returnTo"
+      SecAction \
+        "id:900000,\
+         phase:1,\
+         nolog,\
+         pass,\
+         t:none,\
+         setvar:tx.paranoia_level=2"
 
   env:
     ENVIRONMENT: prod
