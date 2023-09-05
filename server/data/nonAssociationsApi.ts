@@ -57,7 +57,7 @@ interface BaseNonAssociationsListItem {
     lastName: string
     prisonId: string
     prisonName: string
-    cellLocation: string
+    cellLocation?: string
   }
 }
 
@@ -83,7 +83,7 @@ export interface NonAssociationsList<
   lastName: string
   prisonId: string
   prisonName: string
-  cellLocation: string
+  cellLocation?: string
   openCount: number
   closedCount: number
   nonAssociations: Item[]
