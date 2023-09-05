@@ -277,9 +277,7 @@ describe('Non-associations API REST client', () => {
   describe('grouping locations of non-association lists', () => {
     function expectNoGroups(groups: NonAssociationGroups) {
       if (groups.type === 'noGroups') {
-        expect(
-          'samePrison' in groups || 'otherPrisons' in groups || 'anyPrison' in groups || 'transferOrOutside' in groups,
-        ).toBeFalsy()
+        expect('same' in groups || 'other' in groups || 'any' in groups || 'outside' in groups).toBeFalsy()
         return
       }
 
@@ -288,10 +286,10 @@ describe('Non-associations API REST client', () => {
 
     function expectThreeGroups(groups: NonAssociationGroups) {
       if (groups.type === 'threeGroups') {
-        expect('samePrison' in groups && 'otherPrisons' in groups && 'transferOrOutside' in groups).toBeTruthy()
+        expect('same' in groups && 'other' in groups && 'outside' in groups).toBeTruthy()
 
         expect(
-          groups.transferOrOutside.some(
+          groups.outside.some(
             item =>
               item.otherPrisonerDetails.prisonId !== transferPrisonId &&
               item.otherPrisonerDetails.prisonId !== outsidePrisonId,
@@ -300,20 +298,20 @@ describe('Non-associations API REST client', () => {
 
         return {
           toHaveLengths({
-            samePrisonCount,
-            otherPrisonCount,
-            transferOrOutsideCount,
+            sameCount,
+            otherCount,
+            outsideCount,
           }: {
-            samePrisonCount: number
-            otherPrisonCount: number
-            transferOrOutsideCount: number
+            sameCount: number
+            otherCount: number
+            outsideCount: number
           }) {
-            expect(groups.samePrison).toHaveLength(samePrisonCount)
-            expect(groups.otherPrisons).toHaveLength(otherPrisonCount)
-            expect(groups.transferOrOutside).toHaveLength(transferOrOutsideCount)
+            expect(groups.same).toHaveLength(sameCount)
+            expect(groups.other).toHaveLength(otherCount)
+            expect(groups.outside).toHaveLength(outsideCount)
 
-            const samePrisonSet = new Set(groups.samePrison.map(item => item.otherPrisonerDetails.prisonId))
-            if (samePrisonCount === 0) {
+            const samePrisonSet = new Set(groups.same.map(item => item.otherPrisonerDetails.prisonId))
+            if (sameCount === 0) {
               expect(samePrisonSet.size).toEqual(0)
             } else {
               expect(samePrisonSet.size).toEqual(1)
@@ -328,25 +326,25 @@ describe('Non-associations API REST client', () => {
     it('when the key prisoner is in a prison', () => {
       expectNoGroups(groupListByLocation(davidJones0NonAssociations))
       expectThreeGroups(groupListByLocation(davidJones1OpenNonAssociation)).toHaveLengths({
-        samePrisonCount: 1,
-        otherPrisonCount: 0,
-        transferOrOutsideCount: 0,
+        sameCount: 1,
+        otherCount: 0,
+        outsideCount: 0,
       })
       expectThreeGroups(groupListByLocation(davidJones1ClosedNonAssociation)).toHaveLengths({
-        samePrisonCount: 1,
-        otherPrisonCount: 0,
-        transferOrOutsideCount: 0,
+        sameCount: 1,
+        otherCount: 0,
+        outsideCount: 0,
       })
 
       expectThreeGroups(groupListByLocation(davidJones2OpenNonAssociations)).toHaveLengths({
-        samePrisonCount: 2,
-        otherPrisonCount: 0,
-        transferOrOutsideCount: 0,
+        sameCount: 2,
+        otherCount: 0,
+        outsideCount: 0,
       })
       expectThreeGroups(groupListByLocation(davidJones2ClosedNonAssociations)).toHaveLengths({
-        samePrisonCount: 2,
-        otherPrisonCount: 0,
-        transferOrOutsideCount: 0,
+        sameCount: 2,
+        otherCount: 0,
+        outsideCount: 0,
       })
 
       expectNoGroups(groupListByLocation(mockNonAssociationsList(davidJones, [])))
@@ -358,9 +356,9 @@ describe('Non-associations API REST client', () => {
         { prisoner: joePeters },
       ])
       expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
-        samePrisonCount: 1,
-        otherPrisonCount: 1,
-        transferOrOutsideCount: 2,
+        sameCount: 1,
+        otherCount: 1,
+        outsideCount: 2,
       })
 
       nonAssociations = mockNonAssociationsList(davidJones, [
@@ -370,25 +368,25 @@ describe('Non-associations API REST client', () => {
         { prisoner: joePeters, closed: true },
       ])
       expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
-        samePrisonCount: 1,
-        otherPrisonCount: 1,
-        transferOrOutsideCount: 2,
+        sameCount: 1,
+        otherCount: 1,
+        outsideCount: 2,
       })
 
       nonAssociations = mockNonAssociationsList(fredMills, [{ prisoner: walterSmith }, { prisoner: andrewBrown }])
       expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
-        samePrisonCount: 0,
-        otherPrisonCount: 2,
-        transferOrOutsideCount: 0,
+        sameCount: 0,
+        otherCount: 2,
+        outsideCount: 0,
       })
     })
 
     function expectTwoGroups(groups: NonAssociationGroups) {
       if (groups.type === 'twoGroups') {
-        expect('anyPrison' in groups && 'transferOrOutside' in groups).toBeTruthy()
+        expect('any' in groups && 'outside' in groups).toBeTruthy()
 
         expect(
-          groups.transferOrOutside.some(
+          groups.outside.some(
             item =>
               item.otherPrisonerDetails.prisonId !== transferPrisonId &&
               item.otherPrisonerDetails.prisonId !== outsidePrisonId,
@@ -396,15 +394,9 @@ describe('Non-associations API REST client', () => {
         ).toBeFalsy()
 
         return {
-          toHaveLengths({
-            anyPrisonCount,
-            transferOrOutsideCount,
-          }: {
-            anyPrisonCount: number
-            transferOrOutsideCount: number
-          }) {
-            expect(groups.anyPrison).toHaveLength(anyPrisonCount)
-            expect(groups.transferOrOutside).toHaveLength(transferOrOutsideCount)
+          toHaveLengths({ anyPrisonCount, outsideCount }: { anyPrisonCount: number; outsideCount: number }) {
+            expect(groups.any).toHaveLength(anyPrisonCount)
+            expect(groups.outside).toHaveLength(outsideCount)
           },
         }
       }
@@ -419,7 +411,7 @@ describe('Non-associations API REST client', () => {
       nonAssociations = mockNonAssociationsList(maxClarke, [{ prisoner: davidJones }])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 1,
-        transferOrOutsideCount: 0,
+        outsideCount: 0,
       })
 
       nonAssociations = mockNonAssociationsList(maxClarke, [
@@ -428,13 +420,13 @@ describe('Non-associations API REST client', () => {
       ])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 1,
-        transferOrOutsideCount: 1,
+        outsideCount: 1,
       })
 
       nonAssociations = mockNonAssociationsList(maxClarke, [{ prisoner: joePeters }])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 0,
-        transferOrOutsideCount: 1,
+        outsideCount: 1,
       })
     })
 
@@ -448,13 +440,13 @@ describe('Non-associations API REST client', () => {
       ])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 2,
-        transferOrOutsideCount: 0,
+        outsideCount: 0,
       })
 
       nonAssociations = mockNonAssociationsList(joePeters, [{ prisoner: maxClarke, closed: true }])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 0,
-        transferOrOutsideCount: 1,
+        outsideCount: 1,
       })
     })
   })

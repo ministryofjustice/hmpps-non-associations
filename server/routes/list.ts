@@ -150,8 +150,8 @@ export default function listRoutes(service: Services): Router {
         nonAssociationGroups = groupListByLocation(nonAssociationsList)
 
         if (nonAssociationGroups.type === 'threeGroups') {
-          nonAssociationGroups.samePrison = sortList(
-            nonAssociationGroups.samePrison,
+          nonAssociationGroups.same = sortList(
+            nonAssociationGroups.same,
             form.fields.sameSort.value,
             form.fields.sameOrder.value,
           )
@@ -163,8 +163,8 @@ export default function listRoutes(service: Services): Router {
             form.fields.sameOrder.value,
           )
 
-          nonAssociationGroups.otherPrisons = sortList(
-            nonAssociationGroups.otherPrisons,
+          nonAssociationGroups.other = sortList(
+            nonAssociationGroups.other,
             form.fields.otherSort.value,
             form.fields.otherOrder.value,
           )
@@ -176,8 +176,8 @@ export default function listRoutes(service: Services): Router {
             form.fields.otherOrder.value,
           )
 
-          nonAssociationGroups.transferOrOutside = sortList(
-            nonAssociationGroups.transferOrOutside,
+          nonAssociationGroups.outside = sortList(
+            nonAssociationGroups.outside,
             form.fields.outsideSort.value,
             form.fields.outsideOrder.value,
           )
@@ -189,8 +189,8 @@ export default function listRoutes(service: Services): Router {
             form.fields.outsideOrder.value,
           )
         } else if (nonAssociationGroups.type === 'twoGroups') {
-          nonAssociationGroups.anyPrison = sortList(
-            nonAssociationGroups.anyPrison,
+          nonAssociationGroups.any = sortList(
+            nonAssociationGroups.any,
             form.fields.anySort.value,
             form.fields.anyOrder.value,
           )
@@ -202,8 +202,8 @@ export default function listRoutes(service: Services): Router {
             form.fields.anyOrder.value,
           )
 
-          nonAssociationGroups.transferOrOutside = sortList(
-            nonAssociationGroups.transferOrOutside,
+          nonAssociationGroups.outside = sortList(
+            nonAssociationGroups.outside,
             form.fields.outsideSort.value,
             form.fields.outsideOrder.value,
           )

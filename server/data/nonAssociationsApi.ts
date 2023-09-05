@@ -474,15 +474,15 @@ interface NonAssociationNoGroups {
 
 interface NonAssociationGroupsWithPrison<Item extends BaseNonAssociationsListItem> {
   type: 'threeGroups'
-  samePrison: Item[]
-  otherPrisons: Item[]
-  transferOrOutside: Item[]
+  same: Item[]
+  other: Item[]
+  outside: Item[]
 }
 
 interface NonAssociationGroupsWithoutPrison<Item extends BaseNonAssociationsListItem> {
   type: 'twoGroups'
-  anyPrison: Item[]
-  transferOrOutside: Item[]
+  any: Item[]
+  outside: Item[]
 }
 
 export type NonAssociationGroups<
@@ -513,17 +513,17 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
     // key prisoner is not in a prison
     const groups: NonAssociationGroupsWithoutPrison<Item> = {
       type: 'twoGroups',
-      anyPrison: [],
-      transferOrOutside: [],
+      any: [],
+      outside: [],
     }
     list.nonAssociations.forEach(item => {
       if (
         item.otherPrisonerDetails.prisonId === transferPrisonId ||
         item.otherPrisonerDetails.prisonId === outsidePrisonId
       ) {
-        groups.transferOrOutside.push(item)
+        groups.outside.push(item)
       } else {
-        groups.anyPrison.push(item)
+        groups.any.push(item)
       }
     })
     return groups
@@ -532,20 +532,20 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
   // key prisoner is in some prison
   const groups: NonAssociationGroupsWithPrison<Item> = {
     type: 'threeGroups',
-    samePrison: [],
-    otherPrisons: [],
-    transferOrOutside: [],
+    same: [],
+    other: [],
+    outside: [],
   }
   list.nonAssociations.forEach(item => {
     if (
       item.otherPrisonerDetails.prisonId === transferPrisonId ||
       item.otherPrisonerDetails.prisonId === outsidePrisonId
     ) {
-      groups.transferOrOutside.push(item)
+      groups.outside.push(item)
     } else if (item.otherPrisonerDetails.prisonId === list.prisonId) {
-      groups.samePrison.push(item)
+      groups.same.push(item)
     } else {
-      groups.otherPrisons.push(item)
+      groups.other.push(item)
     }
   })
   return groups
