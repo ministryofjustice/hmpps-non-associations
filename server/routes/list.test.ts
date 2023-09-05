@@ -235,7 +235,6 @@ describe('Non-associations list page', () => {
     class ExpectNonAssociationList {
       private table: Table
 
-      // eslint-disable-next-line no-empty-function
       constructor(private readonly closed = false) {}
 
       shouldHaveThreeGroups(table: 'same' | 'other' | 'outside'): request.Test {
