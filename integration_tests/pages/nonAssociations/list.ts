@@ -6,7 +6,7 @@ export default class ListPage extends Page {
   }
 
   get addButton(): PageElement<HTMLAnchorElement> {
-    return cy.get('.govuk-button').contains<HTMLAnchorElement>('Add new non-association')
+    return cy.get('.hmpps-action-button').contains<HTMLAnchorElement>('Add new non-association')
   }
 
   get tabs(): PageElement<HTMLLIElement> {
@@ -25,20 +25,28 @@ export default class ListPage extends Page {
     return cy.get('.app-key-prisoner-details')
   }
 
-  get table(): PageElement<HTMLTableElement> {
+  get tables(): PageElement<HTMLTableElement> {
     return cy.get('.app-sortable-table')
   }
 
-  get tableRows(): PageElement<HTMLTableRowElement> {
-    return this.table.find('tbody tr')
+  getTableHeader(table: number): PageElement<HTMLTableCellElement> {
+    return this.tables.eq(table).find('thead tr th')
   }
 
-  getViewLinkForRow(row: number): PageElement<HTMLAnchorElement> {
-    return this.tableRows.eq(row).find('td').last().find('a')
+  getTableHeaderSortingLink(table: number, column: number): PageElement<HTMLAnchorElement> {
+    return this.getTableHeader(table).eq(column).find('a')
   }
 
-  get tableRowContents(): Cypress.Chainable<string[][]> {
-    return this.tableRows.then(bodyRows => {
+  getTableRows(table: number): PageElement<HTMLTableRowElement> {
+    return this.tables.eq(table).find('tbody tr')
+  }
+
+  getViewLinkForRow(table: number, row: number): PageElement<HTMLAnchorElement> {
+    return this.getTableRows(table).eq(row).find('td').last().find('a')
+  }
+
+  getTableRowContents(table: number): Cypress.Chainable<string[][]> {
+    return this.getTableRows(table).then(bodyRows => {
       const rows = bodyRows
         .map((_, row) => {
           const cells: string[] = []

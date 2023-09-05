@@ -2,11 +2,10 @@ import Page from '../pages/page'
 import IndexPage from '../pages/index'
 import AuthSignInPage from '../pages/authSignIn'
 // import AuthManageDetailsPage from '../pages/authManageDetails'
-import { resetBasicStubs } from './index'
 
 context('SignIn', () => {
   beforeEach(() => {
-    resetBasicStubs()
+    cy.resetBasicStubs()
   })
 
   it('Unauthenticated user directed to auth', () => {

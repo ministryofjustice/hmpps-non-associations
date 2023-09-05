@@ -1,5 +1,6 @@
 import config from '../config'
 import { nameOfPerson } from '../utils/utils'
+import { transferPrisonId, outsidePrisonId } from './constants'
 import RestClient from './restClient'
 import PrisonApi, { type StaffMember } from './prisonApi'
 
@@ -147,7 +148,16 @@ export interface CloseNonAssociationRequest {
   closedBy?: string
 }
 
-export const sortByOptions = ['WHEN_CREATED', 'WHEN_UPDATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const
+export const sortByOptions = [
+  'WHEN_CREATED',
+  'WHEN_UPDATED',
+  'LAST_NAME',
+  'FIRST_NAME',
+  'PRISONER_NUMBER',
+  'PRISON_ID',
+  'PRISON_NAME',
+  'CELL_LOCATION',
+] as const
 export type SortBy = (typeof sortByOptions)[number]
 
 export const sortDirectionOptions = ['ASC', 'DESC'] as const
@@ -456,4 +466,135 @@ export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociati
   })
   const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
   return nonAssociations.map(nonAssociation => lookupStaff(findStaffUser, nonAssociation))
+}
+
+interface NonAssociationNoGroups {
+  type: 'noGroups'
+}
+
+interface NonAssociationGroupsWithPrison<Item extends BaseNonAssociationsListItem> {
+  type: 'threeGroups'
+  samePrison: Item[]
+  otherPrisons: Item[]
+  transferOrOutside: Item[]
+}
+
+interface NonAssociationGroupsWithoutPrison<Item extends BaseNonAssociationsListItem> {
+  type: 'twoGroups'
+  anyPrison: Item[]
+  transferOrOutside: Item[]
+}
+
+export type NonAssociationGroups<
+  Item extends BaseNonAssociationsListItem = OpenNonAssociationsListItem | ClosedNonAssociationsListItem,
+> = NonAssociationNoGroups | NonAssociationGroupsWithPrison<Item> | NonAssociationGroupsWithoutPrison<Item>
+
+/**
+ * Groups items within a {@link NonAssociationsList} into:
+ *
+ * * same establishment
+ * * other establishments
+ * * being transferred or outside
+ *
+ * by location with respect to key prisoner’s prison ID
+ * _or_ if the prison ID indicates the key person is being transferred or is outside:
+ *
+ * * any establishment
+ * * being transferred or outside
+ */
+export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
+  list: NonAssociationsList<Item>,
+): NonAssociationGroups<Item> {
+  if (list.nonAssociations.length === 0) {
+    return { type: 'noGroups' } satisfies NonAssociationNoGroups
+  }
+
+  if (list.prisonId === transferPrisonId || list.prisonId === outsidePrisonId) {
+    // key prisoner is not in a prison
+    const groups: NonAssociationGroupsWithoutPrison<Item> = {
+      type: 'twoGroups',
+      anyPrison: [],
+      transferOrOutside: [],
+    }
+    list.nonAssociations.forEach(item => {
+      if (
+        item.otherPrisonerDetails.prisonId === transferPrisonId ||
+        item.otherPrisonerDetails.prisonId === outsidePrisonId
+      ) {
+        groups.transferOrOutside.push(item)
+      } else {
+        groups.anyPrison.push(item)
+      }
+    })
+    return groups
+  }
+
+  // key prisoner is in some prison
+  const groups: NonAssociationGroupsWithPrison<Item> = {
+    type: 'threeGroups',
+    samePrison: [],
+    otherPrisons: [],
+    transferOrOutside: [],
+  }
+  list.nonAssociations.forEach(item => {
+    if (
+      item.otherPrisonerDetails.prisonId === transferPrisonId ||
+      item.otherPrisonerDetails.prisonId === outsidePrisonId
+    ) {
+      groups.transferOrOutside.push(item)
+    } else if (item.otherPrisonerDetails.prisonId === list.prisonId) {
+      groups.samePrison.push(item)
+    } else {
+      groups.otherPrisons.push(item)
+    }
+  })
+  return groups
+}
+
+/**
+ * Sort an array of non-association list items
+ */
+export function sortList<Item extends BaseNonAssociationsListItem>(
+  list: Item[],
+  sort: SortBy,
+  order: SortDirection,
+): Item[] {
+  let comparator: (first: BaseNonAssociationsListItem, second: BaseNonAssociationsListItem) => number
+  const reversed = order === 'DESC' ? -1 : 1
+  switch (sort) {
+    case 'WHEN_CREATED':
+      comparator = (first, second) => reversed * (first.whenCreated.valueOf() - second.whenCreated.valueOf())
+      break
+    case 'WHEN_UPDATED':
+      comparator = (first, second) => reversed * (first.whenUpdated.valueOf() - second.whenUpdated.valueOf())
+      break
+    case 'LAST_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.lastName.localeCompare(second.otherPrisonerDetails.lastName)
+      break
+    case 'FIRST_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.firstName.localeCompare(second.otherPrisonerDetails.firstName)
+      break
+    case 'PRISONER_NUMBER':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonerNumber.localeCompare(second.otherPrisonerDetails.prisonerNumber)
+      break
+    case 'PRISON_ID':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonId.localeCompare(second.otherPrisonerDetails.prisonId)
+      break
+    case 'PRISON_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonName.localeCompare(second.otherPrisonerDetails.prisonName)
+      break
+    case 'CELL_LOCATION':
+      comparator = (first, second) =>
+        reversed *
+        (first.otherPrisonerDetails.cellLocation ?? '').localeCompare(second.otherPrisonerDetails.cellLocation ?? '')
+      break
+    default:
+      throw new Error('Unexpected sort-by')
+  }
+  return list.sort(comparator)
 }

@@ -3,20 +3,21 @@ import ListPage from '../pages/nonAssociations/list'
 import ViewPage from '../pages/nonAssociations/view'
 import UpdatePage from '../pages/nonAssociations/update'
 import UpdateConfirmationPage from '../pages/nonAssociations/updateConfirmation'
-import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 
 context('Update prisoner non-association page', () => {
   let listPage: ListPage
 
   beforeEach(() => {
-    resetBasicStubs()
-    listPage = navigateToDavidJonesNonAssociations()
+    cy.resetBasicStubs()
+    cy.navigateToDavidJonesNonAssociations().then(result => {
+      listPage = result
+    })
   })
 
   it('should allow updating a non-association', () => {
     cy.task('stubGetNonAssociation')
 
-    listPage.getViewLinkForRow(0).click()
+    listPage.getViewLinkForRow(0, 0).click()
     const viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
     viewPage.updateButton.click()
 

@@ -10,7 +10,7 @@ import {
   davidJones2ClosedNonAssociations,
   mockNonAssociation,
 } from '../../server/data/testData/nonAssociationsApi'
-import { andrewBrown, davidJones, fredMills, oscarJones } from '../../server/data/testData/offenderSearch'
+import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 
 /**
  * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
@@ -83,7 +83,7 @@ export default {
   },
 
   /**
-   * Stub creating a non-association between David Jones and Andrew Brown
+   * Stub creating a non-association between David Jones and Fred Mills
    */
   stubCreateNonAssociation(): SuperAgentRequest {
     return stubFor({
@@ -94,7 +94,7 @@ export default {
       response: {
         status: 201,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, andrewBrown.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
       },
     })
   },
@@ -111,7 +111,7 @@ export default {
       response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, oscarJones.prisonerNumber),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
       },
     })
   },
@@ -128,7 +128,7 @@ export default {
       response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false),
+        jsonBody: mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true),
       },
     })
   },

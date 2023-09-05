@@ -1,11 +1,13 @@
+import { transferPrisonId, outsidePrisonId, type TransferPrisonId, type OutsidePrisonId } from '../constants'
+import { SanitisedError } from '../../sanitisedError'
 import type {
   OffenderSearchClient,
+  OffenderSearchResult,
   OffenderSearchResultIn,
   OffenderSearchResultOut,
   OffenderSearchResultTransfer,
   OffenderSearchResults,
 } from '../offenderSearch'
-import { SanitisedError } from '../../sanitisedError'
 
 export const davidJones: OffenderSearchResultIn = {
   prisonId: 'MDI',
@@ -38,17 +40,27 @@ export const oscarJones: OffenderSearchResultIn = {
 }
 
 export const andrewBrown: OffenderSearchResultIn = {
-  prisonId: 'MDI',
-  prisonName: 'Moorland (HMP)',
+  prisonId: 'LEI',
+  prisonName: 'Leeds (HMP)',
   bookingId: 56789,
   prisonerNumber: 'A5678CS',
   firstName: 'ANDREW',
   lastName: 'BROWN',
-  cellLocation: '1-1-004',
+  cellLocation: '2-4-001',
+}
+
+export const walterSmith: OffenderSearchResultIn = {
+  prisonId: 'BXI',
+  prisonName: 'Brixton (HMP)',
+  bookingId: 56790,
+  prisonerNumber: 'A5679NW',
+  firstName: 'WALTER',
+  lastName: 'SMITH',
+  cellLocation: '2-4-002',
 }
 
 export const maxClarke: OffenderSearchResultTransfer = {
-  prisonId: 'TRN',
+  prisonId: transferPrisonId,
   prisonName: 'Transfer',
   bookingId: 12349,
   prisonerNumber: 'C1234CC',
@@ -58,7 +70,7 @@ export const maxClarke: OffenderSearchResultTransfer = {
 }
 
 export const joePeters: OffenderSearchResultOut = {
-  prisonId: 'OUT',
+  prisonId: outsidePrisonId,
   prisonName: 'Outside',
   bookingId: 12348,
   prisonerNumber: 'B1234BB',
@@ -67,7 +79,7 @@ export const joePeters: OffenderSearchResultOut = {
   locationDescription: 'Outside - released from Moorland (HMP)',
 }
 
-export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters]
+export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, walterSmith, maxClarke, joePeters]
 
 export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumber => {
   const result = mockPrisoners.find(prisoner => prisoner.prisonerNumber === prisonerNumber)
@@ -87,4 +99,60 @@ export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumb
 export const sampleOffenderSearchResults: OffenderSearchResults = {
   content: [fredMills, oscarJones],
   totalElements: 2,
+}
+
+export function mockMovePrisoner(
+  prisoner: OffenderSearchResult,
+  prisonId: TransferPrisonId,
+  prisonName?: string,
+): OffenderSearchResultTransfer
+export function mockMovePrisoner(
+  prisoner: OffenderSearchResult,
+  prisonId: OutsidePrisonId,
+  prisonName?: string,
+): OffenderSearchResultOut
+export function mockMovePrisoner(
+  prisoner: OffenderSearchResult,
+  prisonId: string,
+  prisonName?: string,
+): OffenderSearchResultIn
+export function mockMovePrisoner(
+  prisoner: OffenderSearchResult,
+  prisonId: string,
+  prisonName?: string,
+): OffenderSearchResult {
+  if (prisonId === transferPrisonId) {
+    const prisonerBeingTransferred = {
+      ...prisoner,
+      prisonId: transferPrisonId,
+      prisonName: 'Transfer',
+      locationDescription: 'Transfer',
+    } satisfies OffenderSearchResultTransfer
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete prisonerBeingTransferred.cellLocation
+    return prisonerBeingTransferred
+  }
+
+  if (prisonId === outsidePrisonId) {
+    const prisonerOutside = {
+      ...prisoner,
+      prisonId: outsidePrisonId,
+      prisonName: 'Outside',
+      locationDescription: `Outside - released from ${prisoner.prisonName}`,
+    } satisfies OffenderSearchResultOut
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete prisonerOutside.cellLocation
+    return prisonerOutside
+  }
+
+  return {
+    ...prisoner,
+    prisonId,
+    prisonName: prisonName ?? 'Some prison',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    cellLocation: prisoner.cellLocation ?? '1-1-001',
+  } satisfies OffenderSearchResultIn
 }

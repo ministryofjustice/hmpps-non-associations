@@ -1,18 +1,18 @@
 import Page from '../pages/page'
 import ViewPage from '../pages/nonAssociations/view'
-import { resetBasicStubs, navigateToDavidJonesNonAssociations } from './index'
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 
 context('View non-association details page', () => {
   let viewPage: ViewPage
 
   beforeEach(() => {
-    resetBasicStubs()
-    cy.task('stubGetNonAssociation')
+    cy.resetBasicStubs()
+    cy.navigateToDavidJonesNonAssociations().then(listPage => {
+      cy.task('stubGetNonAssociation')
 
-    const listPage = navigateToDavidJonesNonAssociations()
-    listPage.getViewLinkForRow(0).click()
-    viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
+      listPage.getViewLinkForRow(0, 0).click()
+      viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
+    })
   })
 
   it('should show key prisoner’s details', () => {
