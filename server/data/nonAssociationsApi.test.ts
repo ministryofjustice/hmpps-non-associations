@@ -5,10 +5,15 @@ import {
   lookupStaffInNonAssociations,
   lookupStaffInArrayOfNonAssociations,
   groupListByLocation,
+  sortByOptions,
+  sortDirectionOptions,
+  sortList,
 } from './nonAssociationsApi'
 import type {
   NonAssociation,
   NonAssociationsList,
+  OpenNonAssociationsListItem,
+  ClosedNonAssociationsListItem,
   OpenNonAssociation,
   ClosedNonAssociation,
   NonAssociationGroups,
@@ -59,7 +64,7 @@ describe('Non-associations API REST client', () => {
       })
 
       it('should work when they’re closed', () => {
-        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false)
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
         const parsedNonAssociation = parseDates({
           ...nonAssociation,
           whenCreated: '2023-07-28T18:10:51',
@@ -124,7 +129,7 @@ describe('Non-associations API REST client', () => {
 
     describe('of non-associations', () => {
       it('should work for open non-associations', async () => {
-        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
@@ -134,7 +139,7 @@ describe('Non-associations API REST client', () => {
       })
 
       it('should work for closed non-associations', async () => {
-        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false)
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
@@ -144,12 +149,12 @@ describe('Non-associations API REST client', () => {
       })
 
       it('should work for system users', async () => {
-        const nonAssociation = {
-          ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false),
+        const nonAssociation: ClosedNonAssociation = {
+          ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true),
           authorisedBy: 'NON_ASSOCIATIONS_API',
           updatedBy: 'NON_ASSOCIATIONS_API',
           closedBy: 'NON_ASSOCIATIONS_API',
-        } as NonAssociation
+        }
         prisonApi.getStaffDetails.mockResolvedValueOnce(null)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
@@ -226,8 +231,8 @@ describe('Non-associations API REST client', () => {
 
       it('should work for closed non-associations', async () => {
         const nonAssociations: ClosedNonAssociation[] = [
-          mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, false),
-          mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, false),
+          mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true),
+          mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, true),
         ]
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
@@ -247,7 +252,7 @@ describe('Non-associations API REST client', () => {
             updatedBy: 'NON_ASSOCIATIONS_API',
           },
           {
-            ...mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, false),
+            ...mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, true),
             authorisedBy: 'NON_ASSOCIATIONS_API',
             updatedBy: 'NON_ASSOCIATIONS_API',
             closedBy: 'NON_ASSOCIATIONS_API',
@@ -270,6 +275,17 @@ describe('Non-associations API REST client', () => {
   })
 
   describe('grouping locations of non-association lists', () => {
+    function expectNoGroups(groups: NonAssociationGroups) {
+      if (groups.type === 'noGroups') {
+        expect(
+          'samePrison' in groups || 'otherPrisons' in groups || 'anyPrison' in groups || 'transferOrOutside' in groups,
+        ).toBeFalsy()
+        return
+      }
+
+      throw new Error('Not 0 groups')
+    }
+
     function expectThreeGroups(groups: NonAssociationGroups) {
       if (groups.type === 'threeGroups') {
         expect('samePrison' in groups && 'otherPrisons' in groups && 'transferOrOutside' in groups).toBeTruthy()
@@ -310,11 +326,7 @@ describe('Non-associations API REST client', () => {
     }
 
     it('when the key prisoner is in a prison', () => {
-      expectThreeGroups(groupListByLocation(davidJones0NonAssociations)).toHaveLengths({
-        samePrisonCount: 0,
-        otherPrisonCount: 0,
-        transferOrOutsideCount: 0,
-      })
+      expectNoGroups(groupListByLocation(davidJones0NonAssociations))
       expectThreeGroups(groupListByLocation(davidJones1OpenNonAssociation)).toHaveLengths({
         samePrisonCount: 1,
         otherPrisonCount: 0,
@@ -337,11 +349,7 @@ describe('Non-associations API REST client', () => {
         transferOrOutsideCount: 0,
       })
 
-      expectThreeGroups(groupListByLocation(mockNonAssociationsList(davidJones, []))).toHaveLengths({
-        samePrisonCount: 0,
-        otherPrisonCount: 0,
-        transferOrOutsideCount: 0,
-      })
+      expectNoGroups(groupListByLocation(mockNonAssociationsList(davidJones, [])))
 
       let nonAssociations = mockNonAssociationsList(davidJones, [
         { prisoner: fredMills },
@@ -358,8 +366,8 @@ describe('Non-associations API REST client', () => {
       nonAssociations = mockNonAssociationsList(davidJones, [
         { prisoner: maxClarke },
         { prisoner: andrewBrown },
-        { prisoner: fredMills, open: false },
-        { prisoner: joePeters, open: false },
+        { prisoner: fredMills, closed: true },
+        { prisoner: joePeters, closed: true },
       ])
       expectThreeGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         samePrisonCount: 1,
@@ -406,10 +414,7 @@ describe('Non-associations API REST client', () => {
 
     it('when the key prisoner is being transferred', () => {
       let nonAssociations = mockNonAssociationsList(maxClarke, [])
-      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
-        anyPrisonCount: 0,
-        transferOrOutsideCount: 0,
-      })
+      expectNoGroups(groupListByLocation(nonAssociations))
 
       nonAssociations = mockNonAssociationsList(maxClarke, [{ prisoner: davidJones }])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
@@ -419,7 +424,7 @@ describe('Non-associations API REST client', () => {
 
       nonAssociations = mockNonAssociationsList(maxClarke, [
         { prisoner: davidJones },
-        { prisoner: joePeters, open: false },
+        { prisoner: joePeters, closed: true },
       ])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 1,
@@ -435,13 +440,10 @@ describe('Non-associations API REST client', () => {
 
     it('when the key prisoner is outside', () => {
       let nonAssociations = mockNonAssociationsList(joePeters, [])
-      expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
-        anyPrisonCount: 0,
-        transferOrOutsideCount: 0,
-      })
+      expectNoGroups(groupListByLocation(nonAssociations))
 
       nonAssociations = mockNonAssociationsList(joePeters, [
-        { prisoner: davidJones, open: false },
+        { prisoner: davidJones, closed: true },
         { prisoner: fredMills },
       ])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
@@ -449,10 +451,83 @@ describe('Non-associations API REST client', () => {
         transferOrOutsideCount: 0,
       })
 
-      nonAssociations = mockNonAssociationsList(joePeters, [{ prisoner: maxClarke, open: false }])
+      nonAssociations = mockNonAssociationsList(joePeters, [{ prisoner: maxClarke, closed: true }])
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 0,
         transferOrOutsideCount: 1,
+      })
+    })
+  })
+
+  describe('sorting non-association lists', () => {
+    // David Jones’ non-associations are all in MDI so move one for sort testing:
+    const prisons = [
+      {
+        prisonId: 'MDI',
+        prisonName: 'Moorland (HMP)',
+      },
+      {
+        prisonId: 'LEI',
+        prisonName: 'Leeds (HMP)',
+      },
+    ]
+    const nonAssociations: OpenNonAssociationsListItem[] = davidJones2OpenNonAssociations.nonAssociations.map(
+      nonAssociation => {
+        const { prisonId, prisonName } = prisons.pop()
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName,
+          },
+        }
+      },
+    )
+
+    describe.each(sortByOptions)('by %s', sort => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const getter = (item: OpenNonAssociationsListItem | ClosedNonAssociationsListItem): any => {
+        switch (sort) {
+          case 'WHEN_CREATED':
+            return item.whenCreated
+          case 'WHEN_UPDATED':
+            return item.whenUpdated
+          case 'LAST_NAME':
+            return item.otherPrisonerDetails.lastName
+          case 'FIRST_NAME':
+            return item.otherPrisonerDetails.firstName
+          case 'PRISONER_NUMBER':
+            return item.otherPrisonerDetails.prisonerNumber
+          case 'PRISON_ID':
+            return item.otherPrisonerDetails.prisonId
+          case 'PRISON_NAME':
+            return item.otherPrisonerDetails.prisonName
+          case 'CELL_LOCATION':
+            return item.otherPrisonerDetails.cellLocation
+          default:
+            throw new Error('Unexpected sort-by')
+        }
+      }
+
+      describe.each(sortDirectionOptions)('%s', order => {
+        it('should accept an empty list', () => {
+          const sorted = sortList([], sort, order)
+          expect(sorted).toEqual([])
+        })
+
+        it('should work for longer lists', () => {
+          const items = sortList(nonAssociations, sort, order)
+          const properties = items.map(getter)
+          properties.reduce((first, second) => {
+            if (order === 'DESC') {
+              expect(first > second).toBeTruthy()
+            } else {
+              expect(first < second).toBeTruthy()
+            }
+            return second
+          })
+        })
       })
     })
   })

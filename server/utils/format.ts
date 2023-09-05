@@ -23,6 +23,15 @@ export default {
     })
   },
 
+  shortDate(date: Date): string {
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      timeZone: 'Europe/London',
+    })
+  },
+
   thousands(integer: number): string {
     if (notNumber(integer)) return '?'
     return Math.round(integer).toLocaleString('en-GB')

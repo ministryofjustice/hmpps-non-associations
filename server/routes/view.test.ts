@@ -201,7 +201,7 @@ describe('View non-association details page', () => {
 
     describe('of closed non-association', () => {
       beforeEach(() => {
-        const closedNonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner.prisonerNumber, false)
+        const closedNonAssociation = mockNonAssociation(prisoner.prisonerNumber, otherPrisoner.prisonerNumber, true)
         nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(closedNonAssociation)
       })
 
@@ -270,7 +270,7 @@ describe('View non-association details page', () => {
         })
 
         it('when viewing a closed non-association', () => {
-          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other, false))
+          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other, true))
           return expectCorrectLocation()
         })
       })
@@ -309,7 +309,7 @@ describe('View non-association details page', () => {
         })
 
         it('when viewing a closed non-association', () => {
-          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other, false))
+          nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(mockNonAssociation(key, other, true))
           return expectCorrectLocation()
         })
       })
