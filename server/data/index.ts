@@ -5,9 +5,6 @@
  */
 import { initialiseAppInsights, buildAppInsightsClient } from '../utils/azureAppInsights'
 import applicationInfoSupplier from '../applicationInfo'
-import RestClient, { RestClientBuilder as CreateRestClientBuilder } from './restClient'
-import { ComponentApiClient } from './dpsComponents/interfaces/componentApiClient'
-import ComponentApiRestClient from './dpsComponents/componentApiClient'
 
 const applicationInfo = applicationInfoSupplier()
 initialiseAppInsights()
@@ -17,6 +14,9 @@ import HmppsAuthClient from './hmppsAuthClient'
 import { createRedisClient } from './redisClient'
 import TokenStore from './tokenStore'
 import config, { ApiConfig } from '../config'
+import RestClient, { RestClientBuilder as CreateRestClientBuilder } from './restClient'
+import { ComponentApiClient } from './dpsComponents/interfaces/componentApiClient'
+import ComponentApiRestClient from './dpsComponents/componentApiClient'
 
 export const dataAccess = () => ({
   applicationInfo,
