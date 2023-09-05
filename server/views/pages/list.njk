@@ -3,7 +3,6 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 
 {% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
-{% from "../partials/nonAssociationGroup.njk" import nonAssociationGroup %}
 
 {% macro displayCount(number) %}
   {%- if number == 1 -%}
@@ -64,6 +63,9 @@
 
   {% elif nonAssociationGroups.type == "threeGroups" %}
 
+    {% set table = 'same' %}
+    {% set tableHead = tableHeads[table] %}
+    {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
         {{ prisonerName }} has no closed non-associations in {{ prisoner.prisonName }}.
@@ -71,16 +73,11 @@
         {{ prisonerName }} has no open non-associations in {{ prisoner.prisonName }}.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(
-      routeUrls,
-      'same',
-      tableHeads.same,
-      prisoner,
-      nonAssociationGroups.same,
-      listing,
-      emptyMessageHtml
-    ) }}
+    {% include "../partials/nonAssociationGroup.njk" %}
 
+    {% set table = 'other' %}
+    {% set tableHead = tableHeads[table] %}
+    {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
         {{ prisonerName }} has no closed non-associations in other establishments.
@@ -88,16 +85,11 @@
         {{ prisonerName }} has no open non-associations in other establishments.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(
-      routeUrls,
-      'other',
-      tableHeads.other,
-      prisoner,
-      nonAssociationGroups.other,
-      listing,
-      emptyMessageHtml
-    ) }}
+    {% include "../partials/nonAssociationGroup.njk" %}
 
+    {% set table = 'outside' %}
+    {% set tableHead = tableHeads[table] %}
+    {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
         {{ prisonerName }} has no closed non-associations outside an establishment.
@@ -105,18 +97,13 @@
         {{ prisonerName }} has no open non-associations outside an establishment.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(
-      routeUrls,
-      'outside',
-      tableHeads.outside,
-      prisoner,
-      nonAssociationGroups.outside,
-      listing,
-      emptyMessageHtml
-    ) }}
+    {% include "../partials/nonAssociationGroup.njk" %}
 
   {% elif nonAssociationGroups.type == "twoGroups" %}
 
+    {% set table = 'any' %}
+    {% set tableHead = tableHeads[table] %}
+    {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
         {{ prisonerName }} has no closed non-associations in an establishment.
@@ -124,16 +111,11 @@
         {{ prisonerName }} has no open non-associations in an establishment.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(
-      routeUrls,
-      'any',
-      tableHeads.any,
-      prisoner,
-      nonAssociationGroups.any,
-      listing,
-      emptyMessageHtml
-    ) }}
+    {% include "../partials/nonAssociationGroup.njk" %}
 
+    {% set table = 'outside' %}
+    {% set tableHead = tableHeads[table] %}
+    {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
       {% if listing == "closed" %}
         {{ prisonerName }} has no closed non-associations outside an establishment.
@@ -141,15 +123,7 @@
         {{ prisonerName }} has no open non-associations outside an establishment.
       {% endif %}
     {% endset %}
-    {{ nonAssociationGroup(
-      routeUrls,
-      'outside',
-      tableHeads.outside,
-      prisoner,
-      nonAssociationGroups.outside,
-      listing,
-      emptyMessageHtml
-    ) }}
+    {% include "../partials/nonAssociationGroup.njk" %}
 
   {% endif %}
 
