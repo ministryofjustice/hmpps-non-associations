@@ -148,7 +148,16 @@ export interface CloseNonAssociationRequest {
   closedBy?: string
 }
 
-export const sortByOptions = ['WHEN_CREATED', 'WHEN_UPDATED', 'LAST_NAME', 'FIRST_NAME', 'PRISONER_NUMBER'] as const
+export const sortByOptions = [
+  'WHEN_CREATED',
+  'WHEN_UPDATED',
+  'LAST_NAME',
+  'FIRST_NAME',
+  'PRISONER_NUMBER',
+  'PRISON_ID',
+  'PRISON_NAME',
+  'CELL_LOCATION',
+] as const
 export type SortBy = (typeof sortByOptions)[number]
 
 export const sortDirectionOptions = ['ASC', 'DESC'] as const
@@ -540,4 +549,52 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
     }
   })
   return groups
+}
+
+/**
+ * Sort an array of non-association list items
+ */
+export function sortList<Item extends BaseNonAssociationsListItem>(
+  list: Item[],
+  sort: SortBy,
+  order: SortDirection,
+): Item[] {
+  let comparator: (first: BaseNonAssociationsListItem, second: BaseNonAssociationsListItem) => number
+  const reversed = order === 'DESC' ? -1 : 1
+  switch (sort) {
+    case 'WHEN_CREATED':
+      comparator = (first, second) => reversed * (first.whenCreated.valueOf() - second.whenCreated.valueOf())
+      break
+    case 'WHEN_UPDATED':
+      comparator = (first, second) => reversed * (first.whenUpdated.valueOf() - second.whenUpdated.valueOf())
+      break
+    case 'LAST_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.lastName.localeCompare(second.otherPrisonerDetails.lastName)
+      break
+    case 'FIRST_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.firstName.localeCompare(second.otherPrisonerDetails.firstName)
+      break
+    case 'PRISONER_NUMBER':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonerNumber.localeCompare(second.otherPrisonerDetails.prisonerNumber)
+      break
+    case 'PRISON_ID':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonId.localeCompare(second.otherPrisonerDetails.prisonId)
+      break
+    case 'PRISON_NAME':
+      comparator = (first, second) =>
+        reversed * first.otherPrisonerDetails.prisonName.localeCompare(second.otherPrisonerDetails.prisonName)
+      break
+    case 'CELL_LOCATION':
+      comparator = (first, second) =>
+        reversed *
+        (first.otherPrisonerDetails.cellLocation ?? '').localeCompare(second.otherPrisonerDetails.cellLocation ?? '')
+      break
+    default:
+      throw new Error('Unexpected sort-by')
+  }
+  return list.sort(comparator)
 }

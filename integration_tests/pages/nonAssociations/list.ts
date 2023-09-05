@@ -6,7 +6,7 @@ export default class ListPage extends Page {
   }
 
   get addButton(): PageElement<HTMLAnchorElement> {
-    return cy.get('.govuk-button').contains<HTMLAnchorElement>('Add new non-association')
+    return cy.get('.hmpps-action-button').contains<HTMLAnchorElement>('Add new non-association')
   }
 
   get tabs(): PageElement<HTMLLIElement> {
@@ -31,6 +31,10 @@ export default class ListPage extends Page {
 
   getTableHeader(table: number): PageElement<HTMLTableCellElement> {
     return this.tables.eq(table).find('thead tr th')
+  }
+
+  getTableHeaderSortingLink(table: number, column: number): PageElement<HTMLAnchorElement> {
+    return this.getTableHeader(table).eq(column).find('a')
   }
 
   getTableRows(table: number): PageElement<HTMLTableRowElement> {

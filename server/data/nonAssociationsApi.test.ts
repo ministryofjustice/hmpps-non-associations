@@ -5,10 +5,15 @@ import {
   lookupStaffInNonAssociations,
   lookupStaffInArrayOfNonAssociations,
   groupListByLocation,
+  sortByOptions,
+  sortDirectionOptions,
+  sortList,
 } from './nonAssociationsApi'
 import type {
   NonAssociation,
   NonAssociationsList,
+  OpenNonAssociationsListItem,
+  ClosedNonAssociationsListItem,
   OpenNonAssociation,
   ClosedNonAssociation,
   NonAssociationGroups,
@@ -450,6 +455,79 @@ describe('Non-associations API REST client', () => {
       expectTwoGroups(groupListByLocation(nonAssociations)).toHaveLengths({
         anyPrisonCount: 0,
         transferOrOutsideCount: 1,
+      })
+    })
+  })
+
+  describe('sorting non-association lists', () => {
+    // David Jones’ non-associations are all in MDI so move one for sort testing:
+    const prisons = [
+      {
+        prisonId: 'MDI',
+        prisonName: 'Moorland (HMP)',
+      },
+      {
+        prisonId: 'LEI',
+        prisonName: 'Leeds (HMP)',
+      },
+    ]
+    const nonAssociations: OpenNonAssociationsListItem[] = davidJones2OpenNonAssociations.nonAssociations.map(
+      nonAssociation => {
+        const { prisonId, prisonName } = prisons.pop()
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName,
+          },
+        }
+      },
+    )
+
+    describe.each(sortByOptions)('by %s', sort => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const getter = (item: OpenNonAssociationsListItem | ClosedNonAssociationsListItem): any => {
+        switch (sort) {
+          case 'WHEN_CREATED':
+            return item.whenCreated
+          case 'WHEN_UPDATED':
+            return item.whenUpdated
+          case 'LAST_NAME':
+            return item.otherPrisonerDetails.lastName
+          case 'FIRST_NAME':
+            return item.otherPrisonerDetails.firstName
+          case 'PRISONER_NUMBER':
+            return item.otherPrisonerDetails.prisonerNumber
+          case 'PRISON_ID':
+            return item.otherPrisonerDetails.prisonId
+          case 'PRISON_NAME':
+            return item.otherPrisonerDetails.prisonName
+          case 'CELL_LOCATION':
+            return item.otherPrisonerDetails.cellLocation
+          default:
+            throw new Error('Unexpected sort-by')
+        }
+      }
+
+      describe.each(sortDirectionOptions)('%s', order => {
+        it('should accept an empty list', () => {
+          const sorted = sortList([], sort, order)
+          expect(sorted).toEqual([])
+        })
+
+        it('should work for longer lists', () => {
+          const items = sortList(nonAssociations, sort, order)
+          const properties = items.map(getter)
+          properties.reduce((first, second) => {
+            if (order === 'DESC') {
+              expect(first > second).toBeTruthy()
+            } else {
+              expect(first < second).toBeTruthy()
+            }
+            return second
+          })
+        })
       })
     })
   })

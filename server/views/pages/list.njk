@@ -27,12 +27,12 @@
   {% call keyPrisonerDetails(routeUrls, prisoner) %}
     {% if not prisoner | isOutside %}
       <div class="app-key-prisoner-details--align-right">
-        {{ govukButton({
-          text: "Add new non-association",
-          classes: "app-button--blue",
-          element: "a",
-          href: routeUrls.prisonerSearch(prisonerNumber)
-        }) }}
+        <p class="hmpps-action-button">
+          <img src="/assets/images/add-non-association.svg" alt="Icon representing a non-association" aria-hidden="true" />
+          <a href="{{ routeUrls.prisonerSearch(prisonerNumber) }}" class="govuk-link--no-visited-state">
+            Add new non-association
+          </a>
+        </p>
       </div>
     {% endif %}
   {% endcall %}

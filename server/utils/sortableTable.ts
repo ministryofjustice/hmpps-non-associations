@@ -19,31 +19,42 @@ export function sortableTableHead<Column = string>({
   urlPrefix,
   sortColumn,
   order,
+  sortParameter,
+  orderParameter,
 }: {
-  columns: { column: Column; escapedHtml: string; unsortable?: true; classes?: string }[]
+  columns: {
+    column: Column
+    escapedHtml: string
+    unsortable?: true
+    classes?: string
+  }[]
   urlPrefix: string
   sortColumn: Column
   order: 'ASC' | 'DESC'
+  sortParameter?: string
+  orderParameter?: string
 }): HeaderCell[] {
+  const sortParam = sortParameter ?? 'sort'
+  const orderParam = orderParameter ?? 'order'
+
   return columns.map(({ column, escapedHtml, unsortable, classes }) => {
     if (unsortable) {
       return { html: escapedHtml, classes }
     }
-
     let sortQuery: string
     let sortDescriptionHtml: string
     if (column === sortColumn) {
       // flips order of the currently sorted column
       if (order === 'ASC') {
-        sortQuery = `sort=${column}&order=DESC`
+        sortQuery = `${sortParam}=${column}&${orderParam}=DESC`
         sortDescriptionHtml = '<span class="govuk-visually-hidden">(sorted ascending)</span>'
       } else {
-        sortQuery = `sort=${column}&order=ASC`
+        sortQuery = `${sortParam}=${column}&${orderParam}=ASC`
         sortDescriptionHtml = '<span class="govuk-visually-hidden">(sorted descending)</span>'
       }
     } else {
       // preserves order if another column is sorted by
-      sortQuery = `sort=${column}&order=${order}`
+      sortQuery = `${sortParam}=${column}&${orderParam}=${order}`
       sortDescriptionHtml = ''
     }
 

@@ -119,6 +119,70 @@ describe('sortableTableHead', () => {
     })
   })
 
+  describe('should allow changing the query parameters', () => {
+    it('when a column is sorted ascending', () => {
+      expect(
+        sortableTableHead<Column>({
+          columns: sampleColumns,
+          urlPrefix: '?size=large&',
+          sortColumn: 'month',
+          order: 'ASC',
+          sortParameter: 'sortBy',
+          orderParameter: 'sortDirection',
+        }),
+      ).toEqual([
+        // flip order if same column clicked
+        expect.objectContaining({
+          html: expect.stringContaining('?size=large&amp;sortBy=month&amp;sortDirection=DESC'),
+        }),
+        // preserve same order if different column clicked
+        expect.objectContaining({ html: expect.stringContaining('?size=large&amp;sortBy=rate&amp;sortDirection=ASC') }),
+      ])
+    })
+
+    it('when a different column is sorted descending', () => {
+      expect(
+        sortableTableHead<Column>({
+          columns: sampleColumns,
+          urlPrefix: '?size=large&',
+          sortColumn: 'rate',
+          order: 'DESC',
+          sortParameter: 'sortBy',
+          orderParameter: 'sortDirection',
+        }),
+      ).toEqual([
+        // preserve same order if different column clicked
+        expect.objectContaining({
+          html: expect.stringContaining('?size=large&amp;sortBy=month&amp;sortDirection=DESC'),
+        }),
+        // flip order if same column clicked
+        expect.objectContaining({ html: expect.stringContaining('?size=large&amp;sortBy=rate&amp;sortDirection=ASC') }),
+      ])
+    })
+
+    it('when an uknown column is sorted', () => {
+      expect(
+        sortableTableHead<string>({
+          columns: sampleColumns,
+          urlPrefix: '?size=large&',
+          sortColumn: 'unknown',
+          order: 'DESC',
+          sortParameter: 'sortBy',
+          orderParameter: 'sortDirection',
+        }),
+      ).toEqual([
+        // preserve same order if different column clicked
+        expect.objectContaining({
+          html: expect.stringContaining('?size=large&amp;sortBy=month&amp;sortDirection=DESC'),
+        }),
+        // preserve same order if different column clicked
+        expect.objectContaining({
+          html: expect.stringContaining('?size=large&amp;sortBy=rate&amp;sortDirection=DESC'),
+        }),
+      ])
+    })
+  })
+
   describe('should work with unsortable columns', () => {
     const sampleColumnsWithUnsortable: SortableTableColumns<string> = [
       { column: 'icon', escapedHtml: '<span class="govuk-visually-hidden">Icon &amp; label</span>', unsortable: true },

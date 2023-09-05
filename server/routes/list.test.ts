@@ -5,7 +5,13 @@ import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { transferPrisonId, outsidePrisonId } from '../data/constants'
-import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import {
+  NonAssociationsApi,
+  sortDirectionOptions,
+  type SortBy,
+  type SortDirection,
+  type NonAssociationsList,
+} from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import {
@@ -16,10 +22,19 @@ import {
   davidJones2ClosedNonAssociations,
   mockMovePrisonerInNonAssociationsList,
   mockMoveOtherPrisonersInNonAssociationsList,
+  mockNonAssociationsList,
 } from '../data/testData/nonAssociationsApi'
-import { davidJones, mockMovePrisoner } from '../data/testData/offenderSearch'
+import {
+  davidJones,
+  fredMills,
+  andrewBrown,
+  walterSmith,
+  maxClarke,
+  joePeters,
+  mockMovePrisoner,
+} from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
-import { Table } from './list'
+import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
 jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
@@ -238,7 +253,7 @@ describe('Non-associations list page', () => {
             expect(res.text).toContain('Not currently in an establishment')
 
             this.shouldShowTable(res)
-            this.shouldShowMessages(res, ['same', 'other', 'outside'])
+            this.shouldShowMessages(res, threeTables)
           })
       }
 
@@ -257,11 +272,11 @@ describe('Non-associations list page', () => {
             expect(res.text).toContain('Not currently in an establishment')
 
             this.shouldShowTable(res)
-            this.shouldShowMessages(res, ['any', 'outside'])
+            this.shouldShowMessages(res, twoTables)
           })
       }
 
-      private shouldShowTable(res: request.Response) {
+      private shouldShowTable(res: request.Response): void {
         expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
 
         // staff lookups
@@ -297,8 +312,8 @@ describe('Non-associations list page', () => {
         expect(res.text).toContain('Actions')
       }
 
-      private shouldShowMessages(res: request.Response, tables: ExpectNonAssociationList['table'][]) {
-        const messages: { message: string; closed: boolean; table: ExpectNonAssociationList['table'] }[] = [
+      private shouldShowMessages(res: request.Response, tables: Table[]): void {
+        const messages: { message: string; closed: boolean; table: Table }[] = [
           {
             message: 'David Jones has no open non-associations in Moorland (HMP)',
             closed: false,
@@ -505,6 +520,245 @@ describe('Non-associations list page', () => {
     })
   })
 
+  describe('sorting non-associations for a prisoner', () => {
+    beforeEach(() => {
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    })
+
+    type SortBySubset = Exclude<SortBy, 'WHEN_CREATED' | 'FIRST_NAME' | 'PRISONER_NUMBER' | 'PRISON_ID'>
+    const sortBySubset: SortBySubset[] = ['WHEN_UPDATED', 'LAST_NAME', 'CELL_LOCATION', 'PRISON_NAME']
+
+    function expectSortedTable(
+      table: Table,
+      sort: SortBySubset | undefined,
+      order: SortDirection | undefined,
+    ): request.Test {
+      const query: Record<string, string> = {}
+      if (sort) {
+        query[`${table}Sort`] = sort
+      }
+      if (order) {
+        query[`${table}Order`] = order
+      }
+
+      const expectedSort: SortBySubset = sort ?? 'WHEN_UPDATED'
+      const expectedOrder: SortDirection = order ?? 'DESC'
+
+      // "earlier" string collates to being before "later" string when sorted ascending
+      let earlierString: string
+      let laterString: string
+      switch (expectedSort) {
+        case 'WHEN_UPDATED':
+          earlierString = '21/07/2023'
+          laterString = '26/07/2023'
+          break
+        case 'LAST_NAME':
+          earlierString = 'Jones, Oscar'
+          laterString = 'Mills, Fred'
+          break
+        case 'PRISON_NAME':
+          earlierString = 'Brixton (HMP)'
+          laterString = 'Leeds (HMP)'
+          break
+        case 'CELL_LOCATION':
+          earlierString = '1-1-002'
+          laterString = '1-1-003'
+          break
+        default:
+          throw new Error('Test implementation missing')
+      }
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .query(query)
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          const firstTablePosition = res.text.indexOf('app-sortable-table')
+          const earlierPosition = res.text.indexOf(earlierString, firstTablePosition)
+          const laterPosition = res.text.indexOf(laterString, firstTablePosition)
+
+          expect(earlierPosition).toBeGreaterThan(0)
+          expect(laterPosition).toBeGreaterThan(0)
+          if (expectedOrder === 'DESC') {
+            expect(laterPosition).toBeLessThan(earlierPosition)
+          } else {
+            expect(earlierPosition).toBeLessThan(laterPosition)
+          }
+        })
+    }
+
+    function mockMoveOtherPrisonersInNonAssociationsListToDifferentPrisons(
+      nonAssociations: NonAssociationsList,
+    ): NonAssociationsList {
+      const prisons = [
+        {
+          prisonId: 'BXI',
+          prisonName: 'Brixton (HMP)',
+        },
+        {
+          prisonId: 'LEI',
+          prisonName: 'Leeds (HMP)',
+        },
+      ]
+      return {
+        ...nonAssociations,
+        nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
+          const { prisonId, prisonName } = prisons.pop()
+          return {
+            ...nonAssociation,
+            otherPrisonerDetails: {
+              ...nonAssociation.otherPrisonerDetails,
+              prisonId,
+              prisonName,
+              cellLocation: undefined,
+            },
+          }
+        }),
+      }
+    }
+
+    describe.each([undefined, ...sortBySubset])('by %s column', sort => {
+      describe.each([undefined, ...sortDirectionOptions])('in %s order', order => {
+        const skippingCellLocationIt = sort !== 'CELL_LOCATION' ? it : it.skip
+        const skippingPrisonNameIt = sort !== 'PRISON_NAME' ? it : it.skip
+        const skippingLocationIt = sort !== 'CELL_LOCATION' && sort !== 'PRISON_NAME' ? it : it.skip
+
+        describe('when they are in a prison', () => {
+          skippingPrisonNameIt('should sort rows in the same prison', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2OpenNonAssociations)
+
+            return expectSortedTable('same', sort, order)
+          })
+
+          skippingCellLocationIt('should sort rows in other prisons', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+              mockMoveOtherPrisonersInNonAssociationsListToDifferentPrisons(davidJones2OpenNonAssociations),
+            )
+
+            return expectSortedTable('other', sort, order)
+          })
+
+          skippingLocationIt('should sort rows outside prison', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+              mockMoveOtherPrisonersInNonAssociationsList(davidJones2OpenNonAssociations, outsidePrisonId),
+            )
+
+            return expectSortedTable('outside', sort, order)
+          })
+        })
+
+        describe('when they are being transferred', () => {
+          beforeEach(() => {
+            offenderSearchClient.getPrisoner.mockResolvedValueOnce(mockMovePrisoner(prisoner, transferPrisonId))
+          })
+
+          skippingCellLocationIt('should sort rows in prisons', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+              mockMoveOtherPrisonersInNonAssociationsListToDifferentPrisons(
+                mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, transferPrisonId),
+              ),
+            )
+
+            return expectSortedTable('any', sort, order)
+          })
+
+          skippingLocationIt('should sort rows outside prison', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+              mockMoveOtherPrisonersInNonAssociationsList(
+                mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, transferPrisonId),
+                outsidePrisonId,
+              ),
+            )
+
+            return expectSortedTable('outside', sort, order)
+          })
+        })
+
+        describe('when they are outside prison', () => {
+          beforeEach(() => {
+            offenderSearchClient.getPrisoner.mockResolvedValueOnce(mockMovePrisoner(prisoner, outsidePrisonId))
+          })
+
+          skippingCellLocationIt('should sort rows in prisons', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+              mockMoveOtherPrisonersInNonAssociationsListToDifferentPrisons(
+                mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, outsidePrisonId),
+              ),
+            )
+
+            return expectSortedTable('any', sort, order)
+          })
+
+          skippingLocationIt('should sort rows outside prison', () => {
+            nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+              mockMoveOtherPrisonersInNonAssociationsList(
+                mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, outsidePrisonId),
+                outsidePrisonId,
+              ),
+            )
+
+            return expectSortedTable('outside', sort, order)
+          })
+        })
+      })
+    })
+
+    it('should preserve other tables’ sorting options', () => {
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+        mockNonAssociationsList(prisoner, [
+          { prisoner: fredMills },
+          { prisoner: andrewBrown },
+          { prisoner: walterSmith },
+          { prisoner: maxClarke },
+          { prisoner: joePeters },
+        ]),
+      )
+
+      const query: Partial<ListData> = {
+        sameSort: 'WHEN_UPDATED',
+        sameOrder: 'ASC',
+        otherSort: 'LAST_NAME',
+        otherOrder: 'ASC',
+        outsideSort: 'PRISON_NAME',
+        outsideOrder: 'ASC',
+      }
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .query(query)
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          const links = [
+            // "same" table
+            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=LAST_NAME&sameOrder=ASC',
+            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=CELL_LOCATION&sameOrder=ASC',
+            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=WHEN_UPDATED&sameOrder=DESC',
+            // "other" table
+            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=LAST_NAME&otherOrder=DESC',
+            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=PRISON_NAME&otherOrder=ASC',
+            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=WHEN_UPDATED&otherOrder=ASC',
+            // "outside" table
+            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC',
+            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=DESC',
+            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=WHEN_UPDATED&outsideOrder=ASC',
+          ]
+          links.forEach(link => {
+            const hrefAttr = link.replaceAll('&', '&amp;')
+            expect(res.text).toContain(`"${hrefAttr}"`)
+          })
+          // expect all links to appear in specified order in the page
+          const positions = links.map(link => {
+            const hrefAttr = link.replaceAll('&', '&amp;')
+            return res.text.indexOf(`"${hrefAttr}"`)
+          })
+          expect(positions.some(position => position <= 0)).toBeFalsy()
+          expect(positions).toEqual(positions.sort())
+        })
+    })
+  })
+
   describe('should show count of non-associations in tabs', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2OpenNonAssociations)
@@ -541,13 +795,21 @@ describe('Non-associations list page', () => {
     })
   })
 
-  describe('should call api asking for sorted non-associations with most recently updated first', () => {
+  describe('should call api asking for unsorted non-associations irrespective of table sorting options', () => {
+    const sortOptions: Partial<ListData> = {
+      sameSort: 'LAST_NAME',
+      otherSort: 'PRISONER_NUMBER',
+      outsideSort: 'WHEN_UPDATED',
+      outsideOrder: 'DESC',
+    }
+
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber))
+        .query(sortOptions)
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(() => {
@@ -556,8 +818,6 @@ describe('Non-associations list page', () => {
             includeOpen: true,
             includeClosed: false,
             includeOtherPrisons: true,
-            sortBy: 'WHEN_UPDATED',
-            sortDirection: 'DESC',
           })
         })
     })
@@ -568,6 +828,7 @@ describe('Non-associations list page', () => {
 
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
+        .query(sortOptions)
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(() => {
@@ -576,8 +837,6 @@ describe('Non-associations list page', () => {
             includeOpen: false,
             includeClosed: true,
             includeOtherPrisons: true,
-            sortBy: 'WHEN_UPDATED',
-            sortDirection: 'DESC',
           })
         })
     })
@@ -587,7 +846,7 @@ describe('Non-associations list page', () => {
     it('when listing open non-associations', () => {
       return request(app)
         .get(routeUrls.list(prisonerNumber))
-        .query({ sort: 'age' })
+        .query({ sameSort: 'age' })
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
@@ -602,7 +861,7 @@ describe('Non-associations list page', () => {
     it('when listing closed non-associations', () => {
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
-        .query({ sort: 'age' })
+        .query({ sameSort: 'age' })
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
