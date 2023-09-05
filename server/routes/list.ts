@@ -87,6 +87,7 @@ function makeTableHead(
     locationColumn = {
       ...tableColumns.PRISON_NAME,
       escapedHtml: 'Location',
+      unsortable: true,
     }
   } else if (table === 'same') {
     locationColumn = tableColumns.CELL_LOCATION

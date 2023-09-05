@@ -719,9 +719,9 @@ describe('Non-associations list page', () => {
       const query: Partial<ListData> = {
         sameSort: 'WHEN_UPDATED',
         sameOrder: 'ASC',
-        otherSort: 'LAST_NAME',
+        otherSort: 'PRISON_NAME',
         otherOrder: 'ASC',
-        outsideSort: 'PRISON_NAME',
+        outsideSort: 'LAST_NAME',
         outsideOrder: 'ASC',
       }
       return request(app)
@@ -732,26 +732,26 @@ describe('Non-associations list page', () => {
         .expect(res => {
           const links = [
             // "same" table
-            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=LAST_NAME&sameOrder=ASC',
-            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=CELL_LOCATION&sameOrder=ASC',
-            '?otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&sameSort=WHEN_UPDATED&sameOrder=DESC',
+            '?otherSort=PRISON_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC&sameSort=LAST_NAME&sameOrder=ASC',
+            '?otherSort=PRISON_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC&sameSort=CELL_LOCATION&sameOrder=ASC',
+            '?otherSort=PRISON_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC&sameSort=WHEN_UPDATED&sameOrder=DESC',
             // "other" table
-            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=LAST_NAME&otherOrder=DESC',
-            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=PRISON_NAME&otherOrder=ASC',
-            '?sameOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=ASC&otherSort=WHEN_UPDATED&otherOrder=ASC',
+            '?sameOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC',
+            '?sameOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC&otherSort=PRISON_NAME&otherOrder=DESC',
+            '?sameOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC&otherSort=WHEN_UPDATED&otherOrder=ASC',
             // "outside" table
-            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=ASC',
-            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=PRISON_NAME&outsideOrder=DESC',
-            '?sameOrder=ASC&otherSort=LAST_NAME&otherOrder=ASC&outsideSort=WHEN_UPDATED&outsideOrder=ASC',
-          ]
-          links.forEach(link => {
+            '?sameOrder=ASC&otherSort=PRISON_NAME&otherOrder=ASC&outsideSort=LAST_NAME&outsideOrder=DESC',
+            '?sameOrder=ASC&otherSort=PRISON_NAME&otherOrder=ASC&outsideSort=WHEN_UPDATED&outsideOrder=ASC',
+          ].map(link => {
             const hrefAttr = link.replaceAll('&', '&amp;')
-            expect(res.text).toContain(`"${hrefAttr}"`)
+            return `"${hrefAttr}"`
+          })
+          links.forEach(link => {
+            expect(res.text).toContain(link)
           })
           // expect all links to appear in specified order in the page
           const positions = links.map(link => {
-            const hrefAttr = link.replaceAll('&', '&amp;')
-            return res.text.indexOf(`"${hrefAttr}"`)
+            return res.text.indexOf(link)
           })
           expect(positions.some(position => position <= 0)).toBeFalsy()
           expect(positions).toEqual(positions.sort())
