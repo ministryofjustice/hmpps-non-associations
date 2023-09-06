@@ -4,17 +4,13 @@ import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import HmppsAuthClient from '../data/hmppsAuthClient'
 import { NonAssociationsApi, lookupStaffInNonAssociation } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
-import { createRedisClient } from '../data/redisClient'
-import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 
-const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
-
 export default function viewRoutes(service: Services): Router {
+  const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
@@ -24,7 +20,7 @@ export default function viewRoutes(service: Services): Router {
 
     const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
-    const api = new NonAssociationsApi(res.locals.user.token)
+    const api = new NonAssociationsApi(systemToken)
 
     let nonAssociation = await api.getNonAssociation(nonAssociationId)
 
@@ -45,7 +41,7 @@ export default function viewRoutes(service: Services): Router {
     const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
     const otherPrisonerName = nameOfPerson(otherPrisoner)
 
-    const prisonApi = new PrisonApi(res.locals.user.token)
+    const prisonApi = new PrisonApi(systemToken)
     nonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
 
     res.locals.breadcrumbs.addItems(

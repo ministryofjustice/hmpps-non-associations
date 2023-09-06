@@ -18,7 +18,6 @@ import {
 } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
 
-jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
   // ensures that constants are preserved
   type Module = typeof import('../data/nonAssociationsApi')

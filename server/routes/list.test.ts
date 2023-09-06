@@ -36,7 +36,6 @@ import {
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
 import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
-jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
   // ensures that constants are preserved
   type Module = typeof import('../data/nonAssociationsApi')

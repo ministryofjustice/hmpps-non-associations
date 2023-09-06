@@ -4,7 +4,6 @@ import { NotFound } from 'http-errors'
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import HmppsAuthClient from '../data/hmppsAuthClient'
 import {
   NonAssociationsApi,
   type CreateNonAssociationRequest,
@@ -14,16 +13,13 @@ import {
   maxCommentLength,
 } from '../data/nonAssociationsApi'
 import { isOutside, OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
-import { createRedisClient } from '../data/redisClient'
-import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
 import type { FlashMessages } from './index'
 
-const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
-
 export default function addRoutes(service: Services): Router {
+  const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
 
   const formId = 'add' as const
@@ -54,13 +50,13 @@ export default function addRoutes(service: Services): Router {
           throw new NotFound(`Cannot add a non-association to someone outside prison: ${otherPrisonerNumber}`)
         }
 
-        Object.assign(res.locals, { prisoner, prisonerName, otherPrisoner, otherPrisonerName })
+        Object.assign(res.locals, { systemToken, prisoner, prisonerName, otherPrisoner, otherPrisonerName })
 
         return new AddForm(prisonerName, otherPrisonerName)
       },
     },
     asyncMiddleware(async (req, res) => {
-      const { prisonerNumber, otherPrisonerNumber } = req.params
+      const { systemToken, prisonerNumber, otherPrisonerNumber } = req.params
       const { prisoner, prisonerName, otherPrisonerName } = res.locals as unknown as {
         prisoner: OffenderSearchResult
         prisonerName: string
@@ -86,7 +82,7 @@ export default function addRoutes(service: Services): Router {
           restrictionType: form.fields.restrictionType.value,
           comment: form.fields.comment.value,
         }
-        const api = new NonAssociationsApi(res.locals.user.token)
+        const api = new NonAssociationsApi(systemToken)
         try {
           const response = await api.createNonAssociation(request)
           logger.info(

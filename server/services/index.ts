@@ -14,7 +14,7 @@ export const services = () => {
     applicationInfo,
     userService,
     routeUrls,
-    componentApiClientBuilder,
+    hmppsAuthClient,
     componentService,
   }
 }

@@ -10,7 +10,6 @@ import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones } from '../data/testData/offenderSearch'
 import { nameOfPerson } from '../utils/utils'
 
-jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi', () => {
   // ensures that constants are preserved
   type Module = typeof import('../data/nonAssociationsApi')

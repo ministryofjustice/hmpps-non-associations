@@ -3,17 +3,12 @@ import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import HmppsAuthClient from '../data/hmppsAuthClient'
 import { isOutside, OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
-import { createRedisClient } from '../data/redisClient'
-import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formGetRoute from './forms/get'
 import { pagination, type Pagination } from '../utils/pagination'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import PrisonerSearchForm from '../forms/prisonerSearchForm'
-
-const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
 const tableColumns: SortableTableColumns<'photo' | 'lastName' | 'prisonerNumber' | 'cellLocation' | 'action'> = [
   { column: 'photo', escapedHtml: '<span class="govuk-visually-hidden">Photo</span>', unsortable: true },
@@ -24,6 +19,7 @@ const tableColumns: SortableTableColumns<'photo' | 'lastName' | 'prisonerNumber'
 ]
 
 export default function prisonerSearchRoutes(service: Services): Router {
+  const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
 
   const formId = 'search' as const

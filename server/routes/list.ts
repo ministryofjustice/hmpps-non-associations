@@ -5,7 +5,6 @@ import logger from '../../logger'
 import format from '../utils/format'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import HmppsAuthClient from '../data/hmppsAuthClient'
 import {
   NonAssociationsApi,
   type NonAssociationsList,
@@ -18,14 +17,10 @@ import {
 } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
-import { createRedisClient } from '../data/redisClient'
-import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import ListForm, { type ListData, type Table } from '../forms/list'
 import type { FlashMessages } from './index'
-
-const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
 
 type Columns =
   | 'photo'
@@ -116,8 +111,8 @@ function makeTableHead(
   })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function listRoutes(service: Services): Router {
+  const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
@@ -138,8 +133,8 @@ export default function listRoutes(service: Services): Router {
     const form = new ListForm()
     form.submit(req.query)
     if (!form.hasErrors) {
-      const api = new NonAssociationsApi(res.locals.user.token)
-      const prisonApi = new PrisonApi(res.locals.user.token)
+      const api = new NonAssociationsApi(systemToken)
+      const prisonApi = new PrisonApi(systemToken)
       try {
         nonAssociationsList = await api.listNonAssociations(prisonerNumber, {
           includeOpen: listing === 'open',
