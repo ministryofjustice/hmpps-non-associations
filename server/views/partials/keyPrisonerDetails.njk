@@ -1,25 +1,21 @@
-{% macro keyPrisonerDetails(routeUrls, prisoner) %}
+<div class="app-key-prisoner-details">
+  <img src="{{ routeUrls.prisonerPhoto(prisoner.prisonerNumber) }}" alt="Photo of {{ prisoner| nameOfPerson }}" class="app-prisoner-photo--small" />
 
-  <div class="app-key-prisoner-details">
-    <img src="{{ routeUrls.prisonerPhoto(prisoner.prisonerNumber) }}" alt="Photo of {{ prisoner| nameOfPerson }}" class="app-prisoner-photo--small" />
+  <dl>
+    <dt class="govuk-visually-hidden">Prisoner</dt>
+    <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
+      {{ prisoner | reversedNameOfPerson }}
+    </a>
+    <br />
+    {{ prisoner.prisonerNumber }}
+  </dl>
 
-    <dl>
-      <dt class="govuk-visually-hidden">Prisoner</dt>
-      <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
-        {{ prisoner | reversedNameOfPerson }}
-      </a>
-      <br />
-      {{ prisoner.prisonerNumber }}
-    </dl>
+  <dl>
+    <dt>Location</dt>
+    <dd>
+      {{ prisoner | prisonerLocation }}
+    </dd>
+  </dl>
 
-    <dl>
-      <dt>Location</dt>
-      <dd>
-        {{ prisoner | prisonerLocation }}
-      </dd>
-    </dl>
-
-    {{ caller() }}
-  </div>
-
-{% endmacro %}
+  {% block extraDetails %}{% endblock %}
+</div>

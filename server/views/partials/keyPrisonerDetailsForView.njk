@@ -1,0 +1,10 @@
+{% extends "./keyPrisonerDetails.njk" %}
+
+{% block extraDetails %}
+  <dl>
+    <dt>Role</dt>
+    <dd>
+      {{ nonAssociation.firstPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.secondPrisonerRoleDescription }}
+    </dd>
+  </dl>
+{% endblock %}

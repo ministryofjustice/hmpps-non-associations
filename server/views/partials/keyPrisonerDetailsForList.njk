@@ -1,0 +1,14 @@
+{% extends "./keyPrisonerDetails.njk" %}
+
+{% block extraDetails %}
+  {% if not prisoner | isOutside %}
+    <div class="app-key-prisoner-details--align-right">
+      <p class="hmpps-action-button">
+        <img src="/assets/images/add-non-association.svg" alt="Icon representing a non-association" aria-hidden="true" />
+        <a href="{{ routeUrls.prisonerSearch(prisonerNumber) }}" class="govuk-link--no-visited-state">
+          Add a non-association
+        </a>
+      </p>
+    </div>
+  {% endif %}
+{% endblock %}
