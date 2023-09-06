@@ -13,32 +13,12 @@ buildAppInsightsClient(applicationInfo)
 import HmppsAuthClient from './hmppsAuthClient'
 import { createRedisClient } from './redisClient'
 import TokenStore from './tokenStore'
-import config, { ApiConfig } from '../config'
-import RestClient, { RestClientBuilder as CreateRestClientBuilder } from './restClient'
-import { ComponentApiClient } from './dpsComponents/interfaces/componentApiClient'
-import ComponentApiRestClient from './dpsComponents/componentApiClient'
+import FeComponentsClient from './feComponentsClient'
 
 export const dataAccess = () => ({
   applicationInfo,
   hmppsAuthClient: new HmppsAuthClient(new TokenStore(createRedisClient())),
-  componentApiClientBuilder: restClientBuilder<ComponentApiClient>(
-    'Component API',
-    config.apis.frontendComponents,
-    ComponentApiRestClient,
-  ),
+  componentApiClientBuilder: new FeComponentsClient(),
 })
 
 export type DataAccess = ReturnType<typeof dataAccess>
-
-type RestClientBuilder<T> = (token: string) => T
-
-export default function restClientBuilder<T>(
-  name: string,
-  options: ApiConfig,
-  constructor: new (client: RestClient) => T,
-): RestClientBuilder<T> {
-  const restClient = CreateRestClientBuilder(name, options)
-  return token => new constructor(restClient(token))
-}
-
-export { RestClientBuilder }

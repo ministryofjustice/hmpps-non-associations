@@ -1,12 +1,10 @@
-import { RestClientBuilder } from '../data'
-import { ComponentApiClient } from '../data/dpsComponents/interfaces/componentApiClient'
-import Component from '../data/dpsComponents/interfaces/component'
+import FeComponentsClient, { AvailableComponent, Component } from '../data/feComponentsClient'
 
-export default class ComponentService {
+export default class FeComponentsService {
   // eslint-disable-next-line no-empty-function
-  constructor(private readonly componentApiClientBuilder: RestClientBuilder<ComponentApiClient>) {}
+  constructor(private readonly feComponentsClient: FeComponentsClient) {}
 
-  public async getComponent(component: 'header' | 'footer', userToken: string): Promise<Component> {
-    return this.componentApiClientBuilder(userToken).getComponent(component, userToken)
+  public async getComponent(component: AvailableComponent, token: string): Promise<Component> {
+    return this.feComponentsClient.getComponent(component, token)
   }
 }
