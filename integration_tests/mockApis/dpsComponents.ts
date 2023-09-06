@@ -30,5 +30,5 @@ const stubFooterFail = () =>
   })
 
 export default {
-  stubComponentsFail: (): Promise<[Response, Response]> => Promise.all([stubHeaderFail(), stubFooterFail()]),
+  stubDpsComponentsFail: (): Promise<[Response, Response]> => Promise.all([stubHeaderFail(), stubFooterFail()]),
 }

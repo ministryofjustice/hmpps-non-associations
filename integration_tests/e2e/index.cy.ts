@@ -8,13 +8,14 @@ context('Index page', () => {
 
   it('User name visible in fallback header', () => {
     cy.signIn()
-    cy.task('stubComponentsFail')
+    cy.task('stubDpsComponentsFail')
     const indexPage = Page.verifyOnPage(IndexPage)
     indexPage.fallbackHeaderUserName().should('contain.text', 'J. Smith')
   })
+
   it('Fallback footer exists with no content', () => {
     cy.signIn()
-    cy.task('stubComponentsFail')
+    cy.task('stubDpsComponentsFail')
     const indexPage = Page.verifyOnPage(IndexPage)
     indexPage.fallbackFooter().should('not.include.text', 'Feedback')
   })
