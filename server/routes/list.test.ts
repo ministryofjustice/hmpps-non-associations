@@ -208,7 +208,7 @@ describe('Non-associations list page', () => {
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
-          expect(res.text).toContain('Add new non-association')
+          expect(res.text).toContain('Add a non-association')
           expect(res.text).toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
         })
     })
@@ -221,7 +221,7 @@ describe('Non-associations list page', () => {
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
-          expect(res.text).not.toContain('Add new non-association')
+          expect(res.text).not.toContain('Add a non-association')
           expect(res.text).not.toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
         })
     })
