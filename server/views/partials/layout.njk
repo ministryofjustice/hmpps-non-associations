@@ -15,37 +15,46 @@
       });
     </script>
   {% endif %}
+
+  {% if feComponents.jsInclude %}
+    {% for js in feComponents.jsIncludes %}
+      <script src="{{ js }}" nonce="{{ cspNonce }}"></script>
+    {% endfor %}
+  {% endif %}
+
+  {% if feComponents.cssIncludes %}
+    {% for css in feComponents.cssIncludes %}
+      <link href="{{ css }}" nonce="{{ cspNonce }}" rel="stylesheet" />
+    {% endfor %}
+  {% endif %}
+
 {% endblock %}
 
 {% block pageTitle %}{{ pageTitle | default(applicationName) }}{% endblock %}
 
 {% block header %}
-  {% include "./header.njk" %}
-  {% include "./caseloadBar.njk" %}
+  {% if feComponents.header %}
+    {{ feComponents.header | safe }}
+  {% else %}
+    {% include "./header.njk" %}
+    {% include "./caseloadBar.njk" %}
+  {% endif %}
+{% endblock %}
+
+{% block beforeContent %}
   {% include "./breadCrumb.njk" %}
 {% endblock %}
 
 {% block bodyStart %}
 {% endblock %}
 
-{% block footer %}
-  {% from "govuk/components/footer/macro.njk" import govukFooter %}
 
-  {{ govukFooter({
-    contentLicence: {text: 'Official sensitive'},
-    meta: {
-      items: [
-        {
-          href: supportUrl + "/feedback-and-support",
-          text: "Get help"
-        },
-        {
-          href: dpsUrl + "/content/terms-conditions",
-          text: "Terms and conditions"
-        }
-      ]
-    }
-  }) }}
+{% block footer %}
+  {% if feComponents.footer %}
+    {{ feComponents.footer | safe }}
+  {% else %}
+    {% include "./footer.njk" %}
+  {% endif %}
 {% endblock %}
 
 {% block bodyEnd %}

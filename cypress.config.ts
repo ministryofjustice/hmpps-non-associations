@@ -7,6 +7,7 @@ import nomisUserRolesApi from './integration_tests/mockApis/nomisUserRolesApi'
 import prisonApi from './integration_tests/mockApis/prisonApi'
 import offenderSearchApi from './integration_tests/mockApis/offenderSearchApi'
 import nonAssociationsApi from './integration_tests/mockApis/nonAssociationsApi'
+import dpsComponents from './integration_tests/mockApis/dpsComponents'
 
 export default defineConfig({
   chromeWebSecurity: false,
@@ -31,6 +32,7 @@ export default defineConfig({
         ...prisonApi,
         ...offenderSearchApi,
         ...nonAssociationsApi,
+        ...dpsComponents,
       })
     },
     baseUrl: 'http://localhost:3007',
