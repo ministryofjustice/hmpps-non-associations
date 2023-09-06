@@ -2,8 +2,6 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 
-{% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
-
 {% macro displayCount(number) %}
   {%- if number == 1 -%}
     1 record
@@ -23,18 +21,7 @@
     {{ prisonerName | possessiveName}} non-associations
   </h1>
 
-  {% call keyPrisonerDetails(routeUrls, prisoner) %}
-    {% if not prisoner | isOutside %}
-      <div class="app-key-prisoner-details--align-right">
-        <p class="hmpps-action-button">
-          <img src="/assets/images/add-non-association.svg" alt="Icon representing a non-association" aria-hidden="true" />
-          <a href="{{ routeUrls.prisonerSearch(prisonerNumber) }}" class="govuk-link--no-visited-state">
-            Add a non-association
-          </a>
-        </p>
-      </div>
-    {% endif %}
-  {% endcall %}
+  {% include "../partials/keyPrisonerDetailsForList.njk" %}
 
   <nav class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
     <ul class="govuk-tabs__list">

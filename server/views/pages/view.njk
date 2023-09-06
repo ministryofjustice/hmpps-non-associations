@@ -4,8 +4,6 @@
 {% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "moj/components/badge/macro.njk" import mojBadge %}
 
-{% from "../partials/keyPrisonerDetails.njk" import keyPrisonerDetails %}
-
 {% set pageTitle = "Non-association details" %}
 
 {% block content %}
@@ -15,14 +13,7 @@
     {{ prisonerName }} and {{ otherPrisonerName }}
   </h1>
 
-  {% call keyPrisonerDetails(routeUrls, prisoner) %}
-    <dl>
-      <dt>Role</dt>
-      <dd>
-        {{ nonAssociation.firstPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.secondPrisonerRoleDescription }}
-      </dd>
-    </dl>
-  {% endcall %}
+  {% include "../partials/keyPrisonerDetailsForView.njk" %}
 
   <div class="govuk-grid-row govuk-!-margin-top-8">
     <div class="govuk-grid-column-two-thirds app-view__other-prisoner-details">
