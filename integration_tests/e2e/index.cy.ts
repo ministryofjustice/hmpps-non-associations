@@ -6,20 +6,16 @@ context('Index page', () => {
     cy.resetBasicStubs()
   })
 
-  // TODO: This need updating to work with the new footer & header
-  it('should show expected header and footer elements', () => {
+  it('User name visible in fallback header', () => {
     cy.signIn()
-
-    const homePage = Page.verifyOnPage(IndexPage)
-    //
-    homePage.headerUserName.should('contain.text', 'J. Smith')
-    //
-    // homePage.activeCaseload.should('contain.text', 'Moorland (HMP & YOI)')
-    //
-    // homePage.footerLinks.spread((...links) => {
-    //   expect(links).to.have.lengthOf(2)
-    //   expect(links[0]).to.contain('Get help')
-    //   expect(links[1]).to.contain('Terms')
-    // })
+    cy.task('stubComponentsFail')
+    const indexPage = Page.verifyOnPage(IndexPage)
+    indexPage.fallbackHeaderUserName().should('contain.text', 'J. Smith')
+  })
+  it('Fallback footer exists with no content', () => {
+    cy.signIn()
+    cy.task('stubComponentsFail')
+    const indexPage = Page.verifyOnPage(IndexPage)
+    indexPage.fallbackFooter().should('not.include.text', 'Feedback')
   })
 })
