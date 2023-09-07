@@ -1,1 +1,17 @@
-<footer class="govuk-footer govuk-!-display-none-print"></footer>
+{% from "govuk/components/footer/macro.njk" import govukFooter %}
+
+{{ govukFooter({
+  contentLicence: {text: "Official sensitive"},
+  meta: {
+    items: [
+      {
+        href: supportUrl + "/feedback-and-support",
+        text: "Get help"
+      },
+      {
+        href: dpsUrl + "/content/terms-conditions",
+        text: "Terms and conditions"
+      }
+    ]
+  }
+}) }}
