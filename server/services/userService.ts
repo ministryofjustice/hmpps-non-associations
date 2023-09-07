@@ -1,9 +1,9 @@
 import { convertToTitleCase } from '../utils/utils'
 import type HmppsAuthClient from '../data/hmppsAuthClient'
+import type { User } from '../data/hmppsAuthClient'
 import { NomisUserRolesApi, type UserCaseloads } from '../data/nomisUserRolesApi'
 
-export interface UserDetails extends UserCaseloads {
-  name: string
+export interface UserDetails extends User, UserCaseloads {
   displayName: string
 }
 

@@ -10,12 +10,13 @@ import * as auth from '../../authentication/auth'
 import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
+import type { Caseload } from '../../data/nomisUserRolesApi'
 import type { Services } from '../../services'
 import routeUrls from '../../services/routeUrls'
 
 jest.mock('../../data/hmppsAuthClient')
 
-const activeCaseload = {
+const activeCaseload: Caseload = {
   id: 'MDI',
   name: 'Moorland (HMP & YOI)',
 }
