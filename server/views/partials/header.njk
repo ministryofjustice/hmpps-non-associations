@@ -18,11 +18,11 @@
         Digital Prison Services
       </a>
 
-      {% if environmentName %}
+      {% if environment != "prod" %}
         <div class="govuk-phase-banner">
           {{ govukTag({
-            text: environmentName,
-            classes: 'govuk-!-margin-left-2 ' + environmentNameColour
+            text: environment,
+            classes: "govuk-!-margin-left-2"
           }) }}
         </div>
       {% endif %}
