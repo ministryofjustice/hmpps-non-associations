@@ -5,11 +5,10 @@ import flash from 'connect-flash'
 import config from '../config'
 import auth from '../authentication/auth'
 
-const router = express.Router()
-
 export default function setUpAuth(): Router {
   auth.init()
 
+  const router = express.Router()
   router.use(passport.initialize())
   router.use(passport.session())
   router.use(flash())
@@ -38,10 +37,6 @@ export default function setUpAuth(): Router {
         return req.session.destroy(() => res.redirect(authSignOutUrl))
       })
     } else res.redirect(authSignOutUrl)
-  })
-
-  router.use('/account-details', (req, res) => {
-    res.redirect(`${authUrl}/account-details`)
   })
 
   router.use((req, res, next) => {
