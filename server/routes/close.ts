@@ -4,19 +4,15 @@ import { NotFound } from 'http-errors'
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import HmppsAuthClient from '../data/hmppsAuthClient'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { NonAssociationsApi, maxCommentLength, type CloseNonAssociationRequest } from '../data/nonAssociationsApi'
-import { createRedisClient } from '../data/redisClient'
-import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import CloseForm from '../forms/close'
 import type { FlashMessages } from './index'
 
-const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
-
 export default function addRoutes(service: Services): Router {
+  const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
 
   const formId = 'close' as const
@@ -30,7 +26,8 @@ export default function addRoutes(service: Services): Router {
       const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
       const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
-      const api = new NonAssociationsApi(res.locals.user.token)
+      const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+      const api = new NonAssociationsApi(systemToken)
       const nonAssociation = await api.getNonAssociation(nonAssociationId)
 
       if (nonAssociation.isClosed) {
@@ -43,7 +40,6 @@ export default function addRoutes(service: Services): Router {
         throw NotFound(`Non-association ${nonAssociationId} does not involve prisoner ${prisonerNumber}`)
       }
 
-      const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
       const offenderSearchClient = new OffenderSearchClient(systemToken)
       const firstPrisoner = await offenderSearchClient.getPrisoner(nonAssociation.firstPrisonerNumber)
       const secondPrisoner = await offenderSearchClient.getPrisoner(nonAssociation.secondPrisonerNumber)

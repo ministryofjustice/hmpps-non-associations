@@ -8,7 +8,6 @@ import { outsidePrisonId } from '../data/constants'
 import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
 import { davidJones, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
-jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/offenderSearch', () => {
   // ensures that sort and order constants are preserved
   type Module = typeof import('../data/offenderSearch')

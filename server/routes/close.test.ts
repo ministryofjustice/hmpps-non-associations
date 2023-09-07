@@ -9,7 +9,6 @@ import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones } from '../data/testData/offenderSearch'
 
-jest.mock('../data/hmppsAuthClient')
 jest.mock('../data/nonAssociationsApi')
 jest.mock('../data/offenderSearch')
 

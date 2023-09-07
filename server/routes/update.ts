@@ -4,7 +4,6 @@ import { NotFound } from 'http-errors'
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import HmppsAuthClient from '../data/hmppsAuthClient'
 import {
   NonAssociationsApi,
   type NonAssociation,
@@ -15,16 +14,13 @@ import {
   maxCommentLength,
 } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
-import { createRedisClient } from '../data/redisClient'
-import TokenStore from '../data/tokenStore'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import UpdateForm from '../forms/update'
 import type { FlashMessages } from './index'
 
-const hmppsAuthClient = new HmppsAuthClient(new TokenStore(createRedisClient()))
-
 export default function updateRoutes(service: Services): Router {
+  const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
 
   const formId = 'update' as const
@@ -38,7 +34,7 @@ export default function updateRoutes(service: Services): Router {
 
         const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
-        const nonAssociationsApi = new NonAssociationsApi(res.locals.user.token)
+        const nonAssociationsApi = new NonAssociationsApi(systemToken)
         const nonAssociation = await nonAssociationsApi.getNonAssociation(nonAssociationId)
 
         if (
@@ -61,13 +57,20 @@ export default function updateRoutes(service: Services): Router {
         const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
         const otherPrisonerName = nameOfPerson(otherPrisoner)
 
-        Object.assign(res.locals, { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName })
+        Object.assign(res.locals, {
+          systemToken,
+          nonAssociation,
+          prisoner,
+          prisonerName,
+          otherPrisoner,
+          otherPrisonerName,
+        })
 
         return new UpdateForm(prisonerName, otherPrisonerName, nonAssociation)
       },
     },
     asyncMiddleware(async (req, res) => {
-      const { prisonerNumber } = req.params
+      const { systemToken, prisonerNumber } = req.params
       const { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } = res.locals as unknown as {
         nonAssociation: NonAssociation
         prisoner: OffenderSearchResult
@@ -98,7 +101,7 @@ export default function updateRoutes(service: Services): Router {
           restrictionType: form.fields.restrictionType.value,
           comment: form.fields.comment.value,
         }
-        const api = new NonAssociationsApi(res.locals.user.token)
+        const api = new NonAssociationsApi(systemToken)
         try {
           const response = await api.updateNonAssociation(nonAssociation.id, request)
           logger.info(

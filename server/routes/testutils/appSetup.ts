@@ -7,10 +7,13 @@ import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
 import setUpProductInfo from '../../middleware/setUpProductInfo'
 import * as auth from '../../authentication/auth'
+import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
 import type { Services } from '../../services'
 import routeUrls from '../../services/routeUrls'
+
+jest.mock('../../data/hmppsAuthClient')
 
 const activeCaseload = {
   id: 'MDI',
@@ -69,5 +72,7 @@ export function appWithAllRoutes({
   auth.default.authenticationMiddleware = () => (req, res, next) => next()
   // eslint-disable-next-line no-param-reassign
   services.routeUrls = routeUrls
+  // eslint-disable-next-line no-param-reassign
+  services.hmppsAuthClient = new HmppsAuthClient(undefined) // NB: this class is mocked
   return appSetup(services as Services, production, userSupplier)
 }
