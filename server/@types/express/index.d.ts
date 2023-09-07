@@ -14,6 +14,7 @@ export declare global {
   namespace Express {
     interface User extends Partial<UserDetails> {
       token: string
+      roles?: string[]
     }
 
     interface Request {

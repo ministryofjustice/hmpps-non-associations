@@ -19,6 +19,7 @@ export default function authorisationMiddleware(authorisedRoles: string[] = []):
   return (req, res, next) => {
     if (res.locals?.user?.token) {
       const { authorities: roles = [], user_name: username = '(unknown)' } = jwtDecode<AuthToken>(res.locals.user.token)
+      res.locals.user.roles = roles
 
       if (authorisedRoles.length && !roles.some(role => authorisedRoles.includes(role))) {
         logger.error(`User ${username} is not authorised to access this (missing one of ${authorisedRoles.join(', ')})`)
