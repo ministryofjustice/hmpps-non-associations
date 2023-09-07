@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
 import type { Request, Response } from 'express'
 
-import authorisationMiddleware from './authorisationMiddleware'
+import authorisationMiddleware, { type AuthToken } from './authorisationMiddleware'
 
 function createToken(authorities: string[]) {
-  const payload = {
+  const payload: AuthToken = {
     user_name: 'USER1',
     scope: ['read', 'write'],
     auth_source: 'nomis',
