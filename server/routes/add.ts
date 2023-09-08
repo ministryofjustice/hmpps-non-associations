@@ -56,8 +56,9 @@ export default function addRoutes(service: Services): Router {
       },
     },
     asyncMiddleware(async (req, res) => {
-      const { systemToken, prisonerNumber, otherPrisonerNumber } = req.params
-      const { prisoner, prisonerName, otherPrisonerName } = res.locals as unknown as {
+      const { prisonerNumber, otherPrisonerNumber } = req.params
+      const { systemToken, prisoner, prisonerName, otherPrisonerName } = res.locals as unknown as {
+        systemToken: string
         prisoner: OffenderSearchResult
         prisonerName: string
         otherPrisonerName: string

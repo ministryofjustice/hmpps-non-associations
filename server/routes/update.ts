@@ -70,14 +70,16 @@ export default function updateRoutes(service: Services): Router {
       },
     },
     asyncMiddleware(async (req, res) => {
-      const { systemToken, prisonerNumber } = req.params
-      const { nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } = res.locals as unknown as {
-        nonAssociation: NonAssociation
-        prisoner: OffenderSearchResult
-        prisonerName: string
-        otherPrisoner: OffenderSearchResult
-        otherPrisonerName: string
-      }
+      const { prisonerNumber } = req.params
+      const { systemToken, nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } =
+        res.locals as unknown as {
+          systemToken: string
+          nonAssociation: NonAssociation
+          prisoner: OffenderSearchResult
+          prisonerName: string
+          otherPrisoner: OffenderSearchResult
+          otherPrisonerName: string
+        }
       const otherPrisonerNumber = otherPrisoner.prisonerNumber
 
       const form: UpdateForm = res.locals.forms[formId]
