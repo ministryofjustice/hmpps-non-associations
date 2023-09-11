@@ -1,20 +1,31 @@
 import jwt from 'jsonwebtoken'
 import { Response } from 'superagent'
 
+import type { User } from '../../server/data/hmppsAuthClient'
 import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
 
-const createToken = () => {
+const createToken = (roles: string[]) => {
   const payload = {
     user_name: 'USER1',
-    scope: ['read'],
-    auth_source: 'nomis',
-    authorities: [],
+    scope: ['read', 'write'],
+    auth_source: 'NOMIS',
+    authorities: roles,
     jti: '83b50a10-cca6-41db-985f-e87efb303ddb',
     client_id: 'clientid',
   }
 
   return jwt.sign(payload, 'secret', { expiresIn: '1h' })
+}
+
+const createUser = (name: string): User => {
+  return {
+    userId: '231232',
+    username: 'USER1',
+    active: true,
+    activeCaseLoadId: 'MDI',
+    name,
+  }
 }
 
 const getSignInUrl = (): Promise<string> =>
@@ -95,7 +106,7 @@ const manageDetails = () =>
     },
   })
 
-const token = () =>
+const token = (roles: string[]) =>
   stubFor({
     request: {
       method: 'POST',
@@ -108,11 +119,11 @@ const token = () =>
         Location: 'http://localhost:3007/sign-in/callback?code=codexxxx&state=stateyyyy',
       },
       jsonBody: {
-        access_token: createToken(),
+        access_token: createToken(roles),
         token_type: 'bearer',
         user_name: 'USER1',
         expires_in: 599,
-        scope: 'read',
+        scope: 'read,write',
         internalUser: true,
       },
     },
@@ -129,16 +140,11 @@ const stubUser = (name: string) =>
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
       },
-      jsonBody: {
-        staffId: 231232,
-        username: 'USER1',
-        active: true,
-        name,
-      },
+      jsonBody: createUser(name),
     },
   })
 
-const stubUserRoles = () =>
+const stubUserRoles = (roles: string[]) =>
   stubFor({
     request: {
       method: 'GET',
@@ -149,14 +155,21 @@ const stubUserRoles = () =>
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
       },
-      jsonBody: [{ roleCode: 'SOME_USER_ROLE' }],
+      jsonBody: roles.map(roleCode => {
+        return { roleCode }
+      }),
     },
   })
 
+const defaultRoles = ['ROLE_PRISON']
 export default {
   getSignInUrl,
   stubAuthPing: ping,
-  stubSignIn: (): Promise<[Response, Response, Response, Response, Response, Response]> =>
-    Promise.all([favicon(), redirect(), signOut(), manageDetails(), token(), tokenVerification.stubVerifyToken()]),
-  stubAuthUser: (name = 'john smith'): Promise<[Response, Response]> => Promise.all([stubUser(name), stubUserRoles()]),
+  stubSignIn: ({ roles = defaultRoles }: { roles?: string[] } = {}): Promise<
+    [Response, Response, Response, Response, Response, Response]
+  > =>
+    Promise.all([favicon(), redirect(), signOut(), manageDetails(), token(roles), tokenVerification.stubVerifyToken()]),
+  stubAuthUser: ({ name = 'john smith', roles = defaultRoles }: { name?: string; roles?: string[] } = {}): Promise<
+    [Response, Response]
+  > => Promise.all([stubUser(name), stubUserRoles(roles)]),
 }

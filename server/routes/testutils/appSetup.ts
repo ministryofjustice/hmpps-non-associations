@@ -21,17 +21,18 @@ const activeCaseload: Caseload = {
   name: 'Moorland (HMP & YOI)',
 }
 
-export const user = {
-  firstName: 'first',
-  lastName: 'last',
+export const mockUser: Express.User = {
+  name: 'FIRST LAST',
   userId: 'id',
   token: 'token',
   username: 'user1',
   displayName: 'First Last',
+  active: true,
   activeCaseLoadId: 'MDI',
   activeCaseload,
   caseloads: [activeCaseload],
   authSource: 'NOMIS',
+  roles: ['ROLE_PRISON'],
 }
 
 export const flashProvider = jest.fn()
@@ -42,6 +43,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   nunjucksSetup(app, services)
   app.use(cookieSession({ keys: [''] }))
   app.use((req, res, next) => {
+    // NB: in reality, req.user != res.locals.user
     req.user = userSupplier()
     req.flash = flashProvider
     res.locals = {}
@@ -64,7 +66,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
 export function appWithAllRoutes({
   production = false,
   services = {},
-  userSupplier = () => user,
+  userSupplier = () => mockUser,
 }: {
   production?: boolean
   services?: Partial<Services>

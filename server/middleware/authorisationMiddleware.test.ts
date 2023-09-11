@@ -7,7 +7,7 @@ function createToken(authorities: string[]) {
   const payload: AuthToken = {
     user_name: 'USER1',
     scope: ['read', 'write'],
-    auth_source: 'nomis',
+    auth_source: 'NOMIS',
     authorities,
     jti: 'a610a10-cca6-41db-985f-e87efb303aaf',
     client_id: 'clientid',
