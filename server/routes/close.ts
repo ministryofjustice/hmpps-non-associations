@@ -23,10 +23,11 @@ export default function addRoutes(service: Services): Router {
       [formId]: () => new CloseForm(),
     },
     asyncMiddleware(async (req, res) => {
+      const { user } = res.locals
       const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
       const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
-      const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+      const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
       const api = new NonAssociationsApi(systemToken)
       const nonAssociation = await api.getNonAssociation(nonAssociationId)
 
@@ -65,7 +66,7 @@ export default function addRoutes(service: Services): Router {
         }
         try {
           const response = await api.closeNonAssociation(nonAssociationId, request)
-          logger.info(`Non-association [${response.id}] closed by ${res.locals.user.username}`)
+          logger.info(`Non-association [${response.id}] closed by ${user.username}`)
 
           res.render('pages/closeConfirmation.njk', {
             prisonerNumber,
@@ -73,10 +74,7 @@ export default function addRoutes(service: Services): Router {
           })
           return
         } catch (error) {
-          logger.error(
-            `Non-association [${nonAssociationId}] could NOT be closed by ${res.locals.user.username}!`,
-            error,
-          )
+          logger.error(`Non-association [${nonAssociationId}] could NOT be closed by ${user.username}!`, error)
           messages.warning = ['Non-association could not be closed, please try again']
         }
       }

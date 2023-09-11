@@ -28,13 +28,14 @@ export default function addRoutes(service: Services): Router {
     '/',
     {
       [formId]: async (req, res) => {
+        const { user } = res.locals
         const { prisonerNumber, otherPrisonerNumber } = req.params
 
         if (prisonerNumber === otherPrisonerNumber) {
           throw new NotFound('Cannot add a non-association to the same person')
         }
 
-        const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+        const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const [prisoner, otherPrisoner] = await Promise.all([
           offenderSearchClient.getPrisoner(prisonerNumber),
@@ -56,6 +57,7 @@ export default function addRoutes(service: Services): Router {
       },
     },
     asyncMiddleware(async (req, res) => {
+      const { user } = res.locals
       const { prisonerNumber, otherPrisonerNumber } = req.params
       const { systemToken, prisoner, prisonerName, otherPrisonerName } = res.locals as unknown as {
         systemToken: string
@@ -87,7 +89,7 @@ export default function addRoutes(service: Services): Router {
         try {
           const response = await api.createNonAssociation(request)
           logger.info(
-            `Non-association created by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
+            `Non-association created by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
           )
 
           res.render('pages/addConfirmation.njk', {
@@ -97,7 +99,7 @@ export default function addRoutes(service: Services): Router {
           return
         } catch (error) {
           logger.error(
-            `Non-association could NOT be created by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
+            `Non-association could NOT be created by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
           messages.warning = ['Non-association could not be saved, please try again']

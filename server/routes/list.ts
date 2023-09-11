@@ -117,10 +117,11 @@ export default function listRoutes(service: Services): Router {
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get(['/', '/closed'], async (req, res) => {
+    const { user } = res.locals
     const listing: 'open' | 'closed' = req.path.includes('/closed') ? 'closed' : 'open'
     const { prisonerNumber } = req.params
 
-    const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+    const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
     const prisonerName = nameOfPerson(prisoner)
@@ -211,7 +212,7 @@ export default function listRoutes(service: Services): Router {
           )
         }
       } catch (error) {
-        logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
+        logger.error(`Non-associations NOT listed by ${user.username} for ${prisonerNumber}`, error)
         messages.warning = ['Non-associations could not be loaded, please try again']
       }
     }

@@ -34,7 +34,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
       const { id: prisonId } = user.activeCaseload
       const { prisonerNumber } = req.params
 
-      const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+      const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
       const offenderSearchClient = new OffenderSearchClient(systemToken)
       const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
 

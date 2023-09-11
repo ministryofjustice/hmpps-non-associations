@@ -29,10 +29,11 @@ export default function updateRoutes(service: Services): Router {
     '/',
     {
       [formId]: async (req, res) => {
+        const { user } = res.locals
         const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
         const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
-        const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+        const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const nonAssociationsApi = new NonAssociationsApi(systemToken)
         const nonAssociation = await nonAssociationsApi.getNonAssociation(nonAssociationId)
@@ -70,6 +71,7 @@ export default function updateRoutes(service: Services): Router {
       },
     },
     asyncMiddleware(async (req, res) => {
+      const { user } = res.locals
       const { prisonerNumber } = req.params
       const { systemToken, nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } =
         res.locals as unknown as {
@@ -107,7 +109,7 @@ export default function updateRoutes(service: Services): Router {
         try {
           const response = await api.updateNonAssociation(nonAssociation.id, request)
           logger.info(
-            `Non-association ${nonAssociation.id} updated by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
+            `Non-association ${nonAssociation.id} updated by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber} with ID ${response.id}`,
           )
 
           res.render('pages/updateConfirmation.njk', {
@@ -117,7 +119,7 @@ export default function updateRoutes(service: Services): Router {
           return
         } catch (error) {
           logger.error(
-            `Non-association ${nonAssociation.id} could NOT be updated by ${res.locals.user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
+            `Non-association ${nonAssociation.id} could NOT be updated by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
           messages.warning = ['Non-association could not be updated, please try again']

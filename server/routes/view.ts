@@ -15,10 +15,11 @@ export default function viewRoutes(service: Services): Router {
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get('/', async (req, res) => {
+    const { user } = res.locals
     const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
     const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
-    const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+    const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const api = new NonAssociationsApi(systemToken)
 
