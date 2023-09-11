@@ -34,6 +34,10 @@ export default function prisonerSearchRoutes(service: Services): Router {
       const { id: prisonId } = user.activeCaseload
       const { prisonerNumber } = req.params
 
+      if (!user.permissions?.write) {
+        throw new NotFound(`User ${user.username} does not have write permissions`)
+      }
+
       const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
       const offenderSearchClient = new OffenderSearchClient(systemToken)
       const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)

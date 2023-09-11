@@ -1,5 +1,6 @@
 import { type RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
+import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import format from '../utils/format'
@@ -120,6 +121,10 @@ export default function listRoutes(service: Services): Router {
     const { user } = res.locals
     const listing: 'open' | 'closed' = req.path.includes('/closed') ? 'closed' : 'open'
     const { prisonerNumber } = req.params
+
+    if (!user.permissions?.read) {
+      throw new NotFound(`User ${user.username} does not have read permissions`)
+    }
 
     const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)

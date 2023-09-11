@@ -8,7 +8,7 @@ import breadcrumbs from '../../middleware/breadcrumbs'
 import setUpProductInfo from '../../middleware/setUpProductInfo'
 import userPermissionFlags from '../../middleware/userPermissionFlags'
 import * as auth from '../../authentication/auth'
-import { userRolePrison } from '../../data/constants'
+import { userRolePrison, userRoleManageNonAssociations } from '../../data/constants'
 import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
@@ -34,7 +34,7 @@ export const mockUser: Express.User = {
   activeCaseload,
   caseloads: [activeCaseload],
   authSource: 'NOMIS',
-  roles: [userRolePrison],
+  roles: [userRolePrison, userRoleManageNonAssociations],
 }
 
 export const flashProvider = jest.fn()

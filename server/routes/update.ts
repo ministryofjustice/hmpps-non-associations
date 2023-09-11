@@ -33,6 +33,10 @@ export default function updateRoutes(service: Services): Router {
         const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
         const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
+        if (!user.permissions?.write) {
+          throw new NotFound(`User ${user.username} does not have write permissions`)
+        }
+
         const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const nonAssociationsApi = new NonAssociationsApi(systemToken)

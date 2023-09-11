@@ -19,6 +19,10 @@ export default function viewRoutes(service: Services): Router {
     const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
     const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
+    if (!user.permissions?.read) {
+      throw new NotFound(`User ${user.username} does not have read permissions`)
+    }
+
     const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const api = new NonAssociationsApi(systemToken)

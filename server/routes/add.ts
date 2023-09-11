@@ -31,6 +31,10 @@ export default function addRoutes(service: Services): Router {
         const { user } = res.locals
         const { prisonerNumber, otherPrisonerNumber } = req.params
 
+        if (!user.permissions?.write) {
+          throw new NotFound(`User ${user.username} does not have write permissions`)
+        }
+
         if (prisonerNumber === otherPrisonerNumber) {
           throw new NotFound('Cannot add a non-association to the same person')
         }

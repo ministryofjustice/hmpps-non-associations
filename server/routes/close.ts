@@ -27,6 +27,10 @@ export default function addRoutes(service: Services): Router {
       const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
       const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
+      if (!user.permissions?.write) {
+        throw new NotFound(`User ${user.username} does not have write permissions`)
+      }
+
       const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
       const api = new NonAssociationsApi(systemToken)
       const nonAssociation = await api.getNonAssociation(nonAssociationId)
