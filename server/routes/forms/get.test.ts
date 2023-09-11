@@ -31,6 +31,8 @@ function makeApp(handler: RequestHandler): Express {
     '/',
     {
       'sample-form': (req, res) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore because we do not want to add fake properties to the real Express.Locals
         res.locals.formConstructed = true
         return new SampleForm()
       },

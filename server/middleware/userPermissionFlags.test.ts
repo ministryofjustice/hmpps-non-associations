@@ -1,13 +1,12 @@
 import type { Request, Response, NextFunction } from 'express'
 
 import { userRolePrison, userRoleManageNonAssociations } from '../data/constants'
-import type { AppLocals } from '../routes/forms'
 import userPermissionFlags from './userPermissionFlags'
 
 function mockResponse(roles: string[]): Response {
   const locals = {
     user: { roles },
-  } as AppLocals
+  } as Express.Locals
   return {
     locals,
   } as unknown as Response

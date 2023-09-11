@@ -4,7 +4,6 @@ import { BadRequest, MethodNotAllowed } from 'http-errors'
 
 import asyncMiddleware from '../../middleware/asyncMiddleware'
 import type { BaseData, BaseForm } from '../../forms'
-import type { AppLocals } from './index'
 
 /**
  * Form-initialising function
@@ -18,7 +17,7 @@ export type FormGetConstructor<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReqBody = any,
   ReqQuery = Query,
-  Locals extends AppLocals = AppLocals,
+  Locals extends Express.Locals = Express.Locals,
 > = (
   req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
   res: Response<ResBody, Locals>,
@@ -35,7 +34,7 @@ export type FormGetRequestHandler<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReqBody = any,
   ReqQuery = Query,
-  Locals extends AppLocals = AppLocals,
+  Locals extends Express.Locals = Express.Locals,
 > = RequestHandler<
   Params,
   ResBody,

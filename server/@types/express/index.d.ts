@@ -1,3 +1,4 @@
+import type { Breadcrumbs } from '../../middleware/breadcrumbs'
 import type { UserDetails } from '../../services/userService'
 
 export default {}
@@ -34,6 +35,11 @@ export declare global {
       verified?: boolean
       id: string
       logout(done: (err: unknown) => void): void
+    }
+
+    interface Locals {
+      breadcrumbs: Breadcrumbs
+      user: Express.User
     }
   }
 }

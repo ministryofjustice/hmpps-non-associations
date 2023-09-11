@@ -48,7 +48,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
     // NB: in reality, req.user != res.locals.user
     req.user = userSupplier()
     req.flash = flashProvider
-    res.locals = {}
+    res.locals = {} as Express.Locals
     res.locals.user = { ...req.user }
     next()
   })
