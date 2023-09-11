@@ -42,6 +42,7 @@ describe('authorisationMiddleware', () => {
 
     expect(next).toHaveBeenCalled()
     expect(res.redirect).not.toHaveBeenCalled()
+    expect(res.locals.user.roles).toEqual([])
   })
 
   it('should redirect when user has no authorised roles', async () => {
@@ -51,6 +52,7 @@ describe('authorisationMiddleware', () => {
 
     expect(next).not.toHaveBeenCalled()
     expect(res.redirect).toHaveBeenCalledWith('/authError')
+    expect(res.locals.user.roles).toEqual([])
   })
 
   it('should return next when user has authorised role', async () => {
@@ -60,5 +62,6 @@ describe('authorisationMiddleware', () => {
 
     expect(next).toHaveBeenCalled()
     expect(res.redirect).not.toHaveBeenCalled()
+    expect(res.locals.user.roles).toEqual(['SOME_REQUIRED_ROLE'])
   })
 })

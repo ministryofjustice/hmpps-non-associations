@@ -15,6 +15,19 @@ export declare global {
     interface User extends Partial<UserDetails> {
       token: string
       roles?: string[]
+      permissions?:
+        | {
+            read: false
+            write: false
+          }
+        | {
+            read: true
+            write: false
+          }
+        | {
+            read: true
+            write: true
+          }
     }
 
     interface Request {

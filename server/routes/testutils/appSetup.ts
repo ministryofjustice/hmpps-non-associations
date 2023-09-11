@@ -6,7 +6,9 @@ import nunjucksSetup from '../../utils/nunjucksSetup'
 import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
 import setUpProductInfo from '../../middleware/setUpProductInfo'
+import userPermissionFlags from '../../middleware/userPermissionFlags'
 import * as auth from '../../authentication/auth'
+import { userRolePrison } from '../../data/constants'
 import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
@@ -32,7 +34,7 @@ export const mockUser: Express.User = {
   activeCaseload,
   caseloads: [activeCaseload],
   authSource: 'NOMIS',
-  roles: ['ROLE_PRISON'],
+  roles: [userRolePrison],
 }
 
 export const flashProvider = jest.fn()
@@ -53,6 +55,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
+  app.use(userPermissionFlags())
   app.use(setUpProductInfo())
   app.use(breadcrumbs())
   app.use(routes(services))

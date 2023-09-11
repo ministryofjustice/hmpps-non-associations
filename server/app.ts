@@ -4,6 +4,7 @@ import { NotFound } from 'http-errors'
 import nunjucksSetup from './utils/nunjucksSetup'
 import errorHandler from './errorHandler'
 import { metricsMiddleware } from './monitoring/metricsApp'
+import { userRolePrison } from './data/constants'
 import authorisationMiddleware from './middleware/authorisationMiddleware'
 import breadcrumbs from './middleware/breadcrumbs'
 import setUpAuthentication from './middleware/setUpAuthentication'
@@ -37,12 +38,7 @@ export default function createApp(services: Services): express.Application {
   app.use(setUpStaticResources())
   nunjucksSetup(app, services)
   app.use(setUpAuthentication())
-  app.use(
-    authorisationMiddleware([
-      // only prison users are permitted to view non-associations
-      'ROLE_PRISON',
-    ]),
-  )
+  app.use(authorisationMiddleware([userRolePrison]))
   app.use(setUpCsrf())
   app.use(setUpCurrentUser(services))
 
