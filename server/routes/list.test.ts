@@ -319,6 +319,25 @@ describe('Non-associations list page', () => {
           expect(res.text).toContain('1-1-002')
           expect(res.text).toContain('1-1-003')
         }
+        if (this.table !== 'other') {
+          expect(res.text).not.toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of Fred Mills')
+          expect(res.text).not.toContain('Photo of Fred Mills is not available')
+          expect(res.text).toContain('/prisoner/A1235EF/photo.jpeg')
+          expect(res.text).toContain('href="http://localhost:3000/prisoner/A1235EF"')
+          expect(res.text).toContain('Photo of Oscar Jones')
+          expect(res.text).not.toContain('Photo of Oscar Jones is not available')
+          expect(res.text).toContain('/prisoner/A1236CS/photo.jpeg')
+          expect(res.text).toContain('href="http://localhost:3000/prisoner/A1236CS"')
+        } else {
+          expect(res.text).toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of Fred Mills is not available')
+          expect(res.text).not.toContain('/prisoner/A1235EF/photo.jpeg')
+          expect(res.text).not.toContain('href="http://localhost:3000/prisoner/A1235EF"')
+          expect(res.text).toContain('Photo of Oscar Jones is not available')
+          expect(res.text).not.toContain('/prisoner/A1236CS/photo.jpeg')
+          expect(res.text).not.toContain('href="http://localhost:3000/prisoner/A1236CS"')
+        }
         if (!this.closed) {
           expect(res.text).toContain('26/07/2023')
         } else {

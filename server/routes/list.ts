@@ -229,6 +229,7 @@ export default function listRoutes(service: Services): Router {
       href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}`,
     })
     res.render('pages/list.njk', {
+      user,
       messages,
       listing,
       prisoner,
