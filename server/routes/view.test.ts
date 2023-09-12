@@ -2,9 +2,8 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { userRolePrison } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
@@ -318,12 +317,7 @@ describe('View non-association details page', () => {
 
   it('should hide update and close buttons if user does not have write permissions', () => {
     app = appWithAllRoutes({
-      userSupplier: () => {
-        return {
-          ...mockUser,
-          roles: [userRolePrison],
-        }
-      },
+      userSupplier: () => mockReadOnlyUser,
     })
     offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
     prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)

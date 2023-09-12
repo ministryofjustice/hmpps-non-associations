@@ -23,10 +23,11 @@ import routeUrls from '../../services/routeUrls'
 
 jest.mock('../../data/hmppsAuthClient')
 
-const activeCaseload: Caseload = {
+export const mockActiveCaseload: Caseload = {
   id: 'MDI',
   name: 'Moorland (HMP & YOI)',
 }
+export const mockCaseloads: Caseload[] = [mockActiveCaseload]
 
 export const mockUser: Express.User = {
   name: 'FIRST LAST',
@@ -36,10 +37,15 @@ export const mockUser: Express.User = {
   displayName: 'First Last',
   active: true,
   activeCaseLoadId: 'MDI',
-  activeCaseload,
-  caseloads: [activeCaseload],
+  activeCaseload: mockActiveCaseload,
+  caseloads: mockCaseloads,
   authSource: 'NOMIS',
   roles: [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations],
+}
+
+export const mockReadOnlyUser: Express.User = {
+  ...mockUser,
+  roles: [userRolePrison],
 }
 
 export const flashProvider = jest.fn()

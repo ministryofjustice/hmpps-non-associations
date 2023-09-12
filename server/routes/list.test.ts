@@ -2,9 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { transferPrisonId, outsidePrisonId, userRolePrison } from '../data/constants'
+import { transferPrisonId, outsidePrisonId } from '../data/constants'
 import {
   NonAssociationsApi,
   sortDirectionOptions,
@@ -215,12 +215,7 @@ describe('Non-associations list page', () => {
 
       it('should not be allowed if the user does not have write permission', () => {
         app = appWithAllRoutes({
-          userSupplier: () => {
-            return {
-              ...mockUser,
-              roles: [userRolePrison],
-            }
-          },
+          userSupplier: () => mockReadOnlyUser,
         })
         offenderSearchClient.getPrisoner.mockResolvedValueOnce(keyPrisoner)
 
@@ -914,7 +909,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
@@ -940,7 +935,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
@@ -968,7 +963,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
@@ -992,7 +987,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
