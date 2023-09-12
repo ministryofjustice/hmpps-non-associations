@@ -12,6 +12,7 @@ import {
   davidJones,
   fredMills,
   oscarJones,
+  andrewBrown,
   maxClarke,
   joePeters,
   mockGetPrisoner,
@@ -129,6 +130,15 @@ describe('View non-association details page', () => {
       expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledWith(nonAssociation.id)
       expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
+
+      expect(res.text).toContain('Jones, David')
+
+      expect(res.text).toContain('Photo of David Jones')
+      expect(res.text).not.toContain('Photo of David Jones is not available')
+      expect(res.text).toContain('href="http://localhost:3000/prisoner/A1234BC"')
+      expect(res.text).toContain('Photo of Fred Mills')
+      expect(res.text).not.toContain('Photo of Fred Mills is not available')
+      expect(res.text).toContain('href="http://localhost:3000/prisoner/A1235EF"')
 
       expect(res.text).toContain('Threat')
       expect(res.text).toContain('Cell only')
@@ -314,6 +324,36 @@ describe('View non-association details page', () => {
       })
     })
   })
+
+  it.each([
+    {
+      scenario: 'key',
+      prisonerNumber: andrewBrown.prisonerNumber,
+      otherPrisonerNumber: davidJones.prisonerNumber,
+    },
+    {
+      scenario: 'other',
+      prisonerNumber: davidJones.prisonerNumber,
+      otherPrisonerNumber: andrewBrown.prisonerNumber,
+    },
+  ])(
+    'should not show link to $scenario prisoner profile when the user does not have permission',
+    ({ prisonerNumber: p1, otherPrisonerNumber: p2 }) => {
+      const na = mockNonAssociation(p1, p2)
+      offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(na)
+
+      return request(app)
+        .get(routeUrls.view(p1, na.id))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).not.toContain('Photo of David Jones is not available')
+          expect(res.text).toContain('Photo of Andrew Brown is not available')
+        })
+    },
+  )
 
   it('should hide update and close buttons if user does not have write permissions', () => {
     app = appWithAllRoutes({
