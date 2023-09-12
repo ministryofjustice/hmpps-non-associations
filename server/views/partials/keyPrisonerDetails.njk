@@ -1,13 +1,25 @@
+{% set canViewProfile = user.permissions.canViewProfile(prisoner) %}
+
 <div class="app-key-prisoner-details">
-  <img src="{{ routeUrls.prisonerPhoto(prisoner.prisonerNumber) }}" alt="Photo of {{ prisoner| nameOfPerson }}" class="app-prisoner-photo--small" />
+  {% if canViewProfile %}
+    <img src="{{ routeUrls.prisonerPhoto(prisoner.prisonerNumber) }}" alt="Photo of {{ prisoner| nameOfPerson }}" class="app-prisoner-photo--small" />
+  {% else %}
+    <img src="/assets/images/prisoner.jpeg" alt="Photo of {{ prisoner| nameOfPerson }} is not available" class="app-prisoner-photo--small" />
+  {% endif %}
 
   <dl>
     <dt class="govuk-visually-hidden">Prisoner</dt>
-    <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
-      {{ prisoner | reversedNameOfPerson }}
-    </a>
-    <br />
-    {{ prisoner.prisonerNumber }}
+    <dd>
+      {% if canViewProfile %}
+        <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
+          {{ prisoner | reversedNameOfPerson }}
+        </a>
+      {% else %}
+        {{ prisoner | reversedNameOfPerson }}
+      {% endif %}
+      <br />
+      {{ prisoner.prisonerNumber }}
+    </dd>
   </dl>
 
   <dl>

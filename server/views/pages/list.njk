@@ -50,7 +50,7 @@
 
   {% elif nonAssociationGroups.type == "threeGroups" %}
 
-    {% set table = 'same' %}
+    {% set table = "same" %}
     {% set tableHead = tableHeads[table] %}
     {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
@@ -62,7 +62,7 @@
     {% endset %}
     {% include "../partials/nonAssociationGroup.njk" %}
 
-    {% set table = 'other' %}
+    {% set table = "other" %}
     {% set tableHead = tableHeads[table] %}
     {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
@@ -74,7 +74,7 @@
     {% endset %}
     {% include "../partials/nonAssociationGroup.njk" %}
 
-    {% set table = 'outside' %}
+    {% set table = "outside" %}
     {% set tableHead = tableHeads[table] %}
     {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
@@ -88,7 +88,7 @@
 
   {% elif nonAssociationGroups.type == "twoGroups" %}
 
-    {% set table = 'any' %}
+    {% set table = "any" %}
     {% set tableHead = tableHeads[table] %}
     {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}
@@ -100,7 +100,7 @@
     {% endset %}
     {% include "../partials/nonAssociationGroup.njk" %}
 
-    {% set table = 'outside' %}
+    {% set table = "outside" %}
     {% set tableHead = tableHeads[table] %}
     {% set nonAssociationsGroup = nonAssociationGroups[table] %}
     {% set emptyMessageHtml %}

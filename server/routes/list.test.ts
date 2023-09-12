@@ -111,6 +111,44 @@ describe('Non-associations list page', () => {
     })
   })
 
+  describe('link to key prisoner profile', () => {
+    beforeEach(() => {
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    })
+
+    it('should show when the user has permission', () => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).not.toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of David Jones')
+          expect(res.text).not.toContain('Photo of David Jones is not available')
+          expect(res.text).toContain('/prisoner/A1234BC/photo.jpeg')
+        })
+    })
+
+    it('should not show when the user does not have permission', () => {
+      offenderSearchClient.getPrisoner.mockResolvedValueOnce(mockMovePrisoner(prisoner, 'LEI', 'Leeds (HMP)'))
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+        mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, 'LEI', 'Leeds (HMP)'),
+      )
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of David Jones is not available')
+          expect(res.text).not.toContain('/prisoner/A1234BC/photo.jpeg')
+        })
+    })
+  })
+
   describe('should show key prisoner location', () => {
     beforeEach(() => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
