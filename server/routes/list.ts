@@ -1,5 +1,6 @@
 import { type RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
+import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import format from '../utils/format'
@@ -15,7 +16,7 @@ import {
   groupListByLocation,
   sortList,
 } from '../data/nonAssociationsApi'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { isOutside, OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
@@ -117,10 +118,15 @@ export default function listRoutes(service: Services): Router {
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get(['/', '/closed'], async (req, res) => {
+    const { user } = res.locals
     const listing: 'open' | 'closed' = req.path.includes('/closed') ? 'closed' : 'open'
     const { prisonerNumber } = req.params
 
-    const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+    if (!user.permissions?.read) {
+      throw new NotFound(`User ${user.username} does not have read permissions`)
+    }
+
+    const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
     const prisonerName = nameOfPerson(prisoner)
@@ -211,10 +217,12 @@ export default function listRoutes(service: Services): Router {
           )
         }
       } catch (error) {
-        logger.error(`Non-associations NOT listed by ${res.locals.user.username} for ${prisonerNumber}`, error)
+        logger.error(`Non-associations NOT listed by ${user.username} for ${prisonerNumber}`, error)
         messages.warning = ['Non-associations could not be loaded, please try again']
       }
     }
+
+    const canAddNonAssociation = user.permissions.write && !isOutside(prisoner)
 
     res.locals.breadcrumbs.addItems({
       text: reversedNameOfPerson(prisoner),
@@ -230,6 +238,7 @@ export default function listRoutes(service: Services): Router {
       nonAssociationGroups,
       tableHeads,
       form,
+      canAddNonAssociation,
     })
   })
 

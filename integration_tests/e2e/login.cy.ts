@@ -17,6 +17,16 @@ context('SignIn', () => {
     Page.verifyOnPage(AuthSignInPage)
   })
 
+  it('Non-prison users are not permitted', () => {
+    cy.task('reset')
+    cy.task('stubSignIn', { roles: [] })
+    cy.task('stubAuthUser', { roles: [] })
+    cy.task('stubNomisUserCaseloads')
+    cy.task('stubDpsComponentsFail')
+    cy.signIn({ failOnStatusCode: false })
+    cy.get('body').should('contain.text', 'Authorisation Error')
+  })
+
   it('User name visible in header', () => {
     cy.signIn()
     const indexPage = Page.verifyOnPage(IndexPage)
@@ -48,7 +58,7 @@ context('SignIn', () => {
     cy.request('/').its('body').should('contain', 'Sign in')
 
     cy.task('stubVerifyToken', true)
-    cy.task('stubAuthUser', 'bobby brown')
+    cy.task('stubAuthUser', { name: 'bobby brown' })
     cy.signIn()
 
     indexPage.headerUserName.contains('B. Brown')

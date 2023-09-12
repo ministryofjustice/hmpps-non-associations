@@ -1,13 +1,13 @@
 import jwt from 'jsonwebtoken'
 import type { Request, Response } from 'express'
 
-import authorisationMiddleware from './authorisationMiddleware'
+import authorisationMiddleware, { type AuthToken } from './authorisationMiddleware'
 
 function createToken(authorities: string[]) {
-  const payload = {
+  const payload: AuthToken = {
     user_name: 'USER1',
     scope: ['read', 'write'],
-    auth_source: 'nomis',
+    auth_source: 'NOMIS',
     authorities,
     jti: 'a610a10-cca6-41db-985f-e87efb303aaf',
     client_id: 'clientid',
@@ -42,6 +42,7 @@ describe('authorisationMiddleware', () => {
 
     expect(next).toHaveBeenCalled()
     expect(res.redirect).not.toHaveBeenCalled()
+    expect(res.locals.user.roles).toEqual([])
   })
 
   it('should redirect when user has no authorised roles', async () => {
@@ -51,6 +52,7 @@ describe('authorisationMiddleware', () => {
 
     expect(next).not.toHaveBeenCalled()
     expect(res.redirect).toHaveBeenCalledWith('/authError')
+    expect(res.locals.user.roles).toEqual([])
   })
 
   it('should return next when user has authorised role', async () => {
@@ -60,5 +62,6 @@ describe('authorisationMiddleware', () => {
 
     expect(next).toHaveBeenCalled()
     expect(res.redirect).not.toHaveBeenCalled()
+    expect(res.locals.user.roles).toEqual(['SOME_REQUIRED_ROLE'])
   })
 })

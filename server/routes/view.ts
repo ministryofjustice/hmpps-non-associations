@@ -15,10 +15,15 @@ export default function viewRoutes(service: Services): Router {
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   get('/', async (req, res) => {
+    const { user } = res.locals
     const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
     const nonAssociationId = parseInt(nonAssociationIdStr, 10)
 
-    const systemToken = await hmppsAuthClient.getSystemClientToken(res.locals.user.username)
+    if (!user.permissions?.read) {
+      throw new NotFound(`User ${user.username} does not have read permissions`)
+    }
+
+    const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const api = new NonAssociationsApi(systemToken)
 
@@ -44,6 +49,8 @@ export default function viewRoutes(service: Services): Router {
     const prisonApi = new PrisonApi(systemToken)
     nonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
 
+    const canModifyNonAssociation = user.permissions.write && !nonAssociation.isClosed
+
     res.locals.breadcrumbs.addItems(
       {
         text: reversedNameOfPerson(prisoner),
@@ -64,6 +71,7 @@ export default function viewRoutes(service: Services): Router {
       otherPrisonerNumber,
       otherPrisonerName,
       nonAssociation,
+      canModifyNonAssociation,
     })
   })
 

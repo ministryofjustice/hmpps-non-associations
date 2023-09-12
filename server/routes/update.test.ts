@@ -2,8 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
+import { userRolePrison } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, OffenderSearchResult } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
@@ -46,6 +47,27 @@ afterEach(() => {
 })
 
 describe('Update non-association page', () => {
+  it('should return 404 if user does not have write permission', () => {
+    app = appWithAllRoutes({
+      userSupplier: () => {
+        return {
+          ...mockUser,
+          roles: [userRolePrison],
+        }
+      },
+    })
+
+    return request(app)
+      .get(routeUrls.update(prisonerNumber, nonAssociationId))
+      .expect(404)
+      .expect('Content-Type', /html/)
+      .expect(() => {
+        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.getNonAssociation).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.updateNonAssociation).not.toHaveBeenCalled()
+      })
+  })
+
   it('should return 404 if prisoner is not found', () => {
     const error: SanitisedError = {
       name: 'Error',

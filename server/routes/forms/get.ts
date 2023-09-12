@@ -4,7 +4,24 @@ import { BadRequest, MethodNotAllowed } from 'http-errors'
 
 import asyncMiddleware from '../../middleware/asyncMiddleware'
 import type { BaseData, BaseForm } from '../../forms'
-import type { AppLocals } from './index'
+
+/**
+ * Form-initialising function
+ */
+export type FormGetConstructor<
+  Forms extends Record<string, BaseForm<BaseData>>,
+  Name extends keyof Forms,
+  Params = ParamsDictionary,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ResBody = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ReqBody = any,
+  ReqQuery = Query,
+  Locals extends Express.Locals = Express.Locals,
+> = (
+  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
+  res: Response<ResBody, Locals>,
+) => Forms[Name] | Promise<Forms[Name]>
 
 /**
  * Extends express’ normal RequestHandler to be aware that forms are added to locals object
@@ -17,7 +34,7 @@ export type FormGetRequestHandler<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReqBody = any,
   ReqQuery = Query,
-  Locals extends AppLocals = AppLocals,
+  Locals extends Express.Locals = Express.Locals,
 > = RequestHandler<
   Params,
   ResBody,
@@ -40,7 +57,7 @@ export default function formGetRoute<Forms extends Record<string, BaseForm<BaseD
   router: Router,
   path: PathParams,
   formConstructors: {
-    [Name in keyof Forms]: (req: Request, res: Response) => Forms[Name] | Promise<Forms[Name]>
+    [Name in keyof Forms]: FormGetConstructor<Forms, Name>
   },
   ...handlers: readonly FormGetRequestHandler<Forms>[]
 ): void {
@@ -48,7 +65,7 @@ export default function formGetRoute<Forms extends Record<string, BaseForm<BaseD
 }
 
 function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>(formConstructors: {
-  [Name in keyof Forms]: (req: Request, res: Response) => Forms[Name] | Promise<Forms[Name]>
+  [Name in keyof Forms]: FormGetConstructor<Forms, Name>
 }): FormGetRequestHandler<Forms> {
   return asyncMiddleware(async (req, res, next: NextFunction): Promise<void> => {
     // limit request methods to GET

@@ -6,31 +6,35 @@ import nunjucksSetup from '../../utils/nunjucksSetup'
 import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
 import setUpProductInfo from '../../middleware/setUpProductInfo'
+import userPermissionFlags from '../../middleware/userPermissionFlags'
 import * as auth from '../../authentication/auth'
+import { userRolePrison, userRoleManageNonAssociations } from '../../data/constants'
 import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
+import type { Caseload } from '../../data/nomisUserRolesApi'
 import type { Services } from '../../services'
 import routeUrls from '../../services/routeUrls'
 
 jest.mock('../../data/hmppsAuthClient')
 
-const activeCaseload = {
+const activeCaseload: Caseload = {
   id: 'MDI',
   name: 'Moorland (HMP & YOI)',
 }
 
-export const user = {
-  firstName: 'first',
-  lastName: 'last',
+export const mockUser: Express.User = {
+  name: 'FIRST LAST',
   userId: 'id',
   token: 'token',
   username: 'user1',
   displayName: 'First Last',
+  active: true,
   activeCaseLoadId: 'MDI',
   activeCaseload,
   caseloads: [activeCaseload],
   authSource: 'NOMIS',
+  roles: [userRolePrison, userRoleManageNonAssociations],
 }
 
 export const flashProvider = jest.fn()
@@ -41,15 +45,17 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   nunjucksSetup(app, services)
   app.use(cookieSession({ keys: [''] }))
   app.use((req, res, next) => {
+    // NB: in reality, req.user != res.locals.user
     req.user = userSupplier()
     req.flash = flashProvider
-    res.locals = {}
+    res.locals = {} as Express.Locals
     res.locals.user = { ...req.user }
     next()
   })
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
+  app.use(userPermissionFlags())
   app.use(setUpProductInfo())
   app.use(breadcrumbs())
   app.use(routes(services))
@@ -63,7 +69,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
 export function appWithAllRoutes({
   production = false,
   services = {},
-  userSupplier = () => user,
+  userSupplier = () => mockUser,
 }: {
   production?: boolean
   services?: Partial<Services>

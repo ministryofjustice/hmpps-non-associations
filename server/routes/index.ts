@@ -31,9 +31,10 @@ export default function routes(services: Services): Router {
   })
 
   get(urlTemplates.prisonerPhoto, async (req, res) => {
+    const { user } = res.locals
     const { prisonerNumber } = req.params
 
-    const prisonApi = new PrisonApi(res.locals.user.token)
+    const prisonApi = new PrisonApi(user.token)
     const photoData = await prisonApi.getPhoto(prisonerNumber)
 
     const oneDay = 86400 as const
