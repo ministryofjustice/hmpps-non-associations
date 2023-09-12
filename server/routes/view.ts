@@ -49,6 +49,8 @@ export default function viewRoutes(service: Services): Router {
     const prisonApi = new PrisonApi(systemToken)
     nonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
 
+    const canModifyNonAssociation = user.permissions.write && !nonAssociation.isClosed
+
     res.locals.breadcrumbs.addItems(
       {
         text: reversedNameOfPerson(prisoner),
@@ -69,6 +71,7 @@ export default function viewRoutes(service: Services): Router {
       otherPrisonerNumber,
       otherPrisonerName,
       nonAssociation,
+      canModifyNonAssociation,
     })
   })
 

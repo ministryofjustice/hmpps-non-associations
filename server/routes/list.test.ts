@@ -2,9 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { transferPrisonId, outsidePrisonId } from '../data/constants'
+import { transferPrisonId, outsidePrisonId, userRolePrison } from '../data/constants'
 import {
   NonAssociationsApi,
   sortDirectionOptions,
@@ -190,7 +190,7 @@ describe('Non-associations list page', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones0NonAssociations)
     })
 
-    it.each([
+    describe.each([
       {
         scenario: 'in prison',
         keyPrisoner: prisoner,
@@ -199,17 +199,40 @@ describe('Non-associations list page', () => {
         scenario: 'being transferred',
         keyPrisoner: mockMovePrisoner(prisoner, transferPrisonId),
       },
-    ])('for prisoners who are $scenario should be allowed', ({ keyPrisoner }) => {
-      offenderSearchClient.getPrisoner.mockResolvedValueOnce(keyPrisoner)
+    ])('for prisoners who are $scenario', ({ keyPrisoner }) => {
+      it('should be allowed if user has write permission', () => {
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(keyPrisoner)
 
-      return request(app)
-        .get(routeUrls.list(prisonerNumber, true))
-        .expect(200)
-        .expect('Content-Type', /html/)
-        .expect(res => {
-          expect(res.text).toContain('Add a non-association')
-          expect(res.text).toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+        return request(app)
+          .get(routeUrls.list(prisonerNumber, true))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Add a non-association')
+            expect(res.text).toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+          })
+      })
+
+      it('should not be allowed if the user does not have write permission', () => {
+        app = appWithAllRoutes({
+          userSupplier: () => {
+            return {
+              ...mockUser,
+              roles: [userRolePrison],
+            }
+          },
         })
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(keyPrisoner)
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber, true))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).not.toContain('Add a non-association')
+            expect(res.text).not.toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+          })
+      })
     })
 
     it('for prisoners who are outside should not be allowed', () => {

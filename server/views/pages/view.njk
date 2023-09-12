@@ -70,7 +70,7 @@
           ]
         }) }}
 
-        {% if not nonAssociation.isClosed %}
+        {% if canModifyNonAssociation %}
           <div class="govuk-button-group">
             {{ govukButton({
               text: "Update",

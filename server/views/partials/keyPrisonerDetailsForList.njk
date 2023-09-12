@@ -1,7 +1,7 @@
 {% extends "./keyPrisonerDetails.njk" %}
 
 {% block extraDetails %}
-  {% if not prisoner | isOutside %}
+  {% if canAddNonAssociation %}
     <div class="app-key-prisoner-details--align-right">
       <p class="hmpps-action-button">
         <img src="/assets/images/add-non-association.svg" alt="Icon representing a non-association" aria-hidden="true" />

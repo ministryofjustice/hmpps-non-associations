@@ -2,8 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
+import { userRolePrison } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
@@ -313,6 +314,29 @@ describe('View non-association details page', () => {
         })
       })
     })
+  })
+
+  it('should hide update and close buttons if user does not have write permissions', () => {
+    app = appWithAllRoutes({
+      userSupplier: () => {
+        return {
+          ...mockUser,
+          roles: [userRolePrison],
+        }
+      },
+    })
+    offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+    prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
+
+    return request(app)
+      .get(routeUrls.view(prisonerNumber, nonAssociation.id))
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
+        expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
+      })
   })
 
   it('should display “System” instead of internal system username as the authoriser', () => {

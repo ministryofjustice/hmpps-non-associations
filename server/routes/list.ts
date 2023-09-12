@@ -16,7 +16,7 @@ import {
   groupListByLocation,
   sortList,
 } from '../data/nonAssociationsApi'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import { isOutside, OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
@@ -222,6 +222,8 @@ export default function listRoutes(service: Services): Router {
       }
     }
 
+    const canAddNonAssociation = user.permissions.write && !isOutside(prisoner)
+
     res.locals.breadcrumbs.addItems({
       text: reversedNameOfPerson(prisoner),
       href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}`,
@@ -236,6 +238,7 @@ export default function listRoutes(service: Services): Router {
       nonAssociationGroups,
       tableHeads,
       form,
+      canAddNonAssociation,
     })
   })
 
