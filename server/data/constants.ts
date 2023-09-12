@@ -4,7 +4,22 @@ export type TransferPrisonId = typeof transferPrisonId
 export const outsidePrisonId = 'OUT' as const
 export type OutsidePrisonId = typeof outsidePrisonId
 
-/** All user require role PRISON to access this site */
+/**
+ * All user require role PRISON to access this site
+ */
 export const userRolePrison = 'ROLE_PRISON' as const
-/** Users require role NON_ASSOCIATIONS to add, update or close non-associations */
+
+/**
+ * Users without global search cannot search outside their active caseload nor link out to profiles outside their caseload set
+ */
+export const userRoleGlobalSearch = 'ROLE_GLOBAL_SEARCH' as const
+
+/**
+ * Users without inactive bookings cannot search for released prisoners not link out to profiles to those individuals
+ */
+export const userRoleInactiveBookings = 'ROLE_INACTIVE_BOOKINGS' as const
+
+/**
+ * Users require role NON_ASSOCIATIONS to add, update or close non-associations
+ */
 export const userRoleManageNonAssociations = 'ROLE_NON_ASSOCIATIONS' as const

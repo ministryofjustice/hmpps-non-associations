@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken'
 import { Response } from 'superagent'
 
-import { userRolePrison, userRoleManageNonAssociations } from '../../server/data/constants'
+import {
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+} from '../../server/data/constants'
 import type { User } from '../../server/data/hmppsAuthClient'
 import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
@@ -162,7 +167,7 @@ const stubUserRoles = (roles: string[]) =>
     },
   })
 
-const defaultRoles = [userRolePrison, userRoleManageNonAssociations]
+const defaultRoles = [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations]
 export default {
   getSignInUrl,
   stubAuthPing: ping,

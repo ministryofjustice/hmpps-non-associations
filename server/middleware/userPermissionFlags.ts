@@ -1,22 +1,26 @@
 import type { RequestHandler } from 'express'
-import { userRolePrison, userRoleManageNonAssociations } from '../data/constants'
+import {
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+} from '../data/constants'
 
 export default function userPermissionFlags(): RequestHandler {
   return (req, res, next) => {
     if (res.locals.user) {
       const roles = res.locals.user.roles ?? []
-      const hasPrisonRole = roles.includes(userRolePrison)
-      const hasManageNonAssociationsRole = roles.includes(userRoleManageNonAssociations)
-
       const permissions = {
         read: false,
         write: false,
+        globalSearch: false,
+        inactiveBookings: false,
       }
-      if (hasPrisonRole) {
+      if (roles.includes(userRolePrison)) {
         permissions.read = true
-        if (hasManageNonAssociationsRole) {
-          permissions.write = true
-        }
+        permissions.write = roles.includes(userRoleManageNonAssociations)
+        permissions.globalSearch = roles.includes(userRoleGlobalSearch)
+        permissions.inactiveBookings = roles.includes(userRoleInactiveBookings)
       }
       res.locals.user.permissions = permissions as Express.User['permissions']
     }

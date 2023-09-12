@@ -16,7 +16,7 @@ export declare global {
     interface User extends Partial<UserDetails> {
       token: string
       roles?: string[]
-      permissions?:
+      permissions?: (
         | {
             read: false
             write: false
@@ -29,6 +29,10 @@ export declare global {
             read: true
             write: true
           }
+      ) & {
+        globalSearch: boolean
+        inactiveBookings: boolean
+      }
     }
 
     interface Request {
