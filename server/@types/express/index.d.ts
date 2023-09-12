@@ -1,4 +1,5 @@
 import type { Breadcrumbs } from '../../middleware/breadcrumbs'
+import type { UserPermissions } from '../../middleware/userPermissions'
 import type { UserDetails } from '../../services/userService'
 
 export default {}
@@ -16,23 +17,7 @@ export declare global {
     interface User extends Partial<UserDetails> {
       token: string
       roles?: string[]
-      permissions?: (
-        | {
-            read: false
-            write: false
-          }
-        | {
-            read: true
-            write: false
-          }
-        | {
-            read: true
-            write: true
-          }
-      ) & {
-        globalSearch: boolean
-        inactiveBookings: boolean
-      }
+      permissions?: UserPermissions
     }
 
     interface Request {

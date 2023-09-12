@@ -6,7 +6,7 @@ import nunjucksSetup from '../../utils/nunjucksSetup'
 import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
 import setUpProductInfo from '../../middleware/setUpProductInfo'
-import userPermissionFlags from '../../middleware/userPermissionFlags'
+import userPermissions from '../../middleware/userPermissions'
 import * as auth from '../../authentication/auth'
 import {
   userRolePrison,
@@ -66,7 +66,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
-  app.use(userPermissionFlags())
+  app.use(userPermissions())
   app.use(setUpProductInfo())
   app.use(breadcrumbs())
   app.use(routes(services))
