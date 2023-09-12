@@ -6,7 +6,7 @@ import {
   userRoleInactiveBookings,
   userRoleManageNonAssociations,
 } from '../data/constants'
-import { isBeingTransferred, isOutside, type OffenderSearchResult } from '../data/offenderSearch'
+import { isBeingTransferred, isOutside } from '../data/offenderSearch'
 
 export class UserPermissions {
   private caseloadSet: Set<string>
@@ -46,7 +46,7 @@ export class UserPermissions {
   /**
    * Whether prisoner photos and links to their profiles should show
    */
-  canViewProfile(prisoner: OffenderSearchResult): boolean {
+  canViewProfile(prisoner: { prisonId: string }): boolean {
     if (isBeingTransferred(prisoner)) {
       return this.user.permissions.globalSearch
     }
