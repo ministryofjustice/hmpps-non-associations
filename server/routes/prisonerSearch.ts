@@ -3,7 +3,7 @@ import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import { isOutside, OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
 import type { Services } from '../services'
 import formGetRoute from './forms/get'
 import { pagination, type Pagination } from '../utils/pagination'
@@ -34,16 +34,14 @@ export default function prisonerSearchRoutes(service: Services): Router {
       const { id: prisonId } = user.activeCaseload
       const { prisonerNumber } = req.params
 
-      if (!user.permissions?.write) {
-        throw new NotFound(`User ${user.username} does not have write permissions`)
-      }
-
       const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
       const offenderSearchClient = new OffenderSearchClient(systemToken)
       const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
 
-      if (isOutside(prisoner)) {
-        throw new NotFound(`Cannot add a non-association to someone outside prison: ${prisonerNumber}`)
+      if (!user.permissions?.canWriteNonAssociation(prisoner, prisoner)) {
+        throw new NotFound(
+          `User ${user.username} does not have permissions to add non-associations for ${prisonerNumber}`,
+        )
       }
 
       const form: PrisonerSearchForm | null = res.locals.submittedForm
