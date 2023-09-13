@@ -21,8 +21,8 @@ export default class ListPage extends Page {
     return this.tabs.eq(1)
   }
 
-  get keyPrisonerBox(): PageElement<HTMLDivElement> {
-    return cy.get('.app-key-prisoner-details')
+  get miniProfileHeader(): PageElement<HTMLDivElement> {
+    return cy.get('.dps-mini-profile-header')
   }
 
   get tables(): PageElement<HTMLTableElement> {

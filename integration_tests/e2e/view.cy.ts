@@ -16,10 +16,10 @@ context('View non-association details page', () => {
   })
 
   it('should show key prisoner’s details', () => {
-    viewPage.keyPrisonerBox.should('contain.text', 'Jones, David')
-    viewPage.keyPrisonerBox.should('contain.text', davidJones.prisonerNumber)
-    viewPage.keyPrisonerBox.should('contain.text', davidJones.cellLocation)
-    viewPage.keyPrisonerBox.should('contain.text', 'Perpetrator')
+    viewPage.miniProfileHeader.should('contain.text', 'Jones, David')
+    viewPage.miniProfileHeader.should('contain.text', davidJones.prisonerNumber)
+    viewPage.miniProfileHeader.should('contain.text', davidJones.cellLocation)
+    viewPage.miniProfileHeader.should('contain.text', 'Perpetrator')
   })
 
   it('should show other prisoner’s details', () => {

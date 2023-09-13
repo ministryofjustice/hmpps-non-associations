@@ -8,8 +8,8 @@ export default class ViewPage extends Page {
     super(`Non-association: ${prisonerName} and ${otherPrisonerName}`)
   }
 
-  get keyPrisonerBox(): PageElement<HTMLDivElement> {
-    return cy.get('.app-key-prisoner-details')
+  get miniProfileHeader(): PageElement<HTMLDivElement> {
+    return cy.get('.dps-mini-profile-header')
   }
 
   get otherPrisonerBox(): PageElement<HTMLDivElement> {
