@@ -1,16 +1,16 @@
 .app-key-prisoner-details {
-  @extend .govuk-\!-padding-4;
+  @extend .govuk-\!-padding-3;
   display: flex;
   flex-direction: row;
   align-items: start;
   background: govuk-colour('light-grey');
 
   .app-prisoner-photo--small {
-    margin-right: 50px;
+    margin-right: govuk-spacing(6);
   }
 
   dl {
-    margin-right: 80px;
+    margin-right: govuk-spacing(9);
 
     &:last-child {
       margin-right: 0;
@@ -35,6 +35,14 @@
 
     dl {
       margin-right: 0;
+
+      &:last-child {
+        margin-bottom: 0;
+
+        dd {
+          margin-bottom: 0;
+        }
+      }
     }
   }
 }

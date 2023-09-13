@@ -12,10 +12,14 @@
     <dd>
       {% if canViewProfile %}
         <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
-          {{ prisoner | reversedNameOfPerson }}
+          <strong>
+            {{ prisoner | reversedNameOfPerson }}
+          </strong>
         </a>
       {% else %}
-        {{ prisoner | reversedNameOfPerson }}
+        <strong>
+          {{ prisoner | reversedNameOfPerson }}
+        </strong>
       {% endif %}
       <br />
       {{ prisoner.prisonerNumber }}
