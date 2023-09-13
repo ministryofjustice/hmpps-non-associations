@@ -62,6 +62,7 @@ export default function viewRoutes(service: Services): Router {
       },
     )
     res.render('pages/view.njk', {
+      user,
       keyPrisonerIsFirst,
       prisoner,
       prisonerNumber,

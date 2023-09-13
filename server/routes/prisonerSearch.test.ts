@@ -2,9 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { outsidePrisonId, userRolePrison } from '../data/constants'
+import { outsidePrisonId } from '../data/constants'
 import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
 import { davidJones, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
@@ -37,12 +37,7 @@ afterEach(() => {
 describe('Search for a prisoner page', () => {
   it('should return 404 if user does not have write permission', () => {
     app = appWithAllRoutes({
-      userSupplier: () => {
-        return {
-          ...mockUser,
-          roles: [userRolePrison],
-        }
-      },
+      userSupplier: () => mockReadOnlyUser,
     })
 
     return request(app)

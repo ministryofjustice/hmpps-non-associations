@@ -1,36 +1,46 @@
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
 <h2 class="govuk-heading-m govuk-!-margin-top-6">
-  {%- if table == 'same' -%}
+  {%- if table == "same" -%}
     {{ prisoner.prisonName }}
-  {%- elif table == 'other' -%}
+  {%- elif table == "other" -%}
     Other establishments
-  {%- elif table == 'any' -%}
+  {%- elif table == "any" -%}
     In establishments
-  {%- elif table == 'outside' -%}
+  {%- elif table == "outside" -%}
     Not currently in an establishment
   {%- endif -%}
 </h2>
 
 {% set tableRows = [] %}
 {% for nonAssociation in nonAssociationsGroup %}
+  {% set canViewProfile = user.permissions.canViewProfile(nonAssociation.otherPrisonerDetails) %}
+
   {% set otherPrisonerPhoto %}
-    <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }}" class="app-prisoner-photo" />
+    {% if canViewProfile %}
+      <img src="{{ routeUrls.prisonerPhoto(nonAssociation.otherPrisonerDetails.prisonerNumber) }}" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }}" class="app-prisoner-photo" />
+    {% else %}
+      <img src="/assets/images/prisoner.jpeg" alt="Photo of {{ nonAssociation.otherPrisonerDetails | nameOfPerson }} is not available" class="app-prisoner-photo" />
+    {% endif %}
   {% endset %}
 
   {% set otherPrisonerProfileLink %}
-    <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
-      <span class="govuk-visually-hidden">View prisoner profile for</span>
+    {% if canViewProfile %}
+      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
+        <span class="govuk-visually-hidden">View prisoner profile for</span>
+        {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
+      </a>
+    {% else %}
       {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
-    </a>
+    {% endif %}
     <br />
     {{ nonAssociation.otherPrisonerDetails.prisonerNumber }}
   {% endset %}
 
   {% set location %}
-    {% if table == 'same' %}
+    {% if table == "same" %}
       {{ nonAssociation.otherPrisonerDetails.cellLocation }}
-    {% elif table == 'other' or table == 'any' %}
+    {% elif table == "other" or table == "any" %}
       {{ nonAssociation.otherPrisonerDetails.prisonName }}
     {% else %}
       {{ nonAssociation.otherPrisonerDetails | prisonerLocation }}

@@ -6,9 +6,14 @@ import nunjucksSetup from '../../utils/nunjucksSetup'
 import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
 import setUpProductInfo from '../../middleware/setUpProductInfo'
-import userPermissionFlags from '../../middleware/userPermissionFlags'
+import userPermissions from '../../middleware/userPermissions'
 import * as auth from '../../authentication/auth'
-import { userRolePrison, userRoleManageNonAssociations } from '../../data/constants'
+import {
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+} from '../../data/constants'
 import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
@@ -18,10 +23,11 @@ import routeUrls from '../../services/routeUrls'
 
 jest.mock('../../data/hmppsAuthClient')
 
-const activeCaseload: Caseload = {
+export const mockActiveCaseload: Caseload = {
   id: 'MDI',
   name: 'Moorland (HMP & YOI)',
 }
+export const mockCaseloads: Caseload[] = [mockActiveCaseload]
 
 export const mockUser: Express.User = {
   name: 'FIRST LAST',
@@ -31,10 +37,15 @@ export const mockUser: Express.User = {
   displayName: 'First Last',
   active: true,
   activeCaseLoadId: 'MDI',
-  activeCaseload,
-  caseloads: [activeCaseload],
+  activeCaseload: mockActiveCaseload,
+  caseloads: mockCaseloads,
   authSource: 'NOMIS',
-  roles: [userRolePrison, userRoleManageNonAssociations],
+  roles: [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations],
+}
+
+export const mockReadOnlyUser: Express.User = {
+  ...mockUser,
+  roles: [userRolePrison],
 }
 
 export const flashProvider = jest.fn()
@@ -55,7 +66,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
-  app.use(userPermissionFlags())
+  app.use(userPermissions())
   app.use(setUpProductInfo())
   app.use(breadcrumbs())
   app.use(routes(services))

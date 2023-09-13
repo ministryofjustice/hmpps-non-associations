@@ -17,13 +17,23 @@
 
   <div class="govuk-grid-row govuk-!-margin-top-8">
     <div class="govuk-grid-column-two-thirds app-view__other-prisoner-details">
-      <img src="{{ routeUrls.prisonerPhoto(otherPrisonerNumber) }}" alt="Photo of {{ otherPrisonerName }}" class="app-prisoner-photo--large" />
+      {% set canViewProfile = user.permissions.canViewProfile(otherPrisoner) %}
+
+      {% if canViewProfile %}
+        <img src="{{ routeUrls.prisonerPhoto(otherPrisonerNumber) }}" alt="Photo of {{ otherPrisonerName }}" class="app-prisoner-photo--large" />
+      {% else %}
+        <img src="/assets/images/prisoner.jpeg" alt="Photo of {{ otherPrisonerName }} is not available" class="app-prisoner-photo--large" />
+      {% endif %}
 
       <div>
         {% set otherPrisonerLink %}
-          <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}">
+          {% if canViewProfile %}
+            <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}">
+              {{ otherPrisoner | reversedNameOfPerson }}
+            </a>
+          {% else %}
             {{ otherPrisoner | reversedNameOfPerson }}
-          </a>
+          {% endif %}
         {% endset %}
 
         {{ govukTable({

@@ -29,16 +29,22 @@ export interface OffenderSearchResultOut extends BaseOffenderSearchResult {
 
 export type OffenderSearchResult = OffenderSearchResultIn | OffenderSearchResultTransfer | OffenderSearchResultOut
 
-export function isBeingTransferred(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultTransfer {
-  return prisoner.prisonId === transferPrisonId
+export function isBeingTransferred(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultTransfer
+export function isBeingTransferred(prisonerOrNonAssociation: { prisonId: string }): boolean
+export function isBeingTransferred(prisonerOrNonAssociation: { prisonId: string }): boolean {
+  return prisonerOrNonAssociation.prisonId === transferPrisonId
 }
 
-export function isOutside(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultOut {
-  return prisoner.prisonId === outsidePrisonId
+export function isOutside(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultOut
+export function isOutside(prisonerOrNonAssociation: { prisonId: string }): boolean
+export function isOutside(prisonerOrNonAssociation: { prisonId: string }): boolean {
+  return prisonerOrNonAssociation.prisonId === outsidePrisonId
 }
 
-export function isInPrison(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultIn {
-  return !isBeingTransferred(prisoner) && !isOutside(prisoner)
+export function isInPrison(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultIn
+export function isInPrison(prisonerOrNonAssociation: { prisonId: string }): boolean
+export function isInPrison(prisonerOrNonAssociation: { prisonId: string }): boolean {
+  return !isBeingTransferred(prisonerOrNonAssociation) && !isOutside(prisonerOrNonAssociation)
 }
 
 export type OffenderSearchResults = {

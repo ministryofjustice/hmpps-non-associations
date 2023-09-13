@@ -2,9 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { transferPrisonId, outsidePrisonId, userRolePrison } from '../data/constants'
+import { transferPrisonId, outsidePrisonId } from '../data/constants'
 import {
   NonAssociationsApi,
   sortDirectionOptions,
@@ -107,6 +107,44 @@ describe('Non-associations list page', () => {
           expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
           expect(nonAssociationsApi.listNonAssociations).not.toHaveBeenCalled()
           expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+        })
+    })
+  })
+
+  describe('link to key prisoner profile', () => {
+    beforeEach(() => {
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    })
+
+    it('should show when the user has permission', () => {
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).not.toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of David Jones')
+          expect(res.text).not.toContain('Photo of David Jones is not available')
+          expect(res.text).toContain('/prisoner/A1234BC/photo.jpeg')
+        })
+    })
+
+    it('should not show when the user does not have permission', () => {
+      offenderSearchClient.getPrisoner.mockResolvedValueOnce(mockMovePrisoner(prisoner, 'LEI', 'Leeds (HMP)'))
+      nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+        mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, 'LEI', 'Leeds (HMP)'),
+      )
+
+      return request(app)
+        .get(routeUrls.list(prisonerNumber))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of David Jones is not available')
+          expect(res.text).not.toContain('/prisoner/A1234BC/photo.jpeg')
         })
     })
   })
@@ -215,12 +253,7 @@ describe('Non-associations list page', () => {
 
       it('should not be allowed if the user does not have write permission', () => {
         app = appWithAllRoutes({
-          userSupplier: () => {
-            return {
-              ...mockUser,
-              roles: [userRolePrison],
-            }
-          },
+          userSupplier: () => mockReadOnlyUser,
         })
         offenderSearchClient.getPrisoner.mockResolvedValueOnce(keyPrisoner)
 
@@ -323,6 +356,25 @@ describe('Non-associations list page', () => {
         if (this.table === 'same') {
           expect(res.text).toContain('1-1-002')
           expect(res.text).toContain('1-1-003')
+        }
+        if (this.table !== 'other') {
+          expect(res.text).not.toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of Fred Mills')
+          expect(res.text).not.toContain('Photo of Fred Mills is not available')
+          expect(res.text).toContain('/prisoner/A1235EF/photo.jpeg')
+          expect(res.text).toContain('href="http://localhost:3000/prisoner/A1235EF"')
+          expect(res.text).toContain('Photo of Oscar Jones')
+          expect(res.text).not.toContain('Photo of Oscar Jones is not available')
+          expect(res.text).toContain('/prisoner/A1236CS/photo.jpeg')
+          expect(res.text).toContain('href="http://localhost:3000/prisoner/A1236CS"')
+        } else {
+          expect(res.text).toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of Fred Mills is not available')
+          expect(res.text).not.toContain('/prisoner/A1235EF/photo.jpeg')
+          expect(res.text).not.toContain('href="http://localhost:3000/prisoner/A1235EF"')
+          expect(res.text).toContain('Photo of Oscar Jones is not available')
+          expect(res.text).not.toContain('/prisoner/A1236CS/photo.jpeg')
+          expect(res.text).not.toContain('href="http://localhost:3000/prisoner/A1236CS"')
         }
         if (!this.closed) {
           expect(res.text).toContain('26/07/2023')
@@ -914,7 +966,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
@@ -940,7 +992,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
@@ -968,7 +1020,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
@@ -992,7 +1044,7 @@ describe('Non-associations list page', () => {
         .get(routeUrls.list(prisonerNumber, true))
         .expect(200)
         .expect('Content-Type', /html/)
-        .expect(res => {
+        .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
           expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')

@@ -2,9 +2,8 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { userRolePrison } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, OffenderSearchResult } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
@@ -49,12 +48,7 @@ afterEach(() => {
 describe('Update non-association page', () => {
   it('should return 404 if user does not have write permission', () => {
     app = appWithAllRoutes({
-      userSupplier: () => {
-        return {
-          ...mockUser,
-          roles: [userRolePrison],
-        }
-      },
+      userSupplier: () => mockReadOnlyUser,
     })
 
     return request(app)
