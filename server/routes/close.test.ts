@@ -15,8 +15,20 @@ import { OffenderSearchClient } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones, maxClarke, joePeters } from '../data/testData/offenderSearch'
 
-jest.mock('../data/nonAssociationsApi')
-jest.mock('../data/offenderSearch')
+jest.mock('../data/nonAssociationsApi', () => {
+  // ensures that constants are preserved
+  type Module = typeof import('../data/nonAssociationsApi')
+  const realModule = jest.requireActual<Module>('../data/nonAssociationsApi')
+  const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
+  return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
+})
+jest.mock('../data/offenderSearch', () => {
+  // ensures that sort and order constants are preserved
+  type Module = typeof import('../data/offenderSearch')
+  const realModule = jest.requireActual<Module>('../data/offenderSearch')
+  const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
+  return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
+})
 
 // mock "key" prisoner
 const { prisonerNumber } = davidJones
