@@ -2,12 +2,18 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { OffenderSearchClient } from '../data/offenderSearch'
+import {
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+} from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import { OffenderSearchClient } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
-import { davidJones, fredMills, oscarJones } from '../data/testData/offenderSearch'
+import { davidJones, fredMills, oscarJones, maxClarke, joePeters } from '../data/testData/offenderSearch'
 
 jest.mock('../data/nonAssociationsApi')
 jest.mock('../data/offenderSearch')
@@ -36,18 +42,55 @@ afterEach(() => {
 })
 
 describe('Close non-association page', () => {
-  it('should return 404 if user does not have write permission', () => {
+  it.each([
+    {
+      scenario: 'does not have write permissions',
+      user: mockReadOnlyUser,
+      prisoner: davidJones,
+      otherPrisoner: fredMills,
+      expectEarly404: true,
+    },
+    {
+      scenario: 'is missing global search',
+      user: {
+        ...mockUser,
+        roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
+      },
+      prisoner: davidJones,
+      otherPrisoner: maxClarke,
+      expectEarly404: false,
+    },
+    {
+      scenario: 'is missing inactive bookings role',
+      user: {
+        ...mockUser,
+        roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
+      },
+      prisoner: joePeters,
+      otherPrisoner: davidJones,
+      expectEarly404: false,
+    },
+  ])('should return 404 if user $scenario', ({ user, prisoner: p1, otherPrisoner: p2, expectEarly404 }) => {
     app = appWithAllRoutes({
-      userSupplier: () => mockReadOnlyUser,
+      userSupplier: () => user,
     })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(p1)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(p2)
+    const na = mockNonAssociation(p1.prisonerNumber, p2.prisonerNumber)
+    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(na)
 
     return request(app)
-      .get(routeUrls.close(prisonerNumber, openNonAssociation.id))
+      .get(routeUrls.close(p1.prisonerNumber, na.id))
       .expect(404)
       .expect('Content-Type', /html/)
       .expect(() => {
-        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
-        expect(nonAssociationsApi.getNonAssociation).not.toHaveBeenCalled()
+        if (expectEarly404) {
+          expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+          expect(nonAssociationsApi.getNonAssociation).not.toHaveBeenCalled()
+        } else {
+          expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+          expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
+        }
         expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
       })
   })
@@ -68,6 +111,7 @@ describe('Close non-association page', () => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
       })
   })
 
@@ -81,6 +125,7 @@ describe('Close non-association page', () => {
         expect(res.text).not.toContain('Jones, Oscar')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
       })
   })
 
@@ -95,6 +140,7 @@ describe('Close non-association page', () => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
       })
   })
 
@@ -110,6 +156,7 @@ describe('Close non-association page', () => {
       .expect(res => {
         expect(res.text).toContain('Jones, David')
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
       })
   })
 

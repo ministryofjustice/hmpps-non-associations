@@ -48,6 +48,13 @@ export default function addRoutes(service: Services): Router {
       const offenderSearchClient = new OffenderSearchClient(systemToken)
       const firstPrisoner = await offenderSearchClient.getPrisoner(nonAssociation.firstPrisonerNumber)
       const secondPrisoner = await offenderSearchClient.getPrisoner(nonAssociation.secondPrisonerNumber)
+
+      if (!user.permissions?.canWriteNonAssociation(firstPrisoner, secondPrisoner)) {
+        throw new NotFound(
+          `User ${user.username} does not have permissions to close a non-association between ${firstPrisoner.prisonerNumber} and ${secondPrisoner.prisonerNumber}`,
+        )
+      }
+
       let prisoner: OffenderSearchResult
       if (keyPrisonerIsFirst) {
         prisoner = firstPrisoner
