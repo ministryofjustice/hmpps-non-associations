@@ -181,6 +181,8 @@ describe('Update non-association page', () => {
               `Is ${nameOfPerson(prisoner)} a victim or perpetrator?`,
               `Is ${nameOfPerson(otherPrisoner)} a victim or perpetrator?`,
             ])
+
+            expect(res.text).toContain(`/prisoner/${prisoner.prisonerNumber}/non-associations/${nonAssociation.id}`)
           })
       })
     })
