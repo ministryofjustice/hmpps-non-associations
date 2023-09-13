@@ -2,8 +2,14 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
+import {
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+} from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
@@ -355,22 +361,46 @@ describe('View non-association details page', () => {
     },
   )
 
-  it('should hide update and close buttons if user does not have write permissions', () => {
-    app = appWithAllRoutes({
-      userSupplier: () => mockReadOnlyUser,
-    })
-    offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-    prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
-
-    return request(app)
-      .get(routeUrls.view(prisonerNumber, nonAssociation.id))
-      .expect(200)
-      .expect('Content-Type', /html/)
-      .expect(res => {
-        expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
-        expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
+  describe('should hide update and close buttons when', () => {
+    it.each([
+      {
+        scenario: 'you have no write permissions',
+        user: mockReadOnlyUser,
+        nonAssociation,
+      },
+      {
+        scenario: 'a prisoner is being transferred but you do not have global search',
+        user: {
+          ...mockUser,
+          roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
+        },
+        nonAssociation: mockNonAssociation(davidJones.prisonerNumber, maxClarke.prisonerNumber),
+      },
+      {
+        scenario: 'a person is not in an establishment but you do not have inactive bookings role',
+        user: {
+          ...mockUser,
+          roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
+        },
+        nonAssociation: mockNonAssociation(joePeters.prisonerNumber, davidJones.prisonerNumber),
+      },
+    ])('$scenario', ({ user, nonAssociation: na }) => {
+      app = appWithAllRoutes({
+        userSupplier: () => user,
       })
+      offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
+      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(na)
+
+      return request(app)
+        .get(routeUrls.view(na.firstPrisonerNumber, na.id))
+        .expect(200)
+        .expect('Content-Type', /html/)
+        .expect(res => {
+          expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
+          expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
+        })
+    })
   })
 
   it('should display “System” instead of internal system username as the authoriser', () => {

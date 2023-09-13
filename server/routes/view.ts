@@ -49,7 +49,8 @@ export default function viewRoutes(service: Services): Router {
     const prisonApi = new PrisonApi(systemToken)
     nonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
 
-    const canModifyNonAssociation = user.permissions.write && !nonAssociation.isClosed
+    const canModifyNonAssociation =
+      user.permissions.canWriteNonAssociation(prisoner, otherPrisoner) && !nonAssociation.isClosed
 
     res.locals.breadcrumbs.addItems(
       {
