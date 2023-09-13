@@ -24,9 +24,9 @@ context('List non-associations page', () => {
   })
 
   it('should show key prisoner’s details', () => {
-    listPage.keyPrisonerBox.should('contain.text', 'Jones, David')
-    listPage.keyPrisonerBox.should('contain.text', davidJones.prisonerNumber)
-    listPage.keyPrisonerBox.should('contain.text', davidJones.cellLocation)
+    listPage.miniProfileHeader.should('contain.text', 'Jones, David')
+    listPage.miniProfileHeader.should('contain.text', davidJones.prisonerNumber)
+    listPage.miniProfileHeader.should('contain.text', davidJones.cellLocation)
   })
 
   it('should have open tab selected', () => {

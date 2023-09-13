@@ -1,6 +1,6 @@
 {% set canViewProfile = user.permissions.canViewProfile(prisoner) %}
 
-<div class="app-key-prisoner-details">
+<div class="dps-mini-profile-header">
   {% if canViewProfile %}
     <img src="{{ routeUrls.prisonerPhoto(prisoner.prisonerNumber) }}" alt="Photo of {{ prisoner| nameOfPerson }}" class="app-prisoner-photo--small" />
   {% else %}
@@ -12,10 +12,14 @@
     <dd>
       {% if canViewProfile %}
         <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
-          {{ prisoner | reversedNameOfPerson }}
+          <strong>
+            {{ prisoner | reversedNameOfPerson }}
+          </strong>
         </a>
       {% else %}
-        {{ prisoner | reversedNameOfPerson }}
+        <strong>
+          {{ prisoner | reversedNameOfPerson }}
+        </strong>
       {% endif %}
       <br />
       {{ prisoner.prisonerNumber }}

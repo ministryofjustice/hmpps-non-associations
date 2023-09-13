@@ -1,8 +1,8 @@
-{% extends "./keyPrisonerDetails.njk" %}
+{% extends "./miniProfileHeader.njk" %}
 
 {% block extraDetails %}
   {% if canAddNonAssociation %}
-    <div class="app-key-prisoner-details--align-right">
+    <div class="dps-mini-profile-header--align-right">
       <p class="hmpps-action-button">
         <img src="/assets/images/add-non-association.svg" alt="Icon representing a non-association" aria-hidden="true" />
         <a href="{{ routeUrls.prisonerSearch(prisonerNumber) }}" class="govuk-link--no-visited-state">
