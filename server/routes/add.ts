@@ -12,7 +12,7 @@ import {
   restrictionTypeOptions,
   maxCommentLength,
 } from '../data/nonAssociationsApi'
-import { isOutside, OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
+import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
@@ -31,10 +31,6 @@ export default function addRoutes(service: Services): Router {
         const { user } = res.locals
         const { prisonerNumber, otherPrisonerNumber } = req.params
 
-        if (!user.permissions?.write) {
-          throw new NotFound(`User ${user.username} does not have write permissions`)
-        }
-
         if (prisonerNumber === otherPrisonerNumber) {
           throw new NotFound('Cannot add a non-association to the same person')
         }
@@ -45,15 +41,15 @@ export default function addRoutes(service: Services): Router {
           offenderSearchClient.getPrisoner(prisonerNumber),
           offenderSearchClient.getPrisoner(otherPrisonerNumber),
         ])
+
+        if (!user.permissions?.canWriteNonAssociation(prisoner, otherPrisoner)) {
+          throw new NotFound(
+            `User ${user.username} does not have permissions to add a non-association between ${prisonerNumber} and ${otherPrisonerNumber}`,
+          )
+        }
+
         const prisonerName = nameOfPerson(prisoner)
         const otherPrisonerName = nameOfPerson(otherPrisoner)
-
-        if (isOutside(prisoner)) {
-          throw new NotFound(`Cannot add a non-association to someone outside prison: ${prisonerNumber}`)
-        }
-        if (isOutside(otherPrisoner)) {
-          throw new NotFound(`Cannot add a non-association to someone outside prison: ${otherPrisonerNumber}`)
-        }
 
         Object.assign(res.locals, { systemToken, prisoner, prisonerName, otherPrisoner, otherPrisonerName })
 

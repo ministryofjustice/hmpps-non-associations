@@ -62,6 +62,12 @@ export default function updateRoutes(service: Services): Router {
         const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
         const otherPrisonerName = nameOfPerson(otherPrisoner)
 
+        if (!user.permissions?.canWriteNonAssociation(prisoner, otherPrisoner)) {
+          throw new NotFound(
+            `User ${user.username} does not have permissions to update a non-association between ${prisoner.prisonerNumber} and ${otherPrisoner.prisonerNumber}`,
+          )
+        }
+
         Object.assign(res.locals, {
           systemToken,
           nonAssociation,

@@ -2,11 +2,16 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockReadOnlyUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser, mockReadOnlyUser } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { outsidePrisonId } from '../data/constants'
-import { OffenderSearchClient, type OffenderSearchResultOut } from '../data/offenderSearch'
-import { davidJones, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
+import {
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+} from '../data/constants'
+import { OffenderSearchClient } from '../data/offenderSearch'
+import { davidJones, maxClarke, joePeters, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
 jest.mock('../data/offenderSearch', () => {
   // ensures that sort and order constants are preserved
@@ -27,7 +32,6 @@ beforeEach(() => {
   app = appWithAllRoutes({})
 
   offenderSearchClient = OffenderSearchClient.prototype as jest.Mocked<OffenderSearchClient>
-  offenderSearchClient.getPrisoner.mockResolvedValue(prisoner)
 })
 
 afterEach(() => {
@@ -35,17 +39,42 @@ afterEach(() => {
 })
 
 describe('Search for a prisoner page', () => {
-  it('should return 404 if user does not have write permission', () => {
+  it.each([
+    {
+      scenario: 'does not have write permissions',
+      user: mockReadOnlyUser,
+      prisoner: davidJones,
+    },
+    {
+      scenario: 'is missing global search',
+      user: {
+        ...mockUser,
+        roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
+      },
+      prisoner: maxClarke,
+    },
+    {
+      scenario: 'is missing inactive bookings role',
+      user: {
+        ...mockUser,
+        roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
+      },
+      prisoner: joePeters,
+    },
+  ])('should return 404 if user $scenario', ({ user, prisoner: p }) => {
     app = appWithAllRoutes({
-      userSupplier: () => mockReadOnlyUser,
+      userSupplier: () => user,
     })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(p)
 
     return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .get(routeUrls.prisonerSearch(p.prisonerNumber))
       .expect(404)
       .expect('Content-Type', /html/)
-      .expect(() => {
-        expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
+      .expect(res => {
+        expect(res.text).not.toContain(p.firstName)
+        expect(res.text).not.toContain(p.lastName)
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
       })
   })
 
@@ -56,26 +85,7 @@ describe('Search for a prisoner page', () => {
       message: 'Not Found',
       stack: 'Not Found',
     }
-    offenderSearchClient.getPrisoner.mockRejectedValue(error)
-
-    return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
-      .expect(404)
-      .expect(res => {
-        expect(res.text).not.toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
-      })
-  })
-
-  it('should return 404 if prisoner is outside prison', () => {
-    const prisonerOutside = {
-      ...prisoner,
-      prisonId: outsidePrisonId,
-      prisonName: 'Outside',
-      locationDescription: 'Outside - released from Moorland (HMP)',
-    } satisfies OffenderSearchResultOut
-    delete prisonerOutside.cellLocation
-    offenderSearchClient.getPrisoner.mockResolvedValue(prisonerOutside)
+    offenderSearchClient.getPrisoner.mockRejectedValueOnce(error)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -87,6 +97,8 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should render breadcrumbs', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
       .expect(200)
@@ -97,6 +109,8 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should not display search results when loaded', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
       .expect(200)
@@ -114,6 +128,7 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should display search results when a query is entered', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.search.mockResolvedValue(sampleOffenderSearchResults)
 
     return request(app)
@@ -150,6 +165,7 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should display a message if no results were returned', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.search.mockResolvedValue({ content: [], totalElements: 0 })
 
     return request(app)
@@ -174,6 +190,8 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should display an error if an empty query is submitted', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
       .query({
@@ -193,11 +211,12 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // search not performed
-        expect(offenderSearchClient.search).toHaveBeenCalledTimes(0)
+        expect(offenderSearchClient.search).not.toHaveBeenCalled()
       })
   })
 
   it('should show pagination when there are many results', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.search.mockResolvedValue({ content: sampleOffenderSearchResults.content, totalElements: 100 })
 
     return request(app)
@@ -231,6 +250,7 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should not show the "key" prisoner in results', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.search.mockResolvedValue({
       content: [davidJones, ...sampleOffenderSearchResults.content],
       totalElements: sampleOffenderSearchResults.totalElements + 1,

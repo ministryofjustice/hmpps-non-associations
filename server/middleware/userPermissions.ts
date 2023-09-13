@@ -9,29 +9,34 @@ import {
 import { isBeingTransferred, isOutside } from '../data/offenderSearch'
 
 export class UserPermissions {
-  private caseloadSet: Set<string>
+  private readonly caseloadSet: Set<string>
 
   /**
    * Can view non-associations
    */
-  public read = false
+  public readonly read: boolean
 
   /**
    * Can potentially add, update and close non-associations
    */
-  public write = false
+  public readonly write: boolean
 
   /**
    * Can see prisoners in other prisons
    */
-  public globalSearch = false
+  public readonly globalSearch: boolean
 
   /**
    * Can see people released from prison
    */
-  public inactiveBookings = false
+  public readonly inactiveBookings: boolean
 
   constructor(private readonly user: Express.User) {
+    this.read = false
+    this.write = false
+    this.globalSearch = false
+    this.inactiveBookings = false
+
     const roles = user.roles ?? []
     if (roles.includes(userRolePrison)) {
       this.read = true
@@ -54,6 +59,43 @@ export class UserPermissions {
       return this.user.permissions.inactiveBookings
     }
     return this.caseloadSet.has(prisoner.prisonId)
+  }
+
+  /**
+   * Whether a non-association can be added, updated or closed
+   * NB: the same prisoner can be provided into both arguments to check whether a non-association
+   * can _potentially_ be added with some other person.
+   */
+  canWriteNonAssociation(prisoner: { prisonId: string }, otherPrisoner: { prisonId: string }): boolean {
+    if (!this.write) {
+      return false
+    }
+
+    if (isBeingTransferred(prisoner)) {
+      if (!this.globalSearch) {
+        return false
+      }
+    } else if (isOutside(prisoner)) {
+      if (!this.inactiveBookings) {
+        return false
+      }
+    } else if (!this.caseloadSet.has(prisoner.prisonId)) {
+      return false
+    }
+
+    if (isBeingTransferred(otherPrisoner)) {
+      if (!this.globalSearch) {
+        return false
+      }
+    } else if (isOutside(otherPrisoner)) {
+      if (!this.inactiveBookings) {
+        return false
+      }
+    } else if (!this.caseloadSet.has(otherPrisoner.prisonId)) {
+      return false
+    }
+
+    return true
   }
 }
 
