@@ -63,6 +63,8 @@ export class UserPermissions {
 
   /**
    * Whether a non-association can be added, updated or closed
+   * NB: the same prisoner can be provided into both arguments to check whether a non-association
+   * can _potentially_ be added with some other person.
    */
   canWriteNonAssociation(prisoner: { prisonId: string }, otherPrisoner: { prisonId: string }): boolean {
     if (!this.write) {

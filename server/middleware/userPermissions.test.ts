@@ -328,6 +328,13 @@ describe('userPermissions', () => {
         prisoner: maxClarke,
         otherPrisoner: joePeters,
       },
+      {
+        scenario:
+          'one permitted prisoner and themselves (used to check whether a non-association can potentially be added)',
+        user: mockUser,
+        prisoner: davidJones,
+        otherPrisoner: davidJones,
+      },
     ] satisfies HasWritePermissionScenarios)('$scenario', ({ user, prisoner, otherPrisoner }) => {
       expectUser(user).toHaveWritePermission(prisoner, otherPrisoner)
     })
@@ -382,6 +389,13 @@ describe('userPermissions', () => {
         },
         prisoner: davidJones,
         otherPrisoner: joePeters,
+      },
+      {
+        scenario:
+          'both sides are one prisoner who is not permitted (used to check whether a non-association can potentially be added)',
+        user: mockUser,
+        prisoner: andrewBrown,
+        otherPrisoner: andrewBrown,
       },
     ] satisfies HasWritePermissionScenarios)('$scenario', ({ user, prisoner, otherPrisoner }) => {
       expectUser(user).toNotHaveWritePermission(prisoner, otherPrisoner)
