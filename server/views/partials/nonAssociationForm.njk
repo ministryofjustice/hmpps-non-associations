@@ -117,12 +117,9 @@
             preventDoubleClick: true
           }) }}
 
-          {{ govukButton({
-            text: "Cancel",
-            classes: "govuk-button--secondary",
-            element: "a",
-            href: routeUrls.list(prisonerNumber)
-          }) }}
+          <a href="{{ routeUrls.list(prisonerNumber) }}" class="govuk-link">
+            Cancel
+          </a>
         </div>
       </form>
 
