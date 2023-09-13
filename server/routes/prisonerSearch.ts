@@ -6,7 +6,7 @@ import asyncMiddleware from '../middleware/asyncMiddleware'
 import { isOutside, OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
 import type { Services } from '../services'
 import formGetRoute from './forms/get'
-import { pagination, type Pagination } from '../utils/pagination'
+import { pagination, type LegacyPagination } from '../utils/pagination'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import PrisonerSearchForm from '../forms/prisonerSearchForm'
 
@@ -50,7 +50,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
 
       let searchResults: OffenderSearchResults | undefined
       let tableHead: HeaderCell[] | undefined
-      let paginationParams: Pagination | undefined
+      let paginationParams: LegacyPagination | undefined
 
       if (form && !form.hasErrors) {
         const page = form.fields.page.value
@@ -71,7 +71,15 @@ export default function prisonerSearchRoutes(service: Services): Router {
             return `${param}=${encodeURIComponent(value)}`
           })
           const paginationUrlPrefix = `?${paginationUrlPrefixParams.join('&')}&`
-          paginationParams = pagination(page, pageCount, paginationUrlPrefix)
+          paginationParams = pagination(
+            page,
+            pageCount,
+            paginationUrlPrefix,
+            'moj',
+            response.totalElements,
+            OffenderSearchClient.PAGE_SIZE,
+          )
+          paginationParams.results.text = 'prisoners'
 
           // NB: there's no way to exclude results in offender search so have to hack it; it shouldn't be noticeable
           response.content = response.content.filter(result => {
