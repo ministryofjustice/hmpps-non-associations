@@ -178,6 +178,8 @@ describe('Close non-association page', () => {
         expect(res.text).not.toContain('There is a problem')
         expect(res.text).toContain('Jones, David – A1234BC')
         expect(res.text).toContain('Explain why this non-association is no longer required')
+
+        expect(res.text).toContain(`/prisoner/${prisoner.prisonerNumber}/non-associations/${openNonAssociation.id}`)
       })
   })
 

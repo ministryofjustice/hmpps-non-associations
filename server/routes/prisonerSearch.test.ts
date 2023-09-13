@@ -129,7 +129,7 @@ describe('Search for a prisoner page', () => {
         expect(res.text).not.toContain('Search for a prisoner to keep apart from David Jones')
         expect(res.text).toContain('Select a prisoner')
         // show result count
-        expect(res.text).toContain('Prisoners listed: 2')
+        expect(res.text).toContain('Showing <b>1</b> to <b>2</b> of <b>2</b> prisoners')
         // shows table
         expect(res.text).toContain('app-sortable-table')
         expect(res.text).toContain('Mills, Fred')
@@ -212,8 +212,9 @@ describe('Search for a prisoner page', () => {
       .expect(200)
       .expect(res => {
         // pagination shows
-        expect(res.text).toContain('govuk-pagination__list')
+        expect(res.text).toContain('moj-pagination__results')
         expect(res.text).toContain('sort=prisonerNumber&amp;order=DESC')
+        expect(res.text).toContain('Showing <b>21</b> to <b>40</b> of <b>100</b> prisoners')
         // shows table
         expect(res.text).toContain('app-sortable-table')
         // no "nothing found" message
@@ -245,7 +246,7 @@ describe('Search for a prisoner page', () => {
       .expect(200)
       .expect(res => {
         // show result count
-        expect(res.text).toContain('Prisoners listed: 2')
+        expect(res.text).toContain('Showing <b>1</b> to <b>3</b> of <b>3</b> prisoners')
         // shows table
         expect(res.text).toContain('app-sortable-table')
         // fred mill not shown in table

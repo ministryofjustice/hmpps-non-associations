@@ -2,8 +2,8 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
-{% from "govuk/components/pagination/macro.njk" import govukPagination %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "moj/components/pagination/macro.njk" import mojPagination %}
 
 {% set pageTitle = "Select a prisoner" if form.submitted and not form.hasErrors else "Search for a prisoner" %}
 
@@ -38,12 +38,9 @@
               preventDoubleClick: true
             }) }}
 
-            {{ govukButton({
-              text: "Cancel",
-              classes: "govuk-button--secondary",
-              element: "a",
-              href: routeUrls.list(prisonerNumber)
-            }) }}
+            <a href="{{ routeUrls.list(prisonerNumber) }}" class="govuk-link">
+              Cancel
+            </a>
           </div>
         </div>
 
@@ -53,10 +50,7 @@
 
       {% if form.submitted and not form.hasErrors %}
         {% if searchResults.content.length > 0 %}
-
-          <p class="govuk-!-text-align-right govuk-!-font-weight-bold">
-            Prisoners listed: {{ searchResults.totalElements }}
-          </p>
+          {{ mojPagination(paginationParams) }}
 
           {% set tableRows = [] %}
           {% for result in searchResults.content %}
@@ -89,12 +83,7 @@
             }) }}
           </div>
 
-          {% if paginationParams %}
-            <div class="app-pagination-right-aligned">
-              {{ govukPagination(paginationParams) }}
-            </div>
-          {% endif %}
-
+          {{ mojPagination(paginationParams) }}
         {% else %}
 
           <p>

@@ -154,6 +154,7 @@ export default function updateRoutes(service: Services): Router {
         prisonerName,
         otherPrisonerNumber,
         otherPrisonerName,
+        nonAssociation,
         formId,
         form,
         roleChoices: Object.entries(roleOptions).map(([key, label]) => {
