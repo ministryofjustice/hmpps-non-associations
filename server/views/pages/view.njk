@@ -75,7 +75,7 @@
             ],
             [
               {text: "Comments"},
-              {html: nonAssociation.comment | escape | nl2br}
+              {html: (nonAssociation.closedReason if nonAssociation.isClosed else nonAssociation.comment) | escape | nl2br}
             ]
           ]
         }) }}
