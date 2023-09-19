@@ -132,7 +132,7 @@ describe('View non-association details page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
     })
 
-    function expectCommonDetails(res: request.Response) {
+    function expectCommonDetails(res: request.Response, closed = false): void {
       expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledWith(nonAssociation.id)
       expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
@@ -148,25 +148,29 @@ describe('View non-association details page', () => {
 
       expect(res.text).toContain('Threat')
       expect(res.text).toContain('Cell only')
-      expect(res.text).toContain('See IR 12133100')
+      if (closed) {
+        expect(res.text).toContain('Problem solved')
+      } else {
+        expect(res.text).toContain('See IR 12133100')
+      }
       expect(res.text).toContain('21 July 2023')
       expect(res.text).not.toContain('cde87s')
       expect(res.text).toContain('Mark Simmons')
     }
 
-    function expectOpen(res: request.Response) {
+    function expectOpen(res: request.Response): void {
       expect(res.text).not.toContain('Closed')
       expect(res.text).toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).toContain(`non-associations/${nonAssociationId}/close`)
     }
 
-    function expectClosed(res: request.Response) {
+    function expectClosed(res: request.Response): void {
       expect(res.text).toContain('Closed')
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
     }
 
-    function expectDavidJonesFirst(res: request.Response) {
+    function expectDavidJonesFirst(res: request.Response): void {
       expect(res.text).toContain('Fred Mills’ role')
       expect(res.text).not.toContain('David Jones’ role')
       const perpetratorPosition = res.text.indexOf('Perpetrator')
@@ -175,7 +179,7 @@ describe('View non-association details page', () => {
       expect(res.text.indexOf('1-1-001')).toBeLessThan(res.text.indexOf('1-1-002'))
     }
 
-    function expectFredMillsFirst(res: request.Response) {
+    function expectFredMillsFirst(res: request.Response): void {
       expect(res.text).toContain('David Jones’ role')
       expect(res.text).not.toContain('Fred Mills’ role')
       const perpetratorPosition = res.text.indexOf('Perpetrator')
@@ -226,7 +230,7 @@ describe('View non-association details page', () => {
           .expect(200)
           .expect('Content-Type', /html/)
           .expect(res => {
-            expectCommonDetails(res)
+            expectCommonDetails(res, true)
             expectClosed(res)
             expectDavidJonesFirst(res)
           })
@@ -238,7 +242,7 @@ describe('View non-association details page', () => {
           .expect(200)
           .expect('Content-Type', /html/)
           .expect(res => {
-            expectCommonDetails(res)
+            expectCommonDetails(res, true)
             expectClosed(res)
             expectFredMillsFirst(res)
           })
