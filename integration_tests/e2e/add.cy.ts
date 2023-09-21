@@ -17,7 +17,7 @@ context('Add non-association page', () => {
 
   it('navigate to add non-association', () => {
     listPage.addButton.click()
-    cy.title().should('eq', 'Search for a prisoner')
+    cy.title().should('eq', 'Search for a prisoner – Digital Prison Services')
   })
 
   it('should allow adding a new non-association', () => {
