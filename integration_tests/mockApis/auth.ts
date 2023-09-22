@@ -48,7 +48,7 @@ const favicon = () =>
   stubFor({
     request: {
       method: 'GET',
-      urlPattern: '/favicon.ico',
+      urlPath: '/favicon.ico',
     },
     response: {
       status: 200,
@@ -59,7 +59,7 @@ const ping = () =>
   stubFor({
     request: {
       method: 'GET',
-      urlPattern: '/auth/health/ping',
+      urlPath: '/auth/health/ping',
     },
     response: {
       status: 200,
@@ -116,7 +116,7 @@ const token = (roles: string[]) =>
   stubFor({
     request: {
       method: 'POST',
-      urlPattern: '/auth/oauth/token',
+      urlPath: '/auth/oauth/token',
     },
     response: {
       status: 200,
@@ -139,7 +139,7 @@ const stubUser = (name: string) =>
   stubFor({
     request: {
       method: 'GET',
-      urlPattern: '/auth/api/user/me',
+      urlPath: '/auth/api/user/me',
     },
     response: {
       status: 200,
@@ -154,7 +154,7 @@ const stubUserRoles = (roles: string[]) =>
   stubFor({
     request: {
       method: 'GET',
-      urlPattern: '/auth/api/user/me/roles',
+      urlPath: '/auth/api/user/me/roles',
     },
     response: {
       status: 200,

@@ -12,7 +12,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: '/prisonApi/health/ping',
+        urlPath: '/prisonApi/health/ping',
       },
       response: {
         status: 200,

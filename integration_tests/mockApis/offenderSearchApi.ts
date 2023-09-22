@@ -9,7 +9,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: '/offenderSearchApi/health/ping',
+        urlPath: '/offenderSearchApi/health/ping',
       },
       response: {
         status: 200,
@@ -28,7 +28,7 @@ export default {
         return stubFor({
           request: {
             method: 'GET',
-            urlPattern: `/offenderSearchApi/prisoner/${encodeURIComponent(prisoner.prisonerNumber)}`,
+            urlPath: `/offenderSearchApi/prisoner/${encodeURIComponent(prisoner.prisonerNumber)}`,
           },
           response: {
             status: 200,
@@ -56,13 +56,15 @@ export default {
     page: number
     totalElements: number | undefined
   }): SuperAgentRequest {
-    const query = `term=${encodeURIComponent(term)}&size=${
-      OffenderSearchClient.PAGE_SIZE
-    }&page=${page}&sort=lastName${encodeURIComponent(',')}ASC`
+    const queryRegex = [
+      `term=${encodeURIComponent(term)}`,
+      `size=${OffenderSearchClient.PAGE_SIZE}`,
+      `page=${page}`,
+    ].join('&')
     return stubFor({
       request: {
         method: 'GET',
-        url: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners?${query}`,
+        urlPattern: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners\\?.*${queryRegex}.*`,
       },
       response: {
         status: 200,
