@@ -5,15 +5,46 @@ export default class PrisonerSearchPage extends Page {
     super('Search for a prisoner')
   }
 
-  getInputField(): PageElement<HTMLInputElement> {
+  get inputField(): PageElement<HTMLInputElement> {
     return cy.get('#search-q')
   }
 
-  getSearchButton(): PageElement<HTMLElement> {
+  get searchButton(): PageElement<HTMLElement> {
     return cy.get('button[class="govuk-button"]')
   }
 
-  getSelectPrisonerLink(): PageElement<HTMLElement> {
-    return cy.contains('a', 'Select prisoner')
+  get tables(): PageElement<HTMLTableElement> {
+    return cy.get('.app-sortable-table')
+  }
+
+  get tableHeader(): PageElement<HTMLTableCellElement> {
+    return this.tables.find('thead tr th')
+  }
+
+  getTableHeaderSortingLink(column: number): PageElement<HTMLAnchorElement> {
+    return this.tableHeader.eq(column).find('a')
+  }
+
+  get tableRows(): PageElement<HTMLTableRowElement> {
+    return this.tables.find('tbody tr')
+  }
+
+  get tableRowContents(): Cypress.Chainable<string[][]> {
+    return this.tableRows.then(bodyRows => {
+      const rows = bodyRows
+        .map((_, row) => {
+          const cells: string[] = []
+          for (let index = 0; index < row.children.length; index += 1) {
+            cells.push(row.children[index]?.textContent?.trim())
+          }
+          return { cells }
+        })
+        .toArray()
+      return cy.wrap(rows.map(({ cells }) => cells))
+    })
+  }
+
+  getSelectLinkForRow(row: number): PageElement<HTMLAnchorElement> {
+    return this.tableRows.eq(row).find('td').last().find('a')
   }
 }

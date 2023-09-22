@@ -151,6 +151,7 @@ describe('Search for a prisoner page', () => {
         expect(res.text).toContain('A1235EF')
         expect(res.text).toContain('Jones, Oscar')
         expect(res.text).toContain('A1236CS')
+        expect(res.text).toContain('Moorland (HMP)')
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // correct search is performed

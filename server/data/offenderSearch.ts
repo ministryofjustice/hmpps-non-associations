@@ -52,7 +52,7 @@ export type OffenderSearchResults = {
   totalElements: number
 }
 
-export const sortOptions = ['lastName', 'firstName', 'prisonerNumber'] as const
+export const sortOptions = ['lastName', 'firstName', 'prisonerNumber', 'cellLocation'] as const
 export type Sort = (typeof sortOptions)[number]
 
 export const orderOptions = ['ASC', 'DESC'] as const

@@ -10,11 +10,14 @@ import { pagination, type LegacyPagination } from '../utils/pagination'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import PrisonerSearchForm from '../forms/prisonerSearchForm'
 
-const tableColumns: SortableTableColumns<'photo' | 'lastName' | 'prisonerNumber' | 'cellLocation' | 'action'> = [
+const tableColumns: SortableTableColumns<
+  'photo' | 'lastName' | 'prisonerNumber' | 'cellLocation' | 'prisonName' | 'action'
+> = [
   { column: 'photo', escapedHtml: '<span class="govuk-visually-hidden">Photo</span>', unsortable: true },
   { column: 'lastName', escapedHtml: 'Name' },
   { column: 'prisonerNumber', escapedHtml: 'Prison number', unsortable: true },
-  { column: 'cellLocation', escapedHtml: 'Location', unsortable: true },
+  { column: 'cellLocation', escapedHtml: 'Location' },
+  { column: 'prisonName', escapedHtml: 'Establishment', unsortable: true },
   { column: 'action', escapedHtml: '<span class="govuk-visually-hidden">Select prisoner</span>', unsortable: true },
 ]
 

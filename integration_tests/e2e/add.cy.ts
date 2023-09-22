@@ -32,9 +32,27 @@ context('Add non-association page', () => {
     const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
     prisonerSearchPage.checkLastBreadcrumb('Non-associations')
 
-    prisonerSearchPage.getInputField().type('mills')
-    prisonerSearchPage.getSearchButton().click()
-    prisonerSearchPage.getSelectPrisonerLink().click()
+    prisonerSearchPage.inputField.type('mills')
+    prisonerSearchPage.searchButton.click()
+
+    prisonerSearchPage.getTableHeaderSortingLink(3).should('contain.text', 'Location')
+    prisonerSearchPage.getTableHeaderSortingLink(3).click()
+
+    prisonerSearchPage.tableHeader.spread((...th) => {
+      expect(th[1].attributes.getNamedItem('aria-sort').value).to.equal('none')
+      expect(th[3].attributes.getNamedItem('aria-sort').value).to.equal('ascending')
+    })
+    prisonerSearchPage.tableRowContents.then(rows => {
+      expect(rows).to.have.length(1)
+      const [fredMillsRow] = rows
+
+      expect(fredMillsRow[1]).to.contain('Mills, Fred')
+      expect(fredMillsRow[2]).to.contain(fredMills.prisonerNumber)
+      expect(fredMillsRow[3]).to.contain('1-1-002')
+      expect(fredMillsRow[4]).to.contain('Moorland')
+    })
+
+    prisonerSearchPage.getSelectLinkForRow(0).click()
 
     cy.task('stubCreateNonAssociation')
 
