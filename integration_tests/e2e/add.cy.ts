@@ -49,5 +49,17 @@ context('Add non-association page', () => {
     addDetailsPage.saveButton.click()
 
     Page.verifyOnPage(AddConfirmationPage)
+
+    // Clicking on the link sends a GA event
+    cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {
+      cy.get('a[data-ga-category]').click()
+      cy.then(() => {
+        googleAnalyticsTracker.shouldHaveLastSent('event', 'non_associations_event', {
+          category: 'Add confirmation > Clicked on key prisoner link',
+          action: null,
+          label: null,
+        })
+      })
+    })
   })
 })

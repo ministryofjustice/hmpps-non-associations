@@ -30,5 +30,17 @@ context('Close prisoner non-association page', () => {
     closePage.getCloseButton().click()
 
     Page.verifyOnPage(CloseConfirmationPage)
+
+    // Clicking on the link sends a GA event
+    cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {
+      cy.get('a[data-ga-category]').click()
+      cy.then(() => {
+        googleAnalyticsTracker.shouldHaveLastSent('event', 'non_associations_event', {
+          category: 'Close confirmation > Clicked on key prisoner link',
+          action: null,
+          label: null,
+        })
+      })
+    })
   })
 })
