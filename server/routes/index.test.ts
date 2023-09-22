@@ -71,7 +71,7 @@ describe('Product info', () => {
       .get('/info')
       .expect('Content-Type', /application\/json/)
       .expect(res => {
-        expect(res.body).toHaveProperty('productId', 'DPS???')
+        expect(res.body).toHaveProperty('productId', 'UNASSIGNED')
       })
   })
 })

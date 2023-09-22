@@ -3,6 +3,7 @@ FROM node:18.18-bullseye-slim as base
 
 ARG BUILD_NUMBER=2023-05-18.1.39b1b24
 ARG GIT_REF=unknown
+ARG GIT_BRANCH=unknown
 
 LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
 
@@ -17,6 +18,7 @@ WORKDIR /app
 # Cache breaking
 ENV BUILD_NUMBER=${BUILD_NUMBER:-2023-05-18.1.39b1b24}
 ENV GIT_REF=${GIT_REF:-unknown}
+ENV GIT_BRANCH=${GIT_BRANCH}
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -28,6 +30,9 @@ FROM base as build
 
 ARG BUILD_NUMBER=2023-05-18.1.39b1b24
 ARG GIT_REF=unknown
+ARG GIT_BRANCH=unknown
+
+ENV GIT_BRANCH=${GIT_BRANCH}
 
 RUN apt-get update && \
     apt-get install -y make python g++
