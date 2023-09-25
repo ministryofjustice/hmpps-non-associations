@@ -5,11 +5,15 @@ export default class PrisonerSearchPage extends Page {
     super('Search for a prisoner')
   }
 
+  get scopeRadioButtons(): PageElement<HTMLInputElement> {
+    return cy.get('.govuk-radios__input[name=scope]')
+  }
+
   get inputField(): PageElement<HTMLInputElement> {
     return cy.get('#search-q')
   }
 
-  get searchButton(): PageElement<HTMLElement> {
+  get searchButton(): PageElement<HTMLButtonElement> {
     return cy.get('button[class="govuk-button"]')
   }
 

@@ -2,14 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser, mockReadOnlyUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import {
-  userRolePrison,
-  userRoleGlobalSearch,
-  userRoleInactiveBookings,
-  userRoleManageNonAssociations,
-} from '../data/constants'
+import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
@@ -74,10 +69,7 @@ describe('Close non-association page', () => {
     },
     {
       scenario: 'is missing inactive bookings role',
-      user: {
-        ...mockUser,
-        roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
-      },
+      user: mockUserWithGlobalSearch,
       prisoner: joePeters,
       otherPrisoner: davidJones,
       expectEarly404: false,

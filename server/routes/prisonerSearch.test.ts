@@ -2,15 +2,16 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser, mockReadOnlyUser } from './testutils/appSetup'
-import routeUrls from '../services/routeUrls'
 import {
-  userRolePrison,
-  userRoleGlobalSearch,
-  userRoleInactiveBookings,
-  userRoleManageNonAssociations,
-} from '../data/constants'
-import { OffenderSearchClient } from '../data/offenderSearch'
+  appWithAllRoutes,
+  mockUser,
+  mockReadOnlyUser,
+  mockUserWithoutGlobalSearch,
+  mockUserWithGlobalSearch,
+} from './testutils/appSetup'
+import routeUrls from '../services/routeUrls'
+import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
+import { OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
 import { davidJones, maxClarke, joePeters, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
 
 jest.mock('../data/offenderSearch', () => {
@@ -55,10 +56,7 @@ describe('Search for a prisoner page', () => {
     },
     {
       scenario: 'is missing inactive bookings role',
-      user: {
-        ...mockUser,
-        roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
-      },
+      user: mockUserWithGlobalSearch,
       prisoner: joePeters,
     },
   ])('should return 404 if user $scenario', ({ user, prisoner: p }) => {
@@ -132,7 +130,69 @@ describe('Search for a prisoner page', () => {
       })
   })
 
-  it('should display search results when a query is entered', () => {
+  it('should not show radio buttons to select scope if user doesn’t have global search', () => {
+    app = appWithAllRoutes({
+      userSupplier: () => mockUserWithoutGlobalSearch,
+    })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .expect(200)
+      .expect(res => {
+        expect(res.text).not.toContain('In Moorland')
+        expect(res.text).not.toContain('In any establishment (global)')
+        // search not performed
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+      })
+  })
+
+  it.each([
+    {
+      scenario: 'global search',
+      user: mockUserWithGlobalSearch,
+    },
+    {
+      scenario: 'global search and inactive bookings role',
+      user: mockUser,
+    },
+  ])('should show radio buttons to select scope if user has $scenario', ({ user }) => {
+    app = appWithAllRoutes({
+      userSupplier: () => user,
+    })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .expect(200)
+      .expect(res => {
+        expect(res.text).toContain('In Moorland')
+        expect(res.text).toContain('In any establishment (global)')
+        // search not performed
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+      })
+  })
+
+  function expectResultsTable(res: request.Response): void {
+    // heading
+    expect(res.text).not.toContain('Search for a prisoner to keep apart from David Jones')
+    expect(res.text).toContain('Select a prisoner')
+    // show result count
+    expect(res.text).toContain('Showing <b>1</b> to <b>2</b> of <b>2</b> prisoners')
+    // shows table
+    expect(res.text).toContain('app-sortable-table')
+    expect(res.text).toContain('Mills, Fred')
+    expect(res.text).toContain('A1235EF')
+    expect(res.text).toContain('Jones, Oscar')
+    expect(res.text).toContain('A1236CS')
+    expect(res.text).toContain('Moorland (HMP)')
+    // no "nothing found" message
+    expect(res.text).not.toContain('0 results found')
+  }
+
+  it('should display search results when a prison search query is entered', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.searchInPrison.mockResolvedValue(sampleOffenderSearchResults)
 
@@ -145,20 +205,7 @@ describe('Search for a prisoner page', () => {
       })
       .expect(200)
       .expect(res => {
-        // heading
-        expect(res.text).not.toContain('Search for a prisoner to keep apart from David Jones')
-        expect(res.text).toContain('Select a prisoner')
-        // show result count
-        expect(res.text).toContain('Showing <b>1</b> to <b>2</b> of <b>2</b> prisoners')
-        // shows table
-        expect(res.text).toContain('app-sortable-table')
-        expect(res.text).toContain('Mills, Fred')
-        expect(res.text).toContain('A1235EF')
-        expect(res.text).toContain('Jones, Oscar')
-        expect(res.text).toContain('A1236CS')
-        expect(res.text).toContain('Moorland (HMP)')
-        // no "nothing found" message
-        expect(res.text).not.toContain('0 results found')
+        expectResultsTable(res)
         // correct search is performed
         expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
         const [prison, search, page, sort, order] = offenderSearchClient.searchInPrison.mock.calls[0]
@@ -171,17 +218,199 @@ describe('Search for a prisoner page', () => {
       })
   })
 
-  it('should display a message if no results were returned', () => {
+  it('should display search results when a global search query is entered by a user with inactive bookings role', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchInPrison.mockResolvedValue({ content: [], totalElements: 0 })
+    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
       .query({
-        q: 'Smith',
+        scope: 'global',
+        q: 'Smith ',
         formId: 'search',
         page: '1',
       })
+      .expect(200)
+      .expect(res => {
+        expectResultsTable(res)
+        // correct search is performed
+        expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+        expect(filters.lastName).toEqual('Smith')
+        expect(filters.firstName).toBeUndefined()
+        expect(filters.prisonerIdentifier).toBeUndefined()
+        expect(filters.location).toEqual('ALL')
+        expect(filters.includeAliases).toEqual(true)
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should display search results when a global search query is entered by a user without inactive bookings role', () => {
+    app = appWithAllRoutes({
+      userSupplier: () => mockUserWithGlobalSearch,
+    })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        scope: 'global',
+        q: 'Smith ',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        expectResultsTable(res)
+        // correct search is performed
+        expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+        expect(filters.lastName).toEqual('Smith')
+        expect(filters.firstName).toBeUndefined()
+        expect(filters.prisonerIdentifier).toBeUndefined()
+        expect(filters.location).toEqual('IN')
+        expect(filters.includeAliases).toEqual(true)
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should perform global search filtering by last name when 1 search term is provided', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        scope: 'global',
+        q: 'MILLS ',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // correct search is performed
+        expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+        expect(filters.lastName).toEqual('MILLS')
+        expect(filters.firstName).toBeUndefined()
+        expect(filters.prisonerIdentifier).toBeUndefined()
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should perform global search filtering by first and last name when 2 search terms are provided', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        scope: 'global',
+        q: 'mills fred',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // correct search is performed
+        expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+        expect(filters.lastName).toEqual('mills')
+        expect(filters.firstName).toEqual('fred')
+        expect(filters.prisonerIdentifier).toBeUndefined()
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should perform global search filtering by first and last name when more than 2 search terms are provided (ignoring surplus terms)', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        scope: 'global',
+        q: 'MILLS FRED JENNINGS',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // correct search is performed
+        expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+        expect(filters.lastName).toEqual('MILLS')
+        expect(filters.firstName).toEqual('FRED')
+        expect(filters.prisonerIdentifier).toBeUndefined()
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+      })
+  })
+
+  it('should perform global search filtering by prisoner identifier when search term contains numbers', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        scope: 'global',
+        q: ' a1235ef ',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        // correct search is performed
+        expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+        expect(filters.lastName).toBeUndefined()
+        expect(filters.firstName).toBeUndefined()
+        expect(filters.prisonerIdentifier).toEqual('A1235EF')
+        expect(page).toEqual(0) // NB: page is 0-indexed in offender search
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+      })
+  })
+
+  it.each([
+    {
+      scenario: 'a prison search is performed',
+      user: mockUserWithoutGlobalSearch,
+      query: {
+        q: 'Smith',
+        formId: 'search',
+        page: '1',
+      },
+      expectGlobalSearch: false,
+    },
+    {
+      scenario: 'a global search is performed',
+      user: mockUser,
+      query: {
+        scope: 'global',
+        q: 'Smith',
+        formId: 'search',
+        page: '1',
+      },
+      expectGlobalSearch: true,
+    },
+  ])('should display a message if no results were returned when $scenario', ({ user, query, expectGlobalSearch }) => {
+    app = appWithAllRoutes({
+      userSupplier: () => user,
+    })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    const mockSearchResults: OffenderSearchResults = { content: [], totalElements: 0 }
+    offenderSearchClient.searchInPrison.mockResolvedValue(mockSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValue(mockSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query(query)
       .expect(200)
       .expect(res => {
         // heading
@@ -191,9 +420,14 @@ describe('Search for a prisoner page', () => {
         expect(res.text).not.toContain('app-sortable-table')
         // shows "nothing found" message
         expect(res.text).toContain('0 results found for “Smith”')
-        // prison search performed
-        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
-        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        // search performed
+        if (expectGlobalSearch) {
+          expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+          expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        } else {
+          expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+          expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        }
       })
   })
 
@@ -224,58 +458,116 @@ describe('Search for a prisoner page', () => {
       })
   })
 
-  it('should show pagination when there are many results', () => {
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchInPrison.mockResolvedValue({
-      content: sampleOffenderSearchResults.content,
-      totalElements: 100,
-    })
-
-    return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
-      .query({
+  it.each([
+    {
+      scenario: 'prison search',
+      user: mockUserWithoutGlobalSearch,
+      query: {
         q: 'Smith',
         formId: 'search',
         page: '2',
         sort: 'prisonerNumber',
         order: 'DESC',
-      })
+      },
+      expectGlobalSearch: false,
+    },
+    {
+      scenario: 'global search',
+      user: mockUser,
+      query: {
+        scope: 'global',
+        q: 'Smith',
+        formId: 'search',
+        page: '2',
+      },
+      expectGlobalSearch: true,
+    },
+  ])('should show pagination when there are many results for $scenario', ({ user, query, expectGlobalSearch }) => {
+    app = appWithAllRoutes({
+      userSupplier: () => user,
+    })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    const mockSearchResults: OffenderSearchResults = {
+      content: sampleOffenderSearchResults.content,
+      totalElements: 100,
+    }
+    offenderSearchClient.searchInPrison.mockResolvedValue(mockSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValue(mockSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query(query)
       .expect(200)
       .expect(res => {
         // pagination shows
         expect(res.text).toContain('moj-pagination__results')
-        expect(res.text).toContain('sort=prisonerNumber&amp;order=DESC')
+        if (expectGlobalSearch) {
+          expect(res.text).toContain('scope=global&amp;q=Smith&amp;formId=search')
+        } else {
+          expect(res.text).toContain('sort=prisonerNumber&amp;order=DESC')
+        }
         expect(res.text).toContain('Showing <b>21</b> to <b>40</b> of <b>100</b> prisoners')
         // shows table
         expect(res.text).toContain('app-sortable-table')
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // correct search is performed
-        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
-        const [prison, search, page, sort, order] = offenderSearchClient.searchInPrison.mock.calls[0]
-        expect(prison).toEqual('MDI')
-        expect(search).toEqual('Smith')
-        expect(page).toEqual(1) // NB: page is 0-indexed in offender search
-        expect(sort).toEqual('prisonerNumber')
-        expect(order).toEqual('DESC')
-        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        if (expectGlobalSearch) {
+          expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+          const [filters, page] = offenderSearchClient.searchGlobally.mock.calls[0]
+          expect(filters.lastName).toEqual('Smith')
+          expect(page).toEqual(1) // NB: page is 0-indexed in offender search
+          expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        } else {
+          expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+          const [prison, search, page, sort, order] = offenderSearchClient.searchInPrison.mock.calls[0]
+          expect(prison).toEqual('MDI')
+          expect(search).toEqual('Smith')
+          expect(page).toEqual(1) // NB: page is 0-indexed in offender search
+          expect(sort).toEqual('prisonerNumber')
+          expect(order).toEqual('DESC')
+          expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        }
       })
   })
 
-  it('should not show the "key" prisoner in results', () => {
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchInPrison.mockResolvedValue({
-      content: [davidJones, ...sampleOffenderSearchResults.content],
-      totalElements: sampleOffenderSearchResults.totalElements + 1,
-    })
-
-    return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
-      .query({
+  it.each([
+    {
+      scenario: 'prison search',
+      user: mockUserWithoutGlobalSearch,
+      query: {
         q: 'S',
         formId: 'search',
         page: '1',
-      })
+      },
+      expectGlobalSearch: false,
+    },
+    {
+      scenario: 'global search',
+      user: mockUser,
+      query: {
+        scope: 'global',
+        q: 'S',
+        formId: 'search',
+        page: '1',
+      },
+      expectGlobalSearch: true,
+    },
+  ])('should not show the "key" prisoner in results for $scenario', ({ user, query, expectGlobalSearch }) => {
+    app = appWithAllRoutes({
+      userSupplier: () => user,
+    })
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    const mockSearchResults: OffenderSearchResults = {
+      content: [davidJones, ...sampleOffenderSearchResults.content],
+      totalElements: sampleOffenderSearchResults.totalElements + 1,
+    }
+    offenderSearchClient.searchInPrison.mockResolvedValue(mockSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValue(mockSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query(query)
       .expect(200)
       .expect(res => {
         // show result count
@@ -286,12 +578,17 @@ describe('Search for a prisoner page', () => {
         expect(res.text).not.toContain('Photo of David Jones')
         expect(res.text).toContain('Photo of Fred Mills')
         // no pagination
-        expect(res.text).not.toContain('govuk-pagination__list')
+        expect(res.text).not.toContain('moj-pagination__item')
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
-        // prison search performed
-        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
-        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        // search performed
+        if (expectGlobalSearch) {
+          expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+          expect(offenderSearchClient.searchGlobally).toHaveBeenCalledTimes(1)
+        } else {
+          expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+          expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        }
       })
   })
 })

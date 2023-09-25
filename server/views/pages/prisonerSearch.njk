@@ -2,6 +2,7 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "moj/components/pagination/macro.njk" import mojPagination %}
 
@@ -21,13 +22,34 @@
   <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
   <form method="get" novalidate>
+    {% if hasGlobalSearch %}
+      {% set fieldId = "scope" %}
+      {% set field = form.fields[fieldId] %}
+      {{ govukRadios({
+        attributes: { id: formId + "-" + fieldId },
+        classes: "govuk-radios--inline govuk-radios--small",
+        name: fieldId,
+        fieldset: {
+          legend: {
+            text: "Search for prisoners",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        items: [
+          {value: "prison", text: "In " + prisonName},
+          {value: "global", text: "In any establishment (global)"}
+        ] | checkedItems(field.value if field.value else "prison"),
+        errorMessage: { text: field.error } if field.error else undefined
+      }) }}
+    {% endif %}
+
     <div class="app-prisoner-search-form govuk-!-margin-bottom-3">
       {% set fieldId = "q" %}
       {% set field = form.fields[fieldId] %}
       {{ govukInput({
         label: {
-          text: "Enter name or prison number",
-          classes: "govuk-label--m"
+          text: "Name or prison number" if hasGlobalSearch else "Enter name or prison number",
+          classes: "" if hasGlobalSearch else "govuk-label--m"
         },
         id: formId + "-" + fieldId,
         name: fieldId,

@@ -32,6 +32,7 @@ context('Add non-association page', () => {
     const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
     prisonerSearchPage.checkLastBreadcrumb('Non-associations')
 
+    prisonerSearchPage.scopeRadioButtons.should('have.length', 2)
     prisonerSearchPage.inputField.type('mills')
     prisonerSearchPage.searchButton.click()
 
