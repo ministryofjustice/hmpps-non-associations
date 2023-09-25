@@ -75,6 +75,8 @@ describe('Search for a prisoner page', () => {
         expect(res.text).not.toContain(p.firstName)
         expect(res.text).not.toContain(p.lastName)
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
@@ -93,6 +95,8 @@ describe('Search for a prisoner page', () => {
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
@@ -123,13 +127,14 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // search not performed
-        expect(offenderSearchClient.search).toHaveBeenCalledTimes(0)
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
   it('should display search results when a query is entered', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.search.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchInPrison.mockResolvedValue(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -155,19 +160,20 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // correct search is performed
-        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
-        const [prison, search, page, sort, order] = offenderSearchClient.search.mock.calls[0]
+        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+        const [prison, search, page, sort, order] = offenderSearchClient.searchInPrison.mock.calls[0]
         expect(prison).toEqual('MDI')
         expect(search).toEqual('Smith')
         expect(page).toEqual(0) // NB: page is 0-indexed in offender search
         expect(sort).toEqual('lastName')
         expect(order).toEqual('ASC')
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
   it('should display a message if no results were returned', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.search.mockResolvedValue({ content: [], totalElements: 0 })
+    offenderSearchClient.searchInPrison.mockResolvedValue({ content: [], totalElements: 0 })
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -185,8 +191,9 @@ describe('Search for a prisoner page', () => {
         expect(res.text).not.toContain('app-sortable-table')
         // shows "nothing found" message
         expect(res.text).toContain('0 results found for “Smith”')
-        // search performed
-        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
+        // prison search performed
+        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
@@ -212,13 +219,17 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // search not performed
-        expect(offenderSearchClient.search).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
   it('should show pagination when there are many results', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.search.mockResolvedValue({ content: sampleOffenderSearchResults.content, totalElements: 100 })
+    offenderSearchClient.searchInPrison.mockResolvedValue({
+      content: sampleOffenderSearchResults.content,
+      totalElements: 100,
+    })
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -240,19 +251,20 @@ describe('Search for a prisoner page', () => {
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
         // correct search is performed
-        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
-        const [prison, search, page, sort, order] = offenderSearchClient.search.mock.calls[0]
+        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+        const [prison, search, page, sort, order] = offenderSearchClient.searchInPrison.mock.calls[0]
         expect(prison).toEqual('MDI')
         expect(search).toEqual('Smith')
         expect(page).toEqual(1) // NB: page is 0-indexed in offender search
         expect(sort).toEqual('prisonerNumber')
         expect(order).toEqual('DESC')
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
   it('should not show the "key" prisoner in results', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.search.mockResolvedValue({
+    offenderSearchClient.searchInPrison.mockResolvedValue({
       content: [davidJones, ...sampleOffenderSearchResults.content],
       totalElements: sampleOffenderSearchResults.totalElements + 1,
     })
@@ -277,8 +289,9 @@ describe('Search for a prisoner page', () => {
         expect(res.text).not.toContain('govuk-pagination__list')
         // no "nothing found" message
         expect(res.text).not.toContain('0 results found')
-        // search performed
-        expect(offenderSearchClient.search).toHaveBeenCalledTimes(1)
+        // prison search performed
+        expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
+        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 })

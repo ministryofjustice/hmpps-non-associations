@@ -41,9 +41,9 @@ export default {
   },
 
   /**
-   * Stub searching for a prisoner
+   * Stub searching for a prisoner in a prison
    */
-  stubOffenderSearchResults({
+  stubOffenderSearchResultsInPrison({
     prisonId,
     term,
     results,
@@ -65,6 +65,36 @@ export default {
       request: {
         method: 'GET',
         urlPattern: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners\\?.*${queryRegex}.*`,
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: {
+          content: results,
+          totalElements: totalElements ?? results.length,
+        },
+      },
+    })
+  },
+
+  /**
+   * Stub searching for a prisoner globally
+   * NB: this stub ignores filters so all searches match
+   */
+  stubOffenderSearchResultsGlobally({
+    results,
+    page = 0,
+    totalElements = undefined,
+  }: {
+    results: OffenderSearchResult[]
+    page: number
+    totalElements: number | undefined
+  }): SuperAgentRequest {
+    const queryRegex = [`size=${OffenderSearchClient.PAGE_SIZE}`, `page=${page}`].join('&')
+    return stubFor({
+      request: {
+        method: 'POST',
+        urlPattern: `/offenderSearchApi/global-search\\?.*${queryRegex}.*`,
       },
       response: {
         status: 200,

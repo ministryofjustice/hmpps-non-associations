@@ -59,7 +59,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
         const sort = form.fields.sort.value
         const order = form.fields.order.value
 
-        const response = await offenderSearchClient.search(prisonId, searchTerms, page - 1, sort, order)
+        const response = await offenderSearchClient.searchInPrison(prisonId, searchTerms, page - 1, sort, order)
 
         if (response.totalElements > 0) {
           const pageCount = Math.ceil(response.totalElements / OffenderSearchClient.PAGE_SIZE)

@@ -21,7 +21,7 @@ context('Add non-association page', () => {
   })
 
   it('should allow adding a new non-association', () => {
-    cy.task('stubOffenderSearchResults', {
+    cy.task('stubOffenderSearchResultsInPrison', {
       prisonId: 'MDI',
       term: 'mills',
       results: [fredMills],
