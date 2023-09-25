@@ -79,22 +79,41 @@
 
       {% set tableRows = [] %}
       {% for result in searchResults.content %}
+        {% set canViewProfile = user.permissions.canViewProfile(result) %}
+
         {% set photo %}
-          <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPerson }}" class="app-prisoner-photo" />
+          {% if canViewProfile %}
+            <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPerson }}" class="app-prisoner-photo" />
+          {% else %}
+            <img src="/assets/images/prisoner.jpeg" alt="Photo of {{ result | nameOfPerson }} is not available" class="app-prisoner-photo" />
+          {% endif %}
         {% endset %}
 
+        {% if result | isBeingTransferred %}
+          {% set location = result | prisonerLocation %}
+          {% set establishment = "N/A" %}
+          {% elif result | isOutside %}
+          {% set location = "N/A" %}
+          {% set establishment = result | prisonerLocation %}
+        {% else %}
+          {% set location = result.cellLocation %}
+          {% set establishment = result.prisonName %}
+        {% endif %}
+
         {% set link %}
-          <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
-            Select prisoner
-          </a>
+          {% if canViewProfile %}
+            <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
+              Select prisoner
+            </a>
+          {% endif %}
         {% endset %}
 
         {% set _ = tableRows.push([
           {html: photo},
           {html: result | reversedNameOfPerson, classes: "govuk-!-padding-top-8"},
           {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
-          {text: result.cellLocation, classes: "govuk-!-padding-top-8"},
-          {text: result.prisonName, classes: "govuk-!-padding-top-8"},
+          {text: location, classes: "govuk-!-padding-top-8"},
+          {text: establishment, classes: "govuk-!-padding-top-8"},
           {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
         ]) %}
       {% endfor %}

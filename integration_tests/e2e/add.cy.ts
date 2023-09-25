@@ -1,4 +1,4 @@
-import { fredMills } from '../../server/data/testData/offenderSearch'
+import { fredMills, joePeters, maxClarke, walterSmith } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import AddPage from '../pages/nonAssociations/add'
 import AddConfirmationPage from '../pages/nonAssociations/addConfirmation'
@@ -79,6 +79,46 @@ context('Add non-association page', () => {
           label: null,
         })
       })
+    })
+  })
+
+  it('should display correct location information for people being transferred or outside prison', () => {
+    cy.task('stubOffenderSearchResultsGlobally', {
+      results: [fredMills, walterSmith, maxClarke, joePeters],
+    })
+
+    listPage.addButton.click()
+
+    const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
+    prisonerSearchPage.scopeRadioButtons.eq(1).click()
+    prisonerSearchPage.inputField.type('something')
+    prisonerSearchPage.searchButton.click()
+
+    prisonerSearchPage.getTableHeaderSortingLink(3).should('not.exist')
+
+    prisonerSearchPage.tableRowContents.then(rows => {
+      expect(rows).to.have.length(4)
+      const [fredMillsRow, walterSmithRow, maxClarkeRow, joePetersRow] = rows
+
+      expect(fredMillsRow[1]).to.contain('Mills, Fred')
+      expect(fredMillsRow[3]).to.contain('1-1-002')
+      expect(fredMillsRow[4]).to.contain('Moorland')
+      expect(fredMillsRow[5]).to.contain('Select prisoner')
+
+      expect(walterSmithRow[1]).to.contain('Smith, Walter')
+      expect(walterSmithRow[3]).to.contain('2-4-002')
+      expect(walterSmithRow[4]).to.contain('Brixton')
+      expect(walterSmithRow[5]).not.to.contain('Select prisoner')
+
+      expect(maxClarkeRow[1]).to.contain('Clarke, Max')
+      expect(maxClarkeRow[3]).to.contain('Transfer')
+      expect(maxClarkeRow[4]).to.contain('N/A')
+      expect(maxClarkeRow[5]).to.contain('Select prisoner')
+
+      expect(joePetersRow[1]).to.contain('Peters, Joe')
+      expect(joePetersRow[3]).to.contain('N/A')
+      expect(joePetersRow[4]).to.contain('Outside')
+      expect(joePetersRow[5]).to.contain('Select prisoner')
     })
   })
 })
