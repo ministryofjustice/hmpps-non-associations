@@ -29,7 +29,8 @@ context('Close prisoner non-association page', () => {
     closePage.getCloseCommentBox().type('They are now friends')
     closePage.getCloseButton().click()
 
-    Page.verifyOnPage(CloseConfirmationPage)
+    const confirmationPage = Page.verifyOnPage(CloseConfirmationPage)
+    confirmationPage.checkLastBreadcrumb('Non-associations')
 
     // Clicking on the link sends a GA event
     cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {

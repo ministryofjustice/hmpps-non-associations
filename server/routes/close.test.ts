@@ -156,22 +156,6 @@ describe('Close non-association page', () => {
       })
   })
 
-  it('should render breadcrumbs', () => {
-    nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
-
-    return request(app)
-      .get(routeUrls.close(prisonerNumber, openNonAssociation.id))
-      .expect(200)
-      .expect('Content-Type', /html/)
-      .expect(res => {
-        expect(res.text).toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
-        expect(nonAssociationsApi.closeNonAssociation).not.toHaveBeenCalled()
-      })
-  })
-
   describe('should show prisoner name and number', () => {
     beforeEach(() => {
       nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)

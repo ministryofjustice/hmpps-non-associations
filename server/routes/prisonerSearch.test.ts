@@ -96,18 +96,6 @@ describe('Search for a prisoner page', () => {
       })
   })
 
-  it('should render breadcrumbs', () => {
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-
-    return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
-      .expect(200)
-      .expect('Content-Type', /html/)
-      .expect(res => {
-        expect(res.text).toContain('Jones, David')
-      })
-  })
-
   it('should not display search results when loaded', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
 
