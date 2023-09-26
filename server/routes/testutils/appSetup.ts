@@ -3,10 +3,11 @@ import express, { type Express } from 'express'
 import { NotFound } from 'http-errors'
 
 import nunjucksSetup from '../../utils/nunjucksSetup'
+import applicationInfo from '../../applicationInfo'
 import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
-import setUpProductInfo from '../../middleware/setUpProductInfo'
 import userPermissions from '../../middleware/userPermissions'
+import setUpHealthChecks from '../../middleware/setUpHealthChecks'
 import * as auth from '../../authentication/auth'
 import {
   userRolePrison,
@@ -77,7 +78,7 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   app.use(express.urlencoded({ extended: true }))
 
   app.use(userPermissions())
-  app.use(setUpProductInfo())
+  app.use(setUpHealthChecks(applicationInfo()))
   app.use(breadcrumbs())
   app.use(routes(services))
 

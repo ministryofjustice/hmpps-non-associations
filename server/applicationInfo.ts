@@ -9,6 +9,7 @@ export type ApplicationInfo = {
   buildNumber: string
   gitRef: string
   gitShortHash: string
+  branchName: string
   packageJsonPath: string
 }
 
@@ -20,6 +21,7 @@ export default (): ApplicationInfo => {
     buildNumber,
     gitRef,
     gitShortHash: gitRef.substring(0, 7),
+    branchName: config.branchName,
     get packageJsonPath(): string {
       return findPackageJson()
     },
