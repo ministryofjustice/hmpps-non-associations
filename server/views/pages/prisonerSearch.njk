@@ -2,97 +2,139 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "moj/components/pagination/macro.njk" import mojPagination %}
 
-{% set pageTitle = "Select a prisoner" if form.submitted and not form.hasErrors else "Search for a prisoner" %}
-
-{% set pageHeading = "Select a prisoner" if form.submitted and not form.hasErrors else "Search for a prisoner to keep apart from " + prisonerName %}
+{% if form.submitted and not form.hasErrors  and searchResults.content.length > 0 %}
+  {% set pageTitle = "Select a prisoner" %}
+  {% set pageHeading = "Select a prisoner" %}
+{% else %}
+  {% set pageTitle = "Search for a prisoner" %}
+  {% set pageHeading -%}
+    Search for a prisoner to keep apart from {{ prisonerName }}
+  {%- endset %}
+{% endif %}
 
 {% block content %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+  {% include "../partials/formErrorSummary.njk" %}
 
-      {% include "../partials/formErrorSummary.njk" %}
+  <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
-      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+  <form method="get" novalidate>
+    {% if hasGlobalSearch %}
+      {% set fieldId = "scope" %}
+      {% set field = form.fields[fieldId] %}
+      {{ govukRadios({
+        attributes: { id: formId + "-" + fieldId },
+        classes: "govuk-radios--inline govuk-radios--small",
+        name: fieldId,
+        fieldset: {
+          legend: {
+            text: "Search for prisoners",
+            classes: "govuk-visually-hidden"
+          }
+        },
+        items: [
+          {value: "prison", text: "In " + prisonName},
+          {value: "global", text: "In any establishment (global)"}
+        ] | checkedItems(field.value if field.value else "prison"),
+        errorMessage: { text: field.error } if field.error else undefined
+      }) }}
+    {% endif %}
 
-      <form method="get" novalidate>
-        <div class="app-field-and-button-group">
-          {% set fieldId = "q" %}
-          {% set field = form.fields[fieldId] %}
-          {{ govukInput({
-            label: {
-              text: "Enter name or prison number",
-              classes: "govuk-label--m"
-            },
-            id: formId + "-" + fieldId,
-            name: fieldId,
-            value: field.value,
-            errorMessage: { text: field.error } if field.error else undefined
-          }) }}
+    <div class="app-prisoner-search-form govuk-!-margin-bottom-3">
+      {% set fieldId = "q" %}
+      {% set field = form.fields[fieldId] %}
+      {{ govukInput({
+        label: {
+          text: "Name or prison number" if hasGlobalSearch else "Enter name or prison number",
+          classes: "" if hasGlobalSearch else "govuk-label--m"
+        },
+        id: formId + "-" + fieldId,
+        name: fieldId,
+        value: field.value,
+        errorMessage: { text: field.error } if field.error else undefined
+      }) }}
 
-          <div class="govuk-button-group">
-            {{ govukButton({
-              text: "Search",
-              preventDoubleClick: true
-            }) }}
+      <div class="govuk-button-group">
+        {{ govukButton({
+          text: "Search",
+          preventDoubleClick: true
+        }) }}
 
-            <a href="{{ routeUrls.list(prisonerNumber) }}" class="govuk-link">
-              Cancel
-            </a>
-          </div>
-        </div>
-
-        <input type="hidden" name="page" value="1" /> {#- a new search should always start on first page #}
-        <input type="hidden" name="formId" value="{{ formId }}" />
-      </form>
-
-      {% if form.submitted and not form.hasErrors %}
-        {% if searchResults.content.length > 0 %}
-          {{ mojPagination(paginationParams) }}
-
-          {% set tableRows = [] %}
-          {% for result in searchResults.content %}
-            {% set photo %}
-              <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPerson }}" class="app-prisoner-photo" />
-            {% endset %}
-
-            {% set link %}
-              <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
-                Select prisoner
-              </a>
-            {% endset %}
-
-            {% set _ = tableRows.push([
-              {html: photo},
-              {html: result | reversedNameOfPerson, classes: "govuk-!-padding-top-8"},
-              {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
-              {text: result.cellLocation, classes: "govuk-!-padding-top-8"},
-              {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
-            ]) %}
-          {% endfor %}
-
-          <div class="app-sortable-table-container">
-            {{ govukTable({
-              caption: "Prisoner search results",
-              captionClasses: "govuk-visually-hidden",
-              classes: "app-sortable-table",
-              head: tableHead,
-              rows: tableRows
-            }) }}
-          </div>
-
-          {{ mojPagination(paginationParams) }}
-        {% else %}
-
-          <p>
-            0 results found for “{{ form.fields.q.value }}”.
-          </p>
-
-        {% endif %}
-      {% endif %}
-
+        <a href="{{ routeUrls.list(prisonerNumber) }}" class="govuk-link">
+          Cancel
+        </a>
+      </div>
     </div>
-  </div>
+
+    <input type="hidden" name="page" value="1" /> {#- a new search should always start on first page #}
+    <input type="hidden" name="formId" value="{{ formId }}" />
+  </form>
+
+  {% if form.submitted and not form.hasErrors %}
+    {% if searchResults.content.length > 0 %}
+      {{ mojPagination(paginationParams) }}
+
+      {% set tableRows = [] %}
+      {% for result in searchResults.content %}
+        {% set canViewProfile = user.permissions.canViewProfile(result) %}
+
+        {% set photo %}
+          {% if canViewProfile %}
+            <img src="{{ routeUrls.prisonerPhoto(result.prisonerNumber) }}" alt="Photo of {{ result | nameOfPerson }}" class="app-prisoner-photo" />
+          {% else %}
+            <img src="/assets/images/prisoner.jpeg" alt="Photo of {{ result | nameOfPerson }} is not available" class="app-prisoner-photo" />
+          {% endif %}
+        {% endset %}
+
+        {% if result | isBeingTransferred %}
+          {% set location = result | prisonerLocation %}
+          {% set establishment = "N/A" %}
+        {% elif result | isOutside %}
+          {% set location = "N/A" %}
+          {% set establishment = result | prisonerLocation %}
+        {% else %}
+          {% set location = result.cellLocation %}
+          {% set establishment = result.prisonName %}
+        {% endif %}
+
+        {% set link %}
+          {% if canViewProfile %}
+            <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
+              Select prisoner
+            </a>
+          {% endif %}
+        {% endset %}
+
+        {% set _ = tableRows.push([
+          {html: photo},
+          {html: result | reversedNameOfPerson, classes: "govuk-!-padding-top-8"},
+          {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
+          {text: location, classes: "govuk-!-padding-top-8"},
+          {text: establishment, classes: "govuk-!-padding-top-8"},
+          {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
+        ]) %}
+      {% endfor %}
+
+      <div class="app-sortable-table-container govuk-!-margin-top-4">
+        {{ govukTable({
+          caption: "Prisoner search results",
+          captionClasses: "govuk-visually-hidden",
+          classes: "app-sortable-table",
+          head: tableHead,
+          rows: tableRows
+        }) }}
+      </div>
+
+      {{ mojPagination(paginationParams) }}
+    {% else %}
+
+      <p>
+        0 results found for “{{ form.fields.q.value }}”.
+      </p>
+
+    {% endif %}
+  {% endif %}
 {% endblock %}

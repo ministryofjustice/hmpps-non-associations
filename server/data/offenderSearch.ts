@@ -52,7 +52,7 @@ export type OffenderSearchResults = {
   totalElements: number
 }
 
-export const sortOptions = ['lastName', 'firstName', 'prisonerNumber'] as const
+export const sortOptions = ['lastName', 'firstName', 'prisonerNumber', 'cellLocation'] as const
 export type Sort = (typeof sortOptions)[number]
 
 export const orderOptions = ['ASC', 'DESC'] as const
@@ -77,7 +77,7 @@ export class OffenderSearchClient extends RestClient {
   /**
    * Search for people in a given prison using a search term (which works with names and prisoner numbers)
    */
-  search(
+  searchInPrison(
     prisonId: string,
     term: string,
     page: number = 0,
@@ -92,6 +92,34 @@ export class OffenderSearchClient extends RestClient {
         page,
         sort: `${sort},${order}`,
       },
+    })
+  }
+
+  /**
+   * Search for people globally using a search term (which works with names and prisoner numbers)
+   * NB: global search does not support sorting
+   */
+  searchGlobally(
+    filters: {
+      prisonerIdentifier?: string
+      firstName?: string
+      lastName?: string
+      location?: 'ALL' | 'IN' | 'OUT'
+      includeAliases?: boolean
+    },
+    page: number = 0,
+  ): Promise<OffenderSearchResults> {
+    if (!('location' in filters)) {
+      // eslint-disable-next-line no-param-reassign
+      filters.location = 'ALL'
+    }
+    if (!('includeAliases' in filters)) {
+      // eslint-disable-next-line no-param-reassign
+      filters.includeAliases = true
+    }
+    return this.post<OffenderSearchResults>({
+      path: `/global-search?size=${OffenderSearchClient.PAGE_SIZE}&page=${encodeURIComponent(page)}`,
+      data: filters,
     })
   }
 }

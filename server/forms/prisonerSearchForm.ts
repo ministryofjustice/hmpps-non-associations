@@ -3,6 +3,7 @@ import { BaseForm } from './index'
 
 export type PrisonerSearchData = {
   q: string
+  scope: 'prison' | 'global'
   page: number
   sort: Sort
   order: Order
@@ -14,6 +15,12 @@ export default class PrisonerSearchForm extends BaseForm<PrisonerSearchData> {
       this.addError('q', 'Enter a name or prison number')
     } else {
       this.data.q = this.data.q.trim()
+    }
+
+    if (!this.data.scope) {
+      this.data.scope = 'prison'
+    } else if (this.data.scope !== 'prison' && this.data.scope !== 'global') {
+      this.addError('scope', 'Invalid scope')
     }
 
     this.data.page = parseInt(this.data.page as unknown as string, 10)

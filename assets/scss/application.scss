@@ -12,13 +12,13 @@ $govuk-page-width: $moj-page-width;
 @import './components/caseload-bar';
 @import './components/definition-list';
 @import './components/error-pages';
-@import './components/field-and-button-group';
 @import './components/header';
 @import './components/footer';
 @import './components/mini-profile-header';
 @import './components/prisoner-photo';
 @import './components/sortable-table';
 @import './page/list';
+@import './page/prisoner-search';
 @import './page/view';
 
 @import './local';

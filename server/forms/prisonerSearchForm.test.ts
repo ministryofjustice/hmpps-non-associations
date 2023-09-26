@@ -11,6 +11,7 @@ describe('PrisonerSearchForm', () => {
     { scenario: 'the page is 0', payload: { q: 'john', page: '0' } },
     { scenario: 'sort is invalid', payload: { q: 'john', page: '1', sort: 'age', order: 'ASC' } },
     { scenario: 'order is invalid', payload: { q: 'john', page: '1', sort: 'firstName', order: 'reversed' } },
+    { scenario: 'scope is invalid', payload: { q: 'john', page: '1', scope: 'MDI' } },
   ])('should present errors when $scenario', ({ payload }) => {
     const form = new PrisonerSearchForm()
     form.submit(payload)
@@ -19,18 +20,22 @@ describe('PrisonerSearchForm', () => {
 
   it('should accept valid payloads', () => {
     const queries = ['John', 'John Adams', 'A1409AE', 'a1409ae']
-    queries.forEach((query, index) => {
-      const form = new PrisonerSearchForm()
-      const page = index + 1
-      form.submit({ q: query, page: page.toString() })
+    const scopes = [undefined, 'prison', 'global']
+    scopes.forEach(scope => {
+      queries.forEach((query, index) => {
+        const form = new PrisonerSearchForm()
+        const page = index + 1
+        form.submit({ q: query, page: page.toString(), scope })
 
-      expect(form.hasErrors).toBeFalsy()
-      expect(form.fields.q.value).toEqual(query)
-      expect(form.fields.page.value).toEqual(page)
+        expect(form.hasErrors).toBeFalsy()
+        expect(form.fields.q.value).toEqual(query)
+        expect(form.fields.page.value).toEqual(page)
+        expect(form.fields.scope.value).toEqual(scope ?? 'prison')
 
-      // sorting defaults to ascending by last name
-      expect(form.fields.sort.value).toEqual('lastName')
-      expect(form.fields.order.value).toEqual('ASC')
+        // sorting defaults to ascending by last name
+        expect(form.fields.sort.value).toEqual('lastName')
+        expect(form.fields.order.value).toEqual('ASC')
+      })
     })
   })
 

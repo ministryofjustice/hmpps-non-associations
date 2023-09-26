@@ -2,9 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockReadOnlyUser, mockUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser, mockUserWithoutGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import { transferPrisonId, outsidePrisonId, userRolePrison, userRoleManageNonAssociations } from '../data/constants'
+import { transferPrisonId, outsidePrisonId } from '../data/constants'
 import {
   NonAssociationsApi,
   sortDirectionOptions,
@@ -273,11 +273,6 @@ describe('Non-associations list page', () => {
     })
 
     describe('when you have insufficient permissions', () => {
-      const mockUserWithWriteButNoExtraRoles = {
-        ...mockUser,
-        roles: [userRolePrison, userRoleManageNonAssociations],
-      }
-
       it.each([
         {
           scenario: 'prisoners being transferred',
@@ -289,7 +284,7 @@ describe('Non-associations list page', () => {
         },
       ])('should not be allowed for $scenario', ({ keyPrisoner }) => {
         app = appWithAllRoutes({
-          userSupplier: () => mockUserWithWriteButNoExtraRoles,
+          userSupplier: () => mockUserWithoutGlobalSearch,
         })
         offenderSearchClient.getPrisoner.mockResolvedValueOnce(keyPrisoner)
 

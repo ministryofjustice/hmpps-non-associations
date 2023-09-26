@@ -21,7 +21,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: '/nonAssociationsApi/health/ping',
+        urlPath: '/nonAssociationsApi/health/ping',
       },
       response: {
         status: 200,

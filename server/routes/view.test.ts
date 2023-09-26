@@ -2,14 +2,9 @@ import type { Express } from 'express'
 import request from 'supertest'
 
 import { SanitisedError } from '../sanitisedError'
-import { appWithAllRoutes, mockUser, mockReadOnlyUser } from './testutils/appSetup'
+import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
-import {
-  userRolePrison,
-  userRoleGlobalSearch,
-  userRoleInactiveBookings,
-  userRoleManageNonAssociations,
-} from '../data/constants'
+import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
@@ -382,10 +377,7 @@ describe('View non-association details page', () => {
       },
       {
         scenario: 'a person is not in an establishment but you do not have inactive bookings role',
-        user: {
-          ...mockUser,
-          roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
-        },
+        user: mockUserWithGlobalSearch,
         nonAssociation: mockNonAssociation(joePeters.prisonerNumber, davidJones.prisonerNumber),
       },
     ])('$scenario', ({ user, nonAssociation: na }) => {

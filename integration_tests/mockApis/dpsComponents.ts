@@ -5,7 +5,7 @@ const stubHeaderFail = () =>
   stubFor({
     request: {
       method: 'GET',
-      urlPattern: '/components/header',
+      urlPath: '/components/header',
     },
     response: {
       status: 500,
@@ -19,7 +19,7 @@ const stubFooterFail = () =>
   stubFor({
     request: {
       method: 'GET',
-      urlPattern: '/components/footer',
+      urlPath: '/components/footer',
     },
     response: {
       status: 500,

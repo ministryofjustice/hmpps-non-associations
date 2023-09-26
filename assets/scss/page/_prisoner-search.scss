@@ -1,14 +1,15 @@
 @include govuk-media-query($from: 1000px) {
-  .app-field-and-button-group {
+  .app-prisoner-search-form {
     display: flex;
     flex-direction: row;
+    align-items: start;
 
     .govuk-form-group {
       flex: 2;
     }
 
     .govuk-button-group {
-      flex: 1;
+      flex: 3;
       align-self: end;
       padding-left: govuk-spacing(3);
     }

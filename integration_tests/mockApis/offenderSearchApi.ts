@@ -9,7 +9,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        urlPattern: '/offenderSearchApi/health/ping',
+        urlPath: '/offenderSearchApi/health/ping',
       },
       response: {
         status: 200,
@@ -28,7 +28,7 @@ export default {
         return stubFor({
           request: {
             method: 'GET',
-            urlPattern: `/offenderSearchApi/prisoner/${encodeURIComponent(prisoner.prisonerNumber)}`,
+            urlPath: `/offenderSearchApi/prisoner/${encodeURIComponent(prisoner.prisonerNumber)}`,
           },
           response: {
             status: 200,
@@ -41,9 +41,9 @@ export default {
   },
 
   /**
-   * Stub searching for a prisoner
+   * Stub searching for a prisoner in a prison
    */
-  stubOffenderSearchResults({
+  stubOffenderSearchResultsInPrison({
     prisonId,
     term,
     results,
@@ -56,13 +56,45 @@ export default {
     page: number
     totalElements: number | undefined
   }): SuperAgentRequest {
-    const query = `term=${encodeURIComponent(term)}&size=${
-      OffenderSearchClient.PAGE_SIZE
-    }&page=${page}&sort=lastName${encodeURIComponent(',')}ASC`
+    const queryRegex = [
+      `term=${encodeURIComponent(term)}`,
+      `size=${OffenderSearchClient.PAGE_SIZE}`,
+      `page=${page}`,
+    ].join('&')
     return stubFor({
       request: {
         method: 'GET',
-        url: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners?${query}`,
+        urlPattern: `/offenderSearchApi/prison/${encodeURIComponent(prisonId)}/prisoners\\?.*${queryRegex}.*`,
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: {
+          content: results,
+          totalElements: totalElements ?? results.length,
+        },
+      },
+    })
+  },
+
+  /**
+   * Stub searching for a prisoner globally
+   * NB: this stub ignores filters so all searches match
+   */
+  stubOffenderSearchResultsGlobally({
+    results,
+    page = 0,
+    totalElements = undefined,
+  }: {
+    results: OffenderSearchResult[]
+    page: number
+    totalElements: number | undefined
+  }): SuperAgentRequest {
+    const queryRegex = [`size=${OffenderSearchClient.PAGE_SIZE}`, `page=${page}`].join('&')
+    return stubFor({
+      request: {
+        method: 'POST',
+        urlPattern: `/offenderSearchApi/global-search\\?.*${queryRegex}.*`,
       },
       response: {
         status: 200,

@@ -48,6 +48,16 @@ export const mockReadOnlyUser: Express.User = {
   roles: [userRolePrison],
 }
 
+export const mockUserWithoutGlobalSearch: Express.User = {
+  ...mockUser,
+  roles: [userRolePrison, userRoleManageNonAssociations],
+}
+
+export const mockUserWithGlobalSearch: Express.User = {
+  ...mockUser,
+  roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
+}
+
 export const flashProvider = jest.fn()
 
 function appSetup(services: Services, production: boolean, userSupplier: () => Express.User): Express {
