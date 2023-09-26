@@ -2,10 +2,13 @@ import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
+import type { SanitisedError } from '../sanitisedError'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import {
   NonAssociationsApi,
+  ErrorCode,
+  ErrorResponse,
   type CreateNonAssociationRequest,
   roleOptions,
   reasonOptions,
@@ -99,7 +102,15 @@ export default function addRoutes(service: Services): Router {
             `Non-association could NOT be created by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
-          req.flash('warning', 'Non-association could not be saved, please try again')
+          const errorResponse = (error as SanitisedError<ErrorResponse>).data
+          if (
+            ErrorResponse.isErrorResponse(errorResponse) &&
+            errorResponse.errorCode === ErrorCode.OpenNonAssociationAlreadyExist
+          ) {
+            req.flash('warningHtml', 'There is already an open non-association between these 2 prisoners')
+          } else {
+            req.flash('warning', 'Non-association could not be saved, please try again')
+          }
         }
       }
 
