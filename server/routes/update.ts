@@ -17,7 +17,6 @@ import { OffenderSearchClient, type OffenderSearchResult } from '../data/offende
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import UpdateForm from '../forms/update'
-import type { FlashMessages } from './index'
 
 export default function updateRoutes(service: Services): Router {
   const { hmppsAuthClient } = service
@@ -101,8 +100,6 @@ export default function updateRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
       )
 
-      const messages: FlashMessages = {}
-
       if (form.submitted && !form.hasErrors) {
         const prisonerRoles = [form.fields.prisonerRole.value, form.fields.otherPrisonerRole.value]
         const [firstPrisonerRole, secondPrisonerRole] =
@@ -132,7 +129,7 @@ export default function updateRoutes(service: Services): Router {
             `Non-association ${nonAssociation.id} could NOT be updated by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
-          messages.warning = ['Non-association could not be updated, please try again']
+          req.flash('warning', 'Non-association could not be updated, please try again')
         }
       }
 
@@ -155,7 +152,6 @@ export default function updateRoutes(service: Services): Router {
       }
 
       res.render('pages/update.njk', {
-        messages,
         prisonerNumber,
         prisonerName,
         otherPrisonerNumber,

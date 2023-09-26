@@ -16,7 +16,6 @@ import { OffenderSearchClient, type OffenderSearchResult } from '../data/offende
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
-import type { FlashMessages } from './index'
 
 export default function addRoutes(service: Services): Router {
   const { hmppsAuthClient } = service
@@ -73,8 +72,6 @@ export default function addRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
       )
 
-      const messages: FlashMessages = {}
-
       if (form.submitted && !form.hasErrors) {
         const request: CreateNonAssociationRequest = {
           firstPrisonerNumber: prisonerNumber,
@@ -102,12 +99,11 @@ export default function addRoutes(service: Services): Router {
             `Non-association could NOT be created by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
-          messages.warning = ['Non-association could not be saved, please try again']
+          req.flash('warning', 'Non-association could not be saved, please try again')
         }
       }
 
       res.render('pages/add.njk', {
-        messages,
         prisonerNumber,
         prisonerName,
         otherPrisonerNumber,
