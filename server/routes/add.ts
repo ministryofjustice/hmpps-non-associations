@@ -21,7 +21,7 @@ import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
 
 export default function addRoutes(service: Services): Router {
-  const { hmppsAuthClient } = service
+  const { hmppsAuthClient, routeUrls } = service
   const router = Router({ mergeParams: true })
 
   const formId = 'add' as const
@@ -107,7 +107,14 @@ export default function addRoutes(service: Services): Router {
             ErrorResponse.isErrorResponse(errorResponse) &&
             errorResponse.errorCode === ErrorCode.OpenNonAssociationAlreadyExist
           ) {
-            req.flash('warningHtml', 'There is already an open non-association between these 2 prisoners')
+            let errorMessage = 'There is already an open non-association between these 2 prisoners'
+            const openNonAssociations = await api.listNonAssociationsBetween([prisonerNumber, otherPrisonerNumber])
+            if (openNonAssociations.length === 1) {
+              const [openNonAssociation] = openNonAssociations
+              const link = routeUrls.view(prisonerNumber, openNonAssociation.id)
+              errorMessage = `${errorMessage}. <a href="${link}">View the existing non-association</a>`
+            }
+            req.flash('warningHtml', errorMessage)
           } else {
             req.flash('warning', 'Non-association could not be saved, please try again')
           }

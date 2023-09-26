@@ -240,6 +240,9 @@ describe('Add non-association details page', () => {
       },
     }
     nonAssociationsApi.createNonAssociation.mockRejectedValue(error)
+    const openNonassociation = mockNonAssociation(prisonerNumber, otherPrisonerNumber)
+    openNonassociation.id = 1231
+    nonAssociationsApi.listNonAssociationsBetween.mockResolvedValueOnce([openNonassociation])
 
     return request(app)
       .post(routeUrls.add(prisonerNumber, otherPrisonerNumber))
@@ -256,9 +259,16 @@ describe('Add non-association details page', () => {
       .expect(res => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
         expect(nonAssociationsApi.createNonAssociation).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledWith([
+          prisonerNumber,
+          otherPrisonerNumber,
+        ])
 
         expect(res.text).not.toContain('The non-association has been added to each prisoner’s profile')
         expect(res.text).toContain('There is already an open non-association between these 2 prisoners') // error message
+        expect(res.text).toContain('View the existing non-association') // error message
+        expect(res.text).toContain(`/prisoner/${prisonerNumber}/non-associations/${openNonassociation.id}`) // link to open
         expect(res.text).toContain('An incident occurred yesterday') // form still pre-filled
       })
   })

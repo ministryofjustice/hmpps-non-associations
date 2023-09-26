@@ -310,7 +310,7 @@ export class NonAssociationsApi extends RestClient {
 
   listNonAssociationsBetween(
     prisonerNumbers: string[],
-    options: {
+    options?: {
       includeOpen?: boolean
       includeClosed?: boolean
     },
