@@ -20,7 +20,7 @@ describe('site root', () => {
       .expect(302)
       .expect(res => {
         expect(res.redirect).toBeTruthy()
-        expect(res.headers.location).toBe('http://localhost:3000')
+        expect(res.headers.location).toBe('http://dps.local')
       })
   })
 })
