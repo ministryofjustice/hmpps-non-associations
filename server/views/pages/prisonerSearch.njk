@@ -92,7 +92,7 @@
         {% if result | isBeingTransferred %}
           {% set location = result | prisonerLocation %}
           {% set establishment = "N/A" %}
-          {% elif result | isOutside %}
+        {% elif result | isOutside %}
           {% set location = "N/A" %}
           {% set establishment = result | prisonerLocation %}
         {% else %}
