@@ -15,6 +15,15 @@ context('List non-associations page', () => {
     cy.title().should('eq', 'Non-associations – Digital Prison Services')
   })
 
+  it('shows username in fallback header', () => {
+    listPage.headerUserName.should('contain.text', 'J. Smith')
+  })
+
+  it('shows basic links in fallback header', () => {
+    listPage.footer.should('contain.text', 'Official sensitive')
+    listPage.footerLinks.should('contain.text', 'Get help')
+  })
+
   it('has correct breadcrumb', () => {
     listPage.checkLastBreadcrumb('Jones, David')
   })

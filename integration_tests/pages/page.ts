@@ -54,7 +54,11 @@ export default abstract class Page {
     return this.errorSummary.find('.govuk-error-summary__list li')
   }
 
+  get footer(): PageElement {
+    return cy.get('footer.govuk-footer')
+  }
+
   get footerLinks(): PageElement<HTMLLIElement> {
-    return cy.get('footer.govuk-footer .govuk-footer__inline-list li')
+    return this.footer.find('li.govuk-footer__inline-list-item')
   }
 }
