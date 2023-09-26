@@ -140,20 +140,6 @@ describe('Add non-association details page', () => {
       })
   })
 
-  it('should render breadcrumbs', () => {
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
-
-    return request(app)
-      .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
-      .expect(200)
-      .expect('Content-Type', /html/)
-      .expect(res => {
-        expect(res.text).toContain('Jones, David')
-        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
-      })
-  })
-
   it('should render a form before anything was submitted', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)

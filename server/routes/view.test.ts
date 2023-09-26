@@ -136,10 +136,10 @@ describe('View non-association details page', () => {
 
       expect(res.text).toContain('Photo of David Jones')
       expect(res.text).not.toContain('Photo of David Jones is not available')
-      expect(res.text).toContain('href="http://localhost:3000/prisoner/A1234BC"')
+      expect(res.text).toContain('href="http://dps.local/prisoner/A1234BC"')
       expect(res.text).toContain('Photo of Fred Mills')
       expect(res.text).not.toContain('Photo of Fred Mills is not available')
-      expect(res.text).toContain('href="http://localhost:3000/prisoner/A1235EF"')
+      expect(res.text).toContain('href="http://dps.local/prisoner/A1235EF"')
 
       expect(res.text).toContain('Threat')
       expect(res.text).toContain('Cell only')

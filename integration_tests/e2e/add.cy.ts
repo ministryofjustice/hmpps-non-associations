@@ -67,7 +67,8 @@ context('Add non-association page', () => {
     addDetailsPage.commentBox.type('David is a bully')
     addDetailsPage.saveButton.click()
 
-    Page.verifyOnPage(AddConfirmationPage)
+    const confirmationPage = Page.verifyOnPage(AddConfirmationPage)
+    confirmationPage.checkLastBreadcrumb('Non-associations')
 
     // Clicking on the link sends a GA event
     cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {

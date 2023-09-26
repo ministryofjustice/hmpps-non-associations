@@ -29,7 +29,8 @@ context('Update prisoner non-association page', () => {
     updatePage.commentBox.type(' and IR456456')
     updatePage.saveButton.click()
 
-    Page.verifyOnPage(UpdateConfirmationPage)
+    const confirmationPage = Page.verifyOnPage(UpdateConfirmationPage)
+    confirmationPage.checkLastBreadcrumb('Non-associations')
 
     // Clicking on the link sends a GA event
     cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {
