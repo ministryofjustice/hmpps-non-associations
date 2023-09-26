@@ -28,6 +28,16 @@
       "matchPackageNames": ["@types/node"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      "matchDatasources": ["docker-compose"],
+      "matchPackageNames": ["redis"],
+      "allowedVersions": "7.0"
+    },
+    {
+      "matchDatasources": ["orb"],
+      "matchPackageNames": ["cimg/redis"],
+      "allowedVersions": "7.0"
     }
   ],
   "vulnerabilityAlerts": {
