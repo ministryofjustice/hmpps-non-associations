@@ -28,7 +28,9 @@ export declare global {
 
     interface Locals {
       breadcrumbs: Breadcrumbs
-      messages: Partial<Record<'information' | 'success' | 'warning', string[]>>
+      messages: Partial<
+        Record<'information' | 'informationHtml' | 'success' | 'successHtml' | 'warning' | 'warningHtml', string[]>
+      >
       user: Express.User
     }
   }

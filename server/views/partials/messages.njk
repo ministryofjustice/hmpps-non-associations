@@ -1,10 +1,13 @@
 {% from "moj/components/banner/macro.njk" import mojBanner %}
 
 {% for messageType, messages in messages %}
+  {% set isHtml = messageType.endsWith("Html") %}
+  {% set messageType = messageType.replace("Html", "") %}
+
   {% for message in messages %}
     {{ mojBanner({
       type: messageType,
-      html: message | escape | nl2br
+      html: message if isHtml else message | escape | nl2br
     }) }}
   {% endfor %}
 {% endfor %}
