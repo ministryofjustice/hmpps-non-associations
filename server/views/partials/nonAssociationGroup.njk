@@ -39,9 +39,9 @@
 
   {% set location %}
     {% if table == "same" %}
-      {{ nonAssociation.otherPrisonerDetails.cellLocation }}
+      {{ nonAssociation.otherPrisonerDetails.cellLocation or "Not known" }}
     {% elif table == "other" or table == "any" %}
-      {{ nonAssociation.otherPrisonerDetails.prisonName }}
+      {{ nonAssociation.otherPrisonerDetails.prisonName or "Not known" }}
     {% else %}
       {{ nonAssociation.otherPrisonerDetails | prisonerLocation }}
     {% endif %}

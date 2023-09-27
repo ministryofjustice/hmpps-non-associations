@@ -207,6 +207,23 @@ export function mockMoveOtherPrisonersInNonAssociationsList(
     }
   }
 
+  if (!prisonId) {
+    return {
+      ...nonAssociations,
+      nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId: undefined,
+            prisonName: undefined,
+            cellLocation: undefined,
+          },
+        }
+      }),
+    }
+  }
+
   return {
     ...nonAssociations,
     nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
