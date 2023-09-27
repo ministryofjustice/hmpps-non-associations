@@ -5,7 +5,7 @@ import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
-import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import { NonAssociationsApi, type ErrorResponse, ErrorCode } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, maxClarke, joePeters, mockGetPrisoner } from '../data/testData/offenderSearch'
@@ -223,7 +223,57 @@ describe('Add non-association details page', () => {
       })
   })
 
-  it('should generic error page when api returns an error', () => {
+  it('should an error when api indicates there is an open non-association already', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
+    const error: SanitisedError<ErrorResponse> = {
+      name: 'Error',
+      status: 409,
+      message: 'Bad Request',
+      stack: 'Error: Bad Request',
+      data: {
+        status: 409,
+        errorCode: ErrorCode.OpenNonAssociationAlreadyExist,
+        userMessage: `Non-association already exists for these prisoners that is open: Prisoners [${prisonerNumber}, ${otherPrisonerNumber}] already have open non-associations`,
+        developerMessage: `Prisoners [${prisonerNumber}, ${otherPrisonerNumber}] already have open non-associations`,
+        moreInfo: null,
+      },
+    }
+    nonAssociationsApi.createNonAssociation.mockRejectedValue(error)
+    const openNonassociation = mockNonAssociation(prisonerNumber, otherPrisonerNumber)
+    openNonassociation.id = 1231
+    nonAssociationsApi.listNonAssociationsBetween.mockResolvedValueOnce([openNonassociation])
+
+    return request(app)
+      .post(routeUrls.add(prisonerNumber, otherPrisonerNumber))
+      .send({
+        formId: 'add',
+        prisonerRole: 'VICTIM',
+        otherPrisonerRole: 'PERPETRATOR',
+        reason: 'THREAT',
+        restrictionType: 'LANDING',
+        comment: 'An incident occurred yesterday',
+      })
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect(res => {
+        expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
+        expect(nonAssociationsApi.createNonAssociation).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledWith([
+          prisonerNumber,
+          otherPrisonerNumber,
+        ])
+
+        expect(res.text).not.toContain('The non-association has been added to each prisoner’s profile')
+        expect(res.text).toContain('There is already an open non-association between these 2 prisoners') // error message
+        expect(res.text).toContain('View the existing non-association') // error message
+        expect(res.text).toContain(`/prisoner/${prisonerNumber}/non-associations/${openNonassociation.id}`) // link to open
+        expect(res.text).toContain('An incident occurred yesterday') // form still pre-filled
+      })
+  })
+
+  it('should an error when api returns a generic error', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
     const error: SanitisedError = {

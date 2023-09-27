@@ -2,10 +2,13 @@ import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
+import type { SanitisedError } from '../sanitisedError'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import {
   NonAssociationsApi,
+  ErrorCode,
+  ErrorResponse,
   type CreateNonAssociationRequest,
   roleOptions,
   reasonOptions,
@@ -16,10 +19,9 @@ import { OffenderSearchClient, type OffenderSearchResult } from '../data/offende
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import AddForm from '../forms/add'
-import type { FlashMessages } from './index'
 
 export default function addRoutes(service: Services): Router {
-  const { hmppsAuthClient } = service
+  const { hmppsAuthClient, routeUrls } = service
   const router = Router({ mergeParams: true })
 
   const formId = 'add' as const
@@ -73,8 +75,6 @@ export default function addRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
       )
 
-      const messages: FlashMessages = {}
-
       if (form.submitted && !form.hasErrors) {
         const request: CreateNonAssociationRequest = {
           firstPrisonerNumber: prisonerNumber,
@@ -102,12 +102,26 @@ export default function addRoutes(service: Services): Router {
             `Non-association could NOT be created by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
-          messages.warning = ['Non-association could not be saved, please try again']
+          const errorResponse = (error as SanitisedError<ErrorResponse>).data
+          if (
+            ErrorResponse.isErrorResponse(errorResponse) &&
+            errorResponse.errorCode === ErrorCode.OpenNonAssociationAlreadyExist
+          ) {
+            let errorMessage = 'There is already an open non-association between these 2 prisoners'
+            const openNonAssociations = await api.listNonAssociationsBetween([prisonerNumber, otherPrisonerNumber])
+            if (openNonAssociations.length === 1) {
+              const [openNonAssociation] = openNonAssociations
+              const link = routeUrls.view(prisonerNumber, openNonAssociation.id)
+              errorMessage = `${errorMessage}. <a href="${link}">View the existing non-association</a>`
+            }
+            req.flash('warningHtml', errorMessage)
+          } else {
+            req.flash('warning', 'Non-association could not be saved, please try again')
+          }
         }
       }
 
       res.render('pages/add.njk', {
-        messages,
         prisonerNumber,
         prisonerName,
         otherPrisonerNumber,

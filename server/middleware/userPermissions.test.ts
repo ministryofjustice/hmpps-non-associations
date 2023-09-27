@@ -25,6 +25,7 @@ function expectUser(user: Express.User) {
   const res = jest.fn() as unknown as jest.Mocked<Response>
   res.locals = {
     breadcrumbs: undefined,
+    messages: {},
     user,
   } satisfies Express.Locals
   const next = jest.fn() as unknown as jest.Mocked<NextFunction>

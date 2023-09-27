@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import config from '../config'
 import { nameOfPerson } from '../utils/utils'
 import { transferPrisonId, outsidePrisonId } from './constants'
@@ -163,6 +164,40 @@ export type SortBy = (typeof sortByOptions)[number]
 export const sortDirectionOptions = ['ASC', 'DESC'] as const
 export type SortDirection = (typeof sortDirectionOptions)[number]
 
+/**
+ * Structure representing an error response from the api, wrapped in SanitisedError.
+ * Defined in uk.gov.justice.digital.hmpps.hmppsnonassociationsapi.config.ErrorResponse class
+ * https://github.com/ministryofjustice/hmpps-non-associations-api/blob/98e16aced07ac0eb3c3a7b8ffc74aff4015ca5a1/src/main/kotlin/uk/gov/justice/digital/hmpps/hmppsnonassociationsapi/config/HmppsNonAssociationsApiExceptionHandler.kt#L236-L257
+ */
+export class ErrorResponse {
+  status: number
+
+  errorCode?: ErrorCode
+
+  userMessage?: string
+
+  developerMessage?: string
+
+  moreInfo?: string
+
+  static isErrorResponse(obj: object): obj is ErrorResponse {
+    // TODO: would be nice to make userMessage & developerMessage non-nullable in the api
+    return obj && 'status' in obj && typeof obj.status === 'number'
+  }
+}
+
+/**
+ * Unique codes to discriminate errors returned from the api.
+ * Defined in uk.gov.justice.digital.hmpps.hmppsnonassociationsapi.config.ErrorCode enumeration
+ * https://github.com/ministryofjustice/hmpps-non-associations-api/blob/98e16aced07ac0eb3c3a7b8ffc74aff4015ca5a1/src/main/kotlin/uk/gov/justice/digital/hmpps/hmppsnonassociationsapi/config/HmppsNonAssociationsApiExceptionHandler.kt#L229-L234
+ */
+export enum ErrorCode {
+  NonAssociationAlreadyClosed = 100,
+  OpenNonAssociationAlreadyExist = 101,
+  ValidationFailure = 102,
+  UserInContextMissing = 401,
+}
+
 export class NonAssociationsApi extends RestClient {
   constructor(systemToken: string) {
     super('HMPPS Non-associations API', config.apis.hmppsNonAssociationsApi, systemToken)
@@ -247,11 +282,12 @@ export class NonAssociationsApi extends RestClient {
   }
 
   /**
-   * Retrieve non-associations between multiple prisoners
+   * Get non-associations between two or more prisoners by prisoner number.
+   * Both people in the non-associations must be in the provided list.
    */
   listNonAssociationsBetween(
     prisonerNumbers: string[],
-    options: {
+    options?: {
       includeOpen?: true
       includeClosed?: false
     },
@@ -275,7 +311,7 @@ export class NonAssociationsApi extends RestClient {
 
   listNonAssociationsBetween(
     prisonerNumbers: string[],
-    options: {
+    options?: {
       includeOpen?: boolean
       includeClosed?: boolean
     },
@@ -302,6 +338,62 @@ export class NonAssociationsApi extends RestClient {
   }
 
   /**
+   * Get non-associations involving any of the given prisoners.
+   * Either person in the non-association must be in the provided list.
+   */
+  listNonAssociationsInvolving(
+    prisonerNumbers: string[],
+    options?: {
+      includeOpen?: true
+      includeClosed?: false
+    },
+  ): Promise<OpenNonAssociation[]>
+
+  listNonAssociationsInvolving(
+    prisonerNumbers: string[],
+    options: {
+      includeOpen: false
+      includeClosed: true
+    },
+  ): Promise<ClosedNonAssociation[]>
+
+  listNonAssociationsInvolving(
+    prisonerNumbers: string[],
+    options: {
+      includeOpen: false
+      includeClosed: false
+    },
+  ): Promise<never[]>
+
+  listNonAssociationsInvolving(
+    prisonerNumbers: string[],
+    options?: {
+      includeOpen?: boolean
+      includeClosed?: boolean
+    },
+  ): Promise<NonAssociation[]>
+
+  listNonAssociationsInvolving(
+    prisonerNumbers: string[],
+    {
+      includeOpen = true,
+      includeClosed = false,
+    }: {
+      includeOpen?: boolean
+      includeClosed?: boolean
+    } = {},
+  ): Promise<NonAssociation[]> {
+    const open = encodeURIComponent(includeOpen.toString())
+    const closed = encodeURIComponent(includeClosed.toString())
+    return this.post<NonAssociation[]>({
+      path: `/non-associations/involving?includeOpen=${open}&includeClosed=${closed}`,
+      data: prisonerNumbers as unknown as Record<string, unknown>,
+    }).then(nonAssociations => {
+      return nonAssociations.map(nonAssociation => parseDates(nonAssociation))
+    })
+  }
+
+  /**
    * Retrieve a non-association by ID
    */
   getNonAssociation(id: number): Promise<NonAssociation> {
@@ -312,6 +404,8 @@ export class NonAssociationsApi extends RestClient {
 
   /**
    * Create a new non-association
+   *
+   * @throws SanitisedError<ErrorResponse>
    */
   createNonAssociation(request: CreateNonAssociationRequest): Promise<OpenNonAssociation> {
     return this.post<OpenNonAssociation>({
@@ -322,6 +416,8 @@ export class NonAssociationsApi extends RestClient {
 
   /**
    * Update an existing new non-association by ID
+   *
+   * @throws SanitisedError<ErrorResponse>
    */
   updateNonAssociation(id: number, request: UpdateNonAssociationRequest): Promise<NonAssociation> {
     return this.patch<NonAssociation>({
@@ -332,6 +428,8 @@ export class NonAssociationsApi extends RestClient {
 
   /**
    * Close an open non-association by ID
+   *
+   * @throws SanitisedError<ErrorResponse>
    */
   closeNonAssociation(id: number, request: CloseNonAssociationRequest): Promise<ClosedNonAssociation> {
     return this.put<ClosedNonAssociation>({

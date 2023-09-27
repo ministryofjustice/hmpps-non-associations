@@ -21,7 +21,6 @@ import PrisonApi from '../data/prisonApi'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import ListForm, { type ListData, type Table } from '../forms/list'
-import type { FlashMessages } from './index'
 
 type Columns =
   | 'photo'
@@ -131,7 +130,6 @@ export default function listRoutes(service: Services): Router {
     const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
     const prisonerName = nameOfPerson(prisoner)
 
-    const messages: FlashMessages = {}
     const tableHeads: Partial<Record<Table, HeaderCell[]>> = {}
     let nonAssociationsList: NonAssociationsList
     let nonAssociationGroups: NonAssociationGroups
@@ -218,7 +216,7 @@ export default function listRoutes(service: Services): Router {
         }
       } catch (error) {
         logger.error(`Non-associations NOT listed by ${user.username} for ${prisonerNumber}`, error)
-        messages.warning = ['Non-associations could not be loaded, please try again']
+        req.flash('warning', 'Non-associations could not be loaded, please try again')
       }
     }
 
@@ -230,7 +228,6 @@ export default function listRoutes(service: Services): Router {
     })
     res.render('pages/list.njk', {
       user,
-      messages,
       listing,
       prisoner,
       prisonerNumber,

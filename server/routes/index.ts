@@ -4,6 +4,7 @@ import type { PathParams } from 'express-serve-static-core'
 
 import config from '../config'
 import asyncMiddleware from '../middleware/asyncMiddleware'
+import flashMessages from '../middleware/flashMessages'
 import type { Services } from '../services'
 import PrisonApi from '../data/prisonApi'
 import prisonerSearchRoutes from './prisonerSearch'
@@ -13,17 +14,12 @@ import listRoutes from './list'
 import viewRoutes from './view'
 import updateRoutes from './update'
 
-export type FlashMessages = {
-  information?: string[]
-  success?: string[]
-  warning?: string[]
-}
-
 export default function routes(services: Services): Router {
   const router = Router({ mergeParams: true })
   const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   router.use(flash())
+  router.use(flashMessages())
 
   const urlTemplates = services.routeUrls.templates
 
