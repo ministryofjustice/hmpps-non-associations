@@ -455,6 +455,7 @@ export function parseDates<O extends { whenCreated: unknown; whenUpdated: unknow
 const systemUsers: ReadonlyArray<StaffMember> = [
   // https://github.com/ministryofjustice/hmpps-non-associations-api/blob/04bf15fd1a7d659abe785749fbedda9f13627fba/src/main/kotlin/uk/gov/justice/digital/hmpps/hmppsnonassociationsapi/HmppsNonAssociationsApi.kt#L9
   { username: 'NON_ASSOCIATIONS_API', firstName: 'System', lastName: '' },
+  { username: 'PRISONER_MANAGER_API', firstName: 'System', lastName: '' },
   { username: 'hmpps-prisoner-from-nomis-migration-non-associations', firstName: 'System', lastName: '' },
   { username: 'hmpps-prisoner-from-nomis-migration-non-associations-1', firstName: 'System', lastName: '' },
   { username: 'hmpps-prisoner-to-nomis-update-non-associations', firstName: 'System', lastName: '' },
