@@ -118,4 +118,28 @@ describe('prisoners’ locations', () => {
     expect(isOutside(prisoner)).toBeTruthy()
     expect(isInPrison(prisoner)).toBeFalsy()
   })
+
+  it('for people whose location is blank', () => {
+    const prisoner = {
+      ...davidJones,
+      prisonId: '',
+      cellLocation: '',
+    }
+    expect(prisonerLocation(prisoner)).toEqual('Not known')
+
+    expect(isBeingTransferred(prisoner)).toBeFalsy()
+    expect(isOutside(prisoner)).toBeFalsy()
+    expect(isInPrison(prisoner)).toBeFalsy()
+  })
+
+  it('for people whose location is undefined', () => {
+    const prisoner = { ...davidJones }
+    delete prisoner.prisonId
+    delete prisoner.cellLocation
+    expect(prisonerLocation(prisoner)).toEqual('Not known')
+
+    expect(isBeingTransferred(prisoner)).toBeFalsy()
+    expect(isOutside(prisoner)).toBeFalsy()
+    expect(isInPrison(prisoner)).toBeFalsy()
+  })
 })

@@ -44,7 +44,11 @@ export function isOutside(prisonerOrNonAssociation: { prisonId: string }): boole
 export function isInPrison(prisoner: OffenderSearchResult): prisoner is OffenderSearchResultIn
 export function isInPrison(prisonerOrNonAssociation: { prisonId: string }): boolean
 export function isInPrison(prisonerOrNonAssociation: { prisonId: string }): boolean {
-  return !isBeingTransferred(prisonerOrNonAssociation) && !isOutside(prisonerOrNonAssociation)
+  return Boolean(
+    !isBeingTransferred(prisonerOrNonAssociation) &&
+      !isOutside(prisonerOrNonAssociation) &&
+      prisonerOrNonAssociation.prisonId,
+  )
 }
 
 export type OffenderSearchResults = {
