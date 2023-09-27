@@ -31,6 +31,7 @@ import {
   walterSmith,
   maxClarke,
   joePeters,
+  nathanLost,
   mockMovePrisoner,
 } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
@@ -224,7 +225,7 @@ describe('Non-associations list page', () => {
 
     describe('when it is unknown', () => {
       beforeEach(() => {
-        offenderSearchClient.getPrisoner.mockResolvedValueOnce(mockMovePrisoner(prisoner, ''))
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(nathanLost)
       })
 
       it('when listing open non-associations', () => {

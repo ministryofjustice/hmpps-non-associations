@@ -612,7 +612,7 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
     return { type: 'noGroups' } satisfies NonAssociationNoGroups
   }
 
-  if (list.prisonId === transferPrisonId || list.prisonId === outsidePrisonId) {
+  if (list.prisonId === transferPrisonId || list.prisonId === outsidePrisonId || !list.prisonId) {
     // key prisoner is not in a prison
     const groups: NonAssociationGroupsWithoutPrison<Item> = {
       type: 'twoGroups',
@@ -622,7 +622,8 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
     list.nonAssociations.forEach(item => {
       if (
         item.otherPrisonerDetails.prisonId === transferPrisonId ||
-        item.otherPrisonerDetails.prisonId === outsidePrisonId
+        item.otherPrisonerDetails.prisonId === outsidePrisonId ||
+        !item.otherPrisonerDetails.prisonId
       ) {
         groups.outside.push(item)
       } else {
@@ -642,7 +643,8 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
   list.nonAssociations.forEach(item => {
     if (
       item.otherPrisonerDetails.prisonId === transferPrisonId ||
-      item.otherPrisonerDetails.prisonId === outsidePrisonId
+      item.otherPrisonerDetails.prisonId === outsidePrisonId ||
+      !item.otherPrisonerDetails.prisonId
     ) {
       groups.outside.push(item)
     } else if (item.otherPrisonerDetails.prisonId === list.prisonId) {

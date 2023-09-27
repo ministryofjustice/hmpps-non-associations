@@ -79,6 +79,16 @@ export const joePeters: OffenderSearchResultOut = {
   locationDescription: 'Outside - released from Moorland (HMP)',
 }
 
+export const nathanLost: OffenderSearchResult = {
+  prisonId: '',
+  prisonName: '',
+  bookingId: 12350,
+  prisonerNumber: 'D1234DD',
+  firstName: 'NATHAN',
+  lastName: 'LOST',
+  cellLocation: '',
+}
+
 export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, walterSmith, maxClarke, joePeters]
 
 export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumber => {
