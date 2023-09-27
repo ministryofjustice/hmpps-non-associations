@@ -107,8 +107,8 @@
           {% set location = "N/A" %}
           {% set establishment = result | prisonerLocation %}
         {% else %}
-          {% set location = result.cellLocation %}
-          {% set establishment = result.prisonName %}
+          {% set location = result.cellLocation or "Not known" %}
+          {% set establishment = result.prisonName or "Not known" %}
         {% endif %}
 
         {% set link %}
