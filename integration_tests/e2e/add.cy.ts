@@ -1,3 +1,4 @@
+import { mockNonAssociation } from '../../server/data/testData/nonAssociationsApi'
 import { davidJones, fredMills, joePeters, maxClarke, walterSmith } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import AddPage from '../pages/nonAssociations/add'
@@ -54,6 +55,7 @@ context('Add non-association page', () => {
       expect(fredMillsRow[2]).to.contain(fredMills.prisonerNumber)
       expect(fredMillsRow[3]).to.contain('1-1-002')
       expect(fredMillsRow[4]).to.contain('Moorland')
+      expect(fredMillsRow[5]).to.contain('Select prisoner')
     })
 
     prisonerSearchPage.getSelectLinkForRow(0).click()
@@ -98,6 +100,7 @@ context('Add non-association page', () => {
         maxClarke.prisonerNumber,
         joePeters.prisonerNumber,
       ],
+      nonAssociations: [mockNonAssociation(maxClarke.prisonerNumber, davidJones.prisonerNumber)],
     })
 
     listPage.addButton.click()
@@ -126,7 +129,7 @@ context('Add non-association page', () => {
       expect(maxClarkeRow[1]).to.contain('Clarke, Max')
       expect(maxClarkeRow[3]).to.contain('Transfer')
       expect(maxClarkeRow[4]).to.contain('N/A')
-      expect(maxClarkeRow[5]).to.contain('Select prisoner')
+      expect(maxClarkeRow[5]).to.contain('View non-association')
 
       expect(joePetersRow[1]).to.contain('Peters, Joe')
       expect(joePetersRow[3]).to.contain('N/A')
