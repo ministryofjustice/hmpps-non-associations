@@ -11,9 +11,25 @@ import {
 } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
+import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
-import { davidJones, maxClarke, joePeters, sampleOffenderSearchResults } from '../data/testData/offenderSearch'
+import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
+import {
+  davidJones,
+  fredMills,
+  oscarJones,
+  maxClarke,
+  joePeters,
+  sampleOffenderSearchResults,
+} from '../data/testData/offenderSearch'
 
+jest.mock('../data/nonAssociationsApi', () => {
+  // ensures that constants are preserved
+  type Module = typeof import('../data/nonAssociationsApi')
+  const realModule = jest.requireActual<Module>('../data/nonAssociationsApi')
+  const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
+  return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
+})
 jest.mock('../data/offenderSearch', () => {
   // ensures that sort and order constants are preserved
   type Module = typeof import('../data/offenderSearch')
@@ -27,12 +43,16 @@ const { prisonerNumber } = davidJones
 const prisoner = davidJones
 
 let app: Express
+let nonAssociationsApi: jest.Mocked<NonAssociationsApi>
 let offenderSearchClient: jest.Mocked<OffenderSearchClient>
 
 beforeEach(() => {
   app = appWithAllRoutes({})
 
+  nonAssociationsApi = NonAssociationsApi.prototype as jest.Mocked<NonAssociationsApi>
   offenderSearchClient = OffenderSearchClient.prototype as jest.Mocked<OffenderSearchClient>
+
+  nonAssociationsApi.listNonAssociationsBetween.mockResolvedValue([])
 })
 
 afterEach(() => {
@@ -75,6 +95,7 @@ describe('Search for a prisoner page', () => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
         expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.listNonAssociationsBetween).not.toHaveBeenCalled()
       })
   })
 
@@ -95,6 +116,7 @@ describe('Search for a prisoner page', () => {
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
         expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.listNonAssociationsBetween).not.toHaveBeenCalled()
       })
   })
 
@@ -115,6 +137,7 @@ describe('Search for a prisoner page', () => {
         // search not performed
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
         expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.listNonAssociationsBetween).not.toHaveBeenCalled()
       })
   })
 
@@ -182,7 +205,7 @@ describe('Search for a prisoner page', () => {
 
   it('should display search results when a prison search query is entered', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchInPrison.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchInPrison.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -203,12 +226,21 @@ describe('Search for a prisoner page', () => {
         expect(sort).toEqual('lastName')
         expect(order).toEqual('ASC')
         expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+
+        // checked for open non-associations but found none
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledWith([
+          prisonerNumber,
+          fredMills.prisonerNumber,
+          oscarJones.prisonerNumber,
+        ])
+        expect(res.text).not.toContain('View non-association')
       })
   })
 
   it('should display search results when a global search query is entered by a user with inactive bookings role', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -231,6 +263,15 @@ describe('Search for a prisoner page', () => {
         expect(filters.includeAliases).toEqual(true)
         expect(page).toEqual(0) // NB: page is 0-indexed in offender search
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+
+        // checked for open non-associations but found none
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledWith([
+          prisonerNumber,
+          fredMills.prisonerNumber,
+          oscarJones.prisonerNumber,
+        ])
+        expect(res.text).not.toContain('View non-association')
       })
   })
 
@@ -239,7 +280,7 @@ describe('Search for a prisoner page', () => {
       userSupplier: () => mockUserWithGlobalSearch,
     })
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -262,12 +303,21 @@ describe('Search for a prisoner page', () => {
         expect(filters.includeAliases).toEqual(true)
         expect(page).toEqual(0) // NB: page is 0-indexed in offender search
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
+
+        // checked for open non-associations but found none
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledTimes(1)
+        expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledWith([
+          prisonerNumber,
+          fredMills.prisonerNumber,
+          oscarJones.prisonerNumber,
+        ])
+        expect(res.text).not.toContain('View non-association')
       })
   })
 
   it('should perform global search filtering by last name when 1 search term is provided', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -292,7 +342,7 @@ describe('Search for a prisoner page', () => {
 
   it('should perform global search filtering by first and last name when 2 search terms are provided', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -317,7 +367,7 @@ describe('Search for a prisoner page', () => {
 
   it('should perform global search filtering by first and last name when more than 2 search terms are provided (ignoring surplus terms)', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -342,7 +392,7 @@ describe('Search for a prisoner page', () => {
 
   it('should perform global search filtering by prisoner identifier when search term contains numbers', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    offenderSearchClient.searchGlobally.mockResolvedValue(sampleOffenderSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -363,6 +413,96 @@ describe('Search for a prisoner page', () => {
         expect(page).toEqual(0) // NB: page is 0-indexed in offender search
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
       })
+  })
+
+  describe.each([
+    {
+      scenario: 'there are no open non-associations',
+      mockOpenNonAssociations: [],
+      expected: ['Select prisoner'],
+      unexpected: ['View non-association'],
+    },
+    {
+      scenario: 'one search result has an open non-association with the key prisoner',
+      mockOpenNonAssociations: [mockNonAssociation(prisonerNumber, oscarJones.prisonerNumber)],
+      expected: ['Select prisoner', 'View non-association', `/prisoner/${prisonerNumber}/non-associations/101`],
+      unexpected: [],
+    },
+    {
+      scenario: 'two search results have open non-associations with the key prisoner',
+      mockOpenNonAssociations: [
+        mockNonAssociation(fredMills.prisonerNumber, prisonerNumber),
+        mockNonAssociation(prisonerNumber, oscarJones.prisonerNumber),
+      ].map((nonAssociation, index) => {
+        // eslint-disable-next-line no-param-reassign
+        nonAssociation.id += index + 1
+        return nonAssociation
+      }),
+      expected: [
+        'View non-association',
+        `/prisoner/${prisonerNumber}/non-associations/102`,
+        `/prisoner/${prisonerNumber}/non-associations/103`,
+      ],
+      unexpected: ['Select prisoner'],
+    },
+    {
+      scenario: 'there are open non-associations but not involving the key prisoner',
+      mockOpenNonAssociations: [mockNonAssociation(fredMills.prisonerNumber, oscarJones.prisonerNumber)],
+      expected: ['Select prisoner'],
+      unexpected: ['View non-association', `/prisoner/${prisonerNumber}/non-associations/101`],
+    },
+  ])('when $scenario', ({ mockOpenNonAssociations, expected, unexpected }) => {
+    beforeEach(() => {
+      offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+      offenderSearchClient.searchInPrison.mockResolvedValueOnce(sampleOffenderSearchResults)
+      offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
+      nonAssociationsApi.listNonAssociationsBetween.mockResolvedValueOnce(mockOpenNonAssociations)
+    })
+
+    function maybeExpectViewLinks(res: request.Response) {
+      expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledTimes(1)
+      expect(nonAssociationsApi.listNonAssociationsBetween).toHaveBeenCalledWith([
+        prisonerNumber,
+        fredMills.prisonerNumber,
+        oscarJones.prisonerNumber,
+      ])
+
+      expected.forEach(str => expect(res.text).toContain(str))
+      unexpected.forEach(str => expect(res.text).not.toContain(str))
+    }
+
+    it('view links might show in prison search', () => {
+      app = appWithAllRoutes({
+        userSupplier: () => mockUserWithGlobalSearch,
+      })
+
+      return request(app)
+        .get(routeUrls.prisonerSearch(prisonerNumber))
+        .query({
+          q: 'Smith ',
+          formId: 'search',
+          page: '1',
+        })
+        .expect(200)
+        .expect(res => {
+          maybeExpectViewLinks(res)
+        })
+    })
+
+    it('view links might show in global search', () => {
+      return request(app)
+        .get(routeUrls.prisonerSearch(prisonerNumber))
+        .query({
+          scope: 'global',
+          q: 'Smith ',
+          formId: 'search',
+          page: '1',
+        })
+        .expect(200)
+        .expect(res => {
+          maybeExpectViewLinks(res)
+        })
+    })
   })
 
   it.each([
@@ -393,8 +533,8 @@ describe('Search for a prisoner page', () => {
     })
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     const mockSearchResults: OffenderSearchResults = { content: [], totalElements: 0 }
-    offenderSearchClient.searchInPrison.mockResolvedValue(mockSearchResults)
-    offenderSearchClient.searchGlobally.mockResolvedValue(mockSearchResults)
+    offenderSearchClient.searchInPrison.mockResolvedValueOnce(mockSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(mockSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -416,6 +556,7 @@ describe('Search for a prisoner page', () => {
           expect(offenderSearchClient.searchInPrison).toHaveBeenCalledTimes(1)
           expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
         }
+        expect(nonAssociationsApi.listNonAssociationsBetween).not.toHaveBeenCalled()
       })
   })
 
@@ -443,6 +584,7 @@ describe('Search for a prisoner page', () => {
         // search not performed
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
         expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
+        expect(nonAssociationsApi.listNonAssociationsBetween).not.toHaveBeenCalled()
       })
   })
 
@@ -479,8 +621,8 @@ describe('Search for a prisoner page', () => {
       content: sampleOffenderSearchResults.content,
       totalElements: 100,
     }
-    offenderSearchClient.searchInPrison.mockResolvedValue(mockSearchResults)
-    offenderSearchClient.searchGlobally.mockResolvedValue(mockSearchResults)
+    offenderSearchClient.searchInPrison.mockResolvedValueOnce(mockSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(mockSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))
@@ -550,8 +692,8 @@ describe('Search for a prisoner page', () => {
       content: [davidJones, ...sampleOffenderSearchResults.content],
       totalElements: sampleOffenderSearchResults.totalElements + 1,
     }
-    offenderSearchClient.searchInPrison.mockResolvedValue(mockSearchResults)
-    offenderSearchClient.searchGlobally.mockResolvedValue(mockSearchResults)
+    offenderSearchClient.searchInPrison.mockResolvedValueOnce(mockSearchResults)
+    offenderSearchClient.searchGlobally.mockResolvedValueOnce(mockSearchResults)
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))

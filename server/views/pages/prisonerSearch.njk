@@ -101,7 +101,11 @@
         {% endif %}
 
         {% set link %}
-          {% if canViewProfile %}
+          {% if openNonAssociationsMap.has(result.prisonerNumber) %}
+            <a href="{{ routeUrls.view(prisonerNumber, openNonAssociationsMap.get(result.prisonerNumber)) }}">
+              View non-association
+            </a>
+          {% elif canViewProfile %}
             <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
               Select prisoner
             </a>
@@ -110,11 +114,11 @@
 
         {% set _ = tableRows.push([
           {html: photo},
-          {html: result | reversedNameOfPerson, classes: "govuk-!-padding-top-8"},
-          {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
-          {text: location, classes: "govuk-!-padding-top-8"},
-          {text: establishment, classes: "govuk-!-padding-top-8"},
-          {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
+          {html: result | reversedNameOfPerson},
+          {text: result.prisonerNumber},
+          {text: location},
+          {text: establishment},
+          {html: link}
         ]) %}
       {% endfor %}
 

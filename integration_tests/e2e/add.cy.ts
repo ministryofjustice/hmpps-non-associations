@@ -1,4 +1,4 @@
-import { fredMills, joePeters, maxClarke, walterSmith } from '../../server/data/testData/offenderSearch'
+import { davidJones, fredMills, joePeters, maxClarke, walterSmith } from '../../server/data/testData/offenderSearch'
 import Page from '../pages/page'
 import AddPage from '../pages/nonAssociations/add'
 import AddConfirmationPage from '../pages/nonAssociations/addConfirmation'
@@ -25,6 +25,9 @@ context('Add non-association page', () => {
       prisonId: 'MDI',
       term: 'mills',
       results: [fredMills],
+    })
+    cy.task('stubListNonAssociationsBetween', {
+      prisonerNumbers: [davidJones.prisonerNumber, fredMills.prisonerNumber],
     })
 
     listPage.addButton.click()
@@ -86,6 +89,15 @@ context('Add non-association page', () => {
   it('should display correct location information for people being transferred or outside prison', () => {
     cy.task('stubOffenderSearchResultsGlobally', {
       results: [fredMills, walterSmith, maxClarke, joePeters],
+    })
+    cy.task('stubListNonAssociationsBetween', {
+      prisonerNumbers: [
+        davidJones.prisonerNumber,
+        fredMills.prisonerNumber,
+        walterSmith.prisonerNumber,
+        maxClarke.prisonerNumber,
+        joePeters.prisonerNumber,
+      ],
     })
 
     listPage.addButton.click()
