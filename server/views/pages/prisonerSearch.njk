@@ -89,6 +89,17 @@
           {% endif %}
         {% endset %}
 
+        {% set name %}
+          {% if canViewProfile %}
+            <a href="{{ dpsUrl }}/prisoner/{{ result.prisonerNumber }}">
+              <span class="govuk-visually-hidden">View prisoner profile for</span>
+              {{ result | reversedNameOfPerson }}
+            </a>
+          {% else %}
+            {{ result | reversedNameOfPerson }}
+          {% endif %}
+        {% endset %}
+
         {% if result | isBeingTransferred %}
           {% set location = result | prisonerLocation %}
           {% set establishment = "N/A" %}
@@ -114,7 +125,7 @@
 
         {% set _ = tableRows.push([
           {html: photo},
-          {html: result | reversedNameOfPerson},
+          {html: name},
           {text: result.prisonerNumber},
           {text: location},
           {text: establishment},

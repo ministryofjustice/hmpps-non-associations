@@ -195,9 +195,9 @@ describe('Search for a prisoner page', () => {
     // shows table
     expect(res.text).toContain('app-sortable-table')
     expect(res.text).toContain('Mills, Fred')
-    expect(res.text).toContain('A1235EF')
+    expect(res.text).toContain('href="http://dps.local/prisoner/A1235EF"')
     expect(res.text).toContain('Jones, Oscar')
-    expect(res.text).toContain('A1236CS')
+    expect(res.text).toContain('href="http://dps.local/prisoner/A1236CS"')
     expect(res.text).toContain('Moorland (HMP)')
     // no "nothing found" message
     expect(res.text).not.toContain('0 results found')
