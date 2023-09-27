@@ -128,9 +128,9 @@ export function mockMovePrisoner(
       prisonName: 'Transfer',
       locationDescription: 'Transfer',
     } satisfies OffenderSearchResultTransfer
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete prisonerBeingTransferred.cellLocation
+    if ('cellLocation' in prisonerBeingTransferred) {
+      delete prisonerBeingTransferred.cellLocation
+    }
     return prisonerBeingTransferred
   }
 
@@ -141,10 +141,25 @@ export function mockMovePrisoner(
       prisonName: 'Outside',
       locationDescription: `Outside - released from ${prisoner.prisonName}`,
     } satisfies OffenderSearchResultOut
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete prisonerOutside.cellLocation
+    if ('cellLocation' in prisonerOutside) {
+      delete prisonerOutside.cellLocation
+    }
     return prisonerOutside
+  }
+
+  if (!prisonId) {
+    const prisonerUnknown = {
+      ...prisoner,
+    }
+    delete prisonerUnknown.prisonId
+    delete prisonerUnknown.prisonName
+    if ('cellLocation' in prisonerUnknown) {
+      delete prisonerUnknown.cellLocation
+    }
+    if ('locationDescription' in prisonerUnknown) {
+      delete prisonerUnknown.locationDescription
+    }
+    return prisonerUnknown
   }
 
   return {

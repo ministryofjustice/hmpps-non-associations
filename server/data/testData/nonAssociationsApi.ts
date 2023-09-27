@@ -152,6 +152,15 @@ export function mockMovePrisonerInNonAssociationsList(
     }
   }
 
+  if (!prisonId) {
+    return {
+      ...nonAssociations,
+      prisonId: undefined,
+      prisonName: undefined,
+      cellLocation: undefined,
+    }
+  }
+
   return {
     ...nonAssociations,
     prisonId,

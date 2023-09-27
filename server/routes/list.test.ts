@@ -221,6 +221,40 @@ describe('Non-associations list page', () => {
           })
       })
     })
+
+    describe('when it is unknown', () => {
+      beforeEach(() => {
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(mockMovePrisoner(prisoner, ''))
+      })
+
+      it('when listing open non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+          mockMovePrisonerInNonAssociationsList(davidJones1OpenNonAssociation, ''),
+        )
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Not known')
+          })
+      })
+
+      it('when listing closed non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+          mockMovePrisonerInNonAssociationsList(davidJones1ClosedNonAssociation, ''),
+        )
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber, true))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Not known')
+          })
+      })
+    })
   })
 
   describe('adding a new non-association', () => {

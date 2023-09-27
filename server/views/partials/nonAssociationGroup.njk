@@ -2,7 +2,7 @@
 
 <h2 class="govuk-heading-m govuk-!-margin-top-6">
   {%- if table == "same" -%}
-    {{ prisoner.prisonName }}
+    {{ prisoner.prisonName or "Not known" }}
   {%- elif table == "other" -%}
     Other establishments
   {%- elif table == "any" -%}
