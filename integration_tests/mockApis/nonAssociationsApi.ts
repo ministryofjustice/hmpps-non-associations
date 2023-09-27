@@ -51,11 +51,11 @@ export default {
     } else if (returning === 'twoClosed') {
       nonAssociationsList = davidJones2ClosedNonAssociations
     }
-    const url = `/nonAssociationsApi/prisoner/${encodeURIComponent(davidJones.prisonerNumber)}/non-associations`
+    const urlPath = `/nonAssociationsApi/prisoner/${encodeURIComponent(davidJones.prisonerNumber)}/non-associations`
     return stubFor({
       request: {
         method: 'GET',
-        urlPathPattern: url,
+        urlPath,
       },
       response: {
         status: 200,
@@ -90,7 +90,7 @@ export default {
   },
 
   /**
-   * Stub the non-associations involving a group of prisoners
+   * Stub the non-associations involving any of a group of prisoners
    */
   stubListNonAssociationsInvolving({
     prisonerNumbers,
@@ -120,7 +120,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        url: '/nonAssociationsApi/non-associations/101',
+        urlPath: '/nonAssociationsApi/non-associations/101',
       },
       response: {
         status: 200,
