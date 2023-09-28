@@ -24,6 +24,10 @@ context('List non-associations page', () => {
     listPage.footerLinks.should('contain.text', 'Get help')
   })
 
+  it('shows feedback banner', () => {
+    listPage.checkFeedbackBanner()
+  })
+
   it('has correct breadcrumb', () => {
     listPage.checkLastBreadcrumb('Jones, David')
   })

@@ -34,6 +34,7 @@ context('Add non-association page', () => {
     listPage.addButton.click()
 
     const prisonerSearchPage = Page.verifyOnPage(PrisonerSearchPage)
+    prisonerSearchPage.checkFeedbackBanner()
     prisonerSearchPage.checkLastBreadcrumb('Non-associations')
 
     prisonerSearchPage.scopeRadioButtons.should('have.length', 2)
@@ -63,6 +64,7 @@ context('Add non-association page', () => {
     cy.task('stubCreateNonAssociation')
 
     const addDetailsPage = Page.verifyOnPage(AddPage)
+    addDetailsPage.checkFeedbackBanner()
     addDetailsPage.checkLastBreadcrumb('Non-associations')
 
     addDetailsPage.getRadioButtonForPrisonerRole('Perpetrator').click()
@@ -73,6 +75,7 @@ context('Add non-association page', () => {
     addDetailsPage.saveButton.click()
 
     const confirmationPage = Page.verifyOnPage(AddConfirmationPage)
+    confirmationPage.checkFeedbackBanner()
     confirmationPage.checkLastBreadcrumb('Non-associations')
 
     // Clicking on the link sends a GA event
