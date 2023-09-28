@@ -89,6 +89,17 @@
           {% endif %}
         {% endset %}
 
+        {% set name %}
+          {% if canViewProfile %}
+            <a href="{{ dpsUrl }}/prisoner/{{ result.prisonerNumber }}">
+              <span class="govuk-visually-hidden">View prisoner profile for</span>
+              {{ result | reversedNameOfPerson }}
+            </a>
+          {% else %}
+            {{ result | reversedNameOfPerson }}
+          {% endif %}
+        {% endset %}
+
         {% if result | isBeingTransferred %}
           {% set location = result | prisonerLocation %}
           {% set establishment = "N/A" %}
@@ -101,7 +112,11 @@
         {% endif %}
 
         {% set link %}
-          {% if canViewProfile %}
+          {% if openNonAssociationsMap.has(result.prisonerNumber) %}
+            <a href="{{ routeUrls.view(prisonerNumber, openNonAssociationsMap.get(result.prisonerNumber)) }}">
+              View non-association
+            </a>
+          {% elif canViewProfile %}
             <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
               Select prisoner
             </a>
@@ -110,11 +125,11 @@
 
         {% set _ = tableRows.push([
           {html: photo},
-          {html: result | reversedNameOfPerson, classes: "govuk-!-padding-top-8"},
-          {text: result.prisonerNumber, classes: "govuk-!-padding-top-8"},
-          {text: location, classes: "govuk-!-padding-top-8"},
-          {text: establishment, classes: "govuk-!-padding-top-8"},
-          {html: link, classes: "govuk-!-padding-top-8 govuk-!-text-align-right"}
+          {html: name},
+          {text: result.prisonerNumber},
+          {text: location},
+          {text: establishment},
+          {html: link}
         ]) %}
       {% endfor %}
 

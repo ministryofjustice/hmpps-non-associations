@@ -3,6 +3,7 @@ import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
+import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
 import type { Services } from '../services'
 import formGetRoute from './forms/get'
@@ -18,7 +19,7 @@ const tableColumns: SortableTableColumns<
   { column: 'prisonerNumber', escapedHtml: 'Prison number', unsortable: true },
   { column: 'cellLocation', escapedHtml: 'Location' },
   { column: 'prisonName', escapedHtml: 'Establishment', unsortable: true },
-  { column: 'action', escapedHtml: '<span class="govuk-visually-hidden">Select prisoner</span>', unsortable: true },
+  { column: 'action', escapedHtml: '<span class="govuk-visually-hidden">Actions</span>', unsortable: true },
 ]
 
 export default function prisonerSearchRoutes(service: Services): Router {
@@ -52,6 +53,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
       const form: PrisonerSearchForm | null = res.locals.submittedForm
 
       let searchResults: OffenderSearchResults | undefined
+      const openNonAssociationsMap: Map<string, number> = new Map() // prisoner number → non-association id
       let tableHead: HeaderCell[] | undefined
       let paginationParams: LegacyPagination | undefined
 
@@ -122,6 +124,19 @@ export default function prisonerSearchRoutes(service: Services): Router {
             response.totalElements -= 1
             return false
           })
+
+          const api = new NonAssociationsApi(systemToken)
+          const openNonAssociations = await api.listNonAssociationsBetween([
+            prisonerNumber,
+            ...response.content.map(somePrisoner => somePrisoner.prisonerNumber),
+          ])
+          openNonAssociations?.forEach(nonAssociation => {
+            if (nonAssociation.firstPrisonerNumber === prisonerNumber) {
+              openNonAssociationsMap.set(nonAssociation.secondPrisonerNumber, nonAssociation.id)
+            } else if (nonAssociation.secondPrisonerNumber === prisonerNumber) {
+              openNonAssociationsMap.set(nonAssociation.firstPrisonerNumber, nonAssociation.id)
+            }
+          })
         }
 
         searchResults = response
@@ -158,6 +173,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
         formId,
         form,
         searchResults,
+        openNonAssociationsMap,
         tableHead,
         paginationParams,
         hasGlobalSearch,

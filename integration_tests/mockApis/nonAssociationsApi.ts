@@ -1,7 +1,7 @@
 import type { SuperAgentRequest } from 'superagent'
 
 import { stubFor } from './wiremock'
-import type { NonAssociationsList } from '../../server/data/nonAssociationsApi'
+import type { NonAssociation, NonAssociationsList } from '../../server/data/nonAssociationsApi'
 import {
   davidJones0NonAssociations,
   davidJones1OpenNonAssociation,
@@ -51,16 +51,64 @@ export default {
     } else if (returning === 'twoClosed') {
       nonAssociationsList = davidJones2ClosedNonAssociations
     }
-    const url = `/nonAssociationsApi/prisoner/${encodeURIComponent(davidJones.prisonerNumber)}/non-associations`
+    const urlPath = `/nonAssociationsApi/prisoner/${encodeURIComponent(davidJones.prisonerNumber)}/non-associations`
     return stubFor({
       request: {
         method: 'GET',
-        urlPathPattern: url,
+        urlPath,
       },
       response: {
         status: 200,
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         jsonBody: nonAssociationsList,
+      },
+    })
+  },
+
+  /**
+   * Stub the non-associations between a group of prisoners
+   */
+  stubListNonAssociationsBetween({
+    prisonerNumbers,
+    nonAssociations = [],
+  }: {
+    prisonerNumbers: string[]
+    nonAssociations?: NonAssociation[]
+  }): SuperAgentRequest {
+    return stubFor({
+      request: {
+        method: 'POST',
+        urlPath: '/nonAssociationsApi/non-associations/between',
+        bodyPatterns: [{ equalToJson: prisonerNumbers }],
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: nonAssociations,
+      },
+    })
+  },
+
+  /**
+   * Stub the non-associations involving any of a group of prisoners
+   */
+  stubListNonAssociationsInvolving({
+    prisonerNumbers,
+    nonAssociations = [],
+  }: {
+    prisonerNumbers: string[]
+    nonAssociations?: NonAssociation[]
+  }): SuperAgentRequest {
+    return stubFor({
+      request: {
+        method: 'POST',
+        urlPath: '/nonAssociationsApi/non-associations/involving',
+        bodyPatterns: [{ equalToJson: prisonerNumbers }],
+      },
+      response: {
+        status: 200,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        jsonBody: nonAssociations,
       },
     })
   },
@@ -72,7 +120,7 @@ export default {
     return stubFor({
       request: {
         method: 'GET',
-        url: '/nonAssociationsApi/non-associations/101',
+        urlPath: '/nonAssociationsApi/non-associations/101',
       },
       response: {
         status: 200,
@@ -89,7 +137,7 @@ export default {
     return stubFor({
       request: {
         method: 'POST',
-        urlPathPattern: '/nonAssociationsApi/non-associations',
+        urlPath: '/nonAssociationsApi/non-associations',
       },
       response: {
         status: 201,
@@ -106,7 +154,7 @@ export default {
     return stubFor({
       request: {
         method: 'PATCH',
-        url: '/nonAssociationsApi/non-associations/101',
+        urlPath: '/nonAssociationsApi/non-associations/101',
       },
       response: {
         status: 200,
