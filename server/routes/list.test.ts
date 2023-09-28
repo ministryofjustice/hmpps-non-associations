@@ -31,6 +31,7 @@ import {
   walterSmith,
   maxClarke,
   joePeters,
+  nathanLost,
   mockMovePrisoner,
 } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
@@ -221,6 +222,40 @@ describe('Non-associations list page', () => {
           })
       })
     })
+
+    describe('when it is unknown', () => {
+      beforeEach(() => {
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(nathanLost)
+      })
+
+      it('when listing open non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+          mockMovePrisonerInNonAssociationsList(davidJones1OpenNonAssociation, ''),
+        )
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Not known')
+          })
+      })
+
+      it('when listing closed non-associations', () => {
+        nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+          mockMovePrisonerInNonAssociationsList(davidJones1ClosedNonAssociation, ''),
+        )
+
+        return request(app)
+          .get(routeUrls.list(prisonerNumber, true))
+          .expect(200)
+          .expect('Content-Type', /html/)
+          .expect(res => {
+            expect(res.text).toContain('Not known')
+          })
+      })
+    })
   })
 
   describe('adding a new non-association', () => {
@@ -308,10 +343,13 @@ describe('Non-associations list page', () => {
     class ExpectNonAssociationList {
       private table: Table
 
+      private notInCaseloads: boolean
+
       constructor(private readonly closed = false) {}
 
-      shouldHaveThreeGroups(table: 'same' | 'other' | 'outside'): request.Test {
+      shouldHaveThreeGroups(table: 'same' | 'other' | 'outside', notInCaseloads = false): request.Test {
         this.table = table
+        this.notInCaseloads = table === 'other' || notInCaseloads
 
         return request(app)
           .get(routeUrls.list(prisonerNumber, this.closed))
@@ -329,8 +367,9 @@ describe('Non-associations list page', () => {
           })
       }
 
-      shouldHaveTwoGroups(table: 'any' | 'outside'): request.Test {
+      shouldHaveTwoGroups(table: 'any' | 'outside', notInCaseloads = false): request.Test {
         this.table = table
+        this.notInCaseloads = notInCaseloads
 
         return request(app)
           .get(routeUrls.list(prisonerNumber, this.closed))
@@ -375,7 +414,15 @@ describe('Non-associations list page', () => {
           expect(res.text).toContain('1-1-002')
           expect(res.text).toContain('1-1-003')
         }
-        if (this.table !== 'other') {
+        if (this.table === 'other' || this.notInCaseloads) {
+          expect(res.text).toContain('/assets/images/prisoner.jpeg')
+          expect(res.text).toContain('Photo of Fred Mills is not available')
+          expect(res.text).not.toContain('/prisoner/A1235EF/photo.jpeg')
+          expect(res.text).not.toContain('href="http://dps.local/prisoner/A1235EF"')
+          expect(res.text).toContain('Photo of Oscar Jones is not available')
+          expect(res.text).not.toContain('/prisoner/A1236CS/photo.jpeg')
+          expect(res.text).not.toContain('href="http://dps.local/prisoner/A1236CS"')
+        } else {
           expect(res.text).not.toContain('/assets/images/prisoner.jpeg')
           expect(res.text).toContain('Photo of Fred Mills')
           expect(res.text).not.toContain('Photo of Fred Mills is not available')
@@ -385,14 +432,6 @@ describe('Non-associations list page', () => {
           expect(res.text).not.toContain('Photo of Oscar Jones is not available')
           expect(res.text).toContain('/prisoner/A1236CS/photo.jpeg')
           expect(res.text).toContain('href="http://dps.local/prisoner/A1236CS"')
-        } else {
-          expect(res.text).toContain('/assets/images/prisoner.jpeg')
-          expect(res.text).toContain('Photo of Fred Mills is not available')
-          expect(res.text).not.toContain('/prisoner/A1235EF/photo.jpeg')
-          expect(res.text).not.toContain('href="http://dps.local/prisoner/A1235EF"')
-          expect(res.text).toContain('Photo of Oscar Jones is not available')
-          expect(res.text).not.toContain('/prisoner/A1236CS/photo.jpeg')
-          expect(res.text).not.toContain('href="http://dps.local/prisoner/A1236CS"')
         }
         if (!this.closed) {
           expect(res.text).toContain('26/07/2023')
@@ -487,6 +526,14 @@ describe('Non-associations list page', () => {
 
           return new ExpectNonAssociationList().shouldHaveThreeGroups('outside')
         })
+
+        it('with unknown locations', () => {
+          nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+            mockMoveOtherPrisonersInNonAssociationsList(davidJones2OpenNonAssociations, undefined),
+          )
+
+          return new ExpectNonAssociationList().shouldHaveThreeGroups('outside', true)
+        })
       })
 
       describe('should show closed ones', () => {
@@ -510,6 +557,14 @@ describe('Non-associations list page', () => {
           )
 
           return new ExpectNonAssociationList(true).shouldHaveThreeGroups('outside')
+        })
+
+        it('with unknown locations', () => {
+          nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+            mockMoveOtherPrisonersInNonAssociationsList(davidJones2ClosedNonAssociations, undefined),
+          )
+
+          return new ExpectNonAssociationList(true).shouldHaveThreeGroups('outside', true)
         })
       })
     })
@@ -538,6 +593,17 @@ describe('Non-associations list page', () => {
 
           return new ExpectNonAssociationList().shouldHaveTwoGroups('outside')
         })
+
+        it('with unknown locations', () => {
+          nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+            mockMoveOtherPrisonersInNonAssociationsList(
+              mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, transferPrisonId),
+              undefined,
+            ),
+          )
+
+          return new ExpectNonAssociationList().shouldHaveTwoGroups('outside', true)
+        })
       })
 
       describe('should show closed ones', () => {
@@ -558,6 +624,17 @@ describe('Non-associations list page', () => {
           )
 
           return new ExpectNonAssociationList(true).shouldHaveTwoGroups('outside')
+        })
+
+        it('with unknown locations', () => {
+          nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+            mockMoveOtherPrisonersInNonAssociationsList(
+              mockMovePrisonerInNonAssociationsList(davidJones2ClosedNonAssociations, transferPrisonId),
+              undefined,
+            ),
+          )
+
+          return new ExpectNonAssociationList(true).shouldHaveTwoGroups('outside', true)
         })
       })
     })
@@ -586,6 +663,17 @@ describe('Non-associations list page', () => {
 
           return new ExpectNonAssociationList().shouldHaveTwoGroups('outside')
         })
+
+        it('with unknown locations', () => {
+          nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+            mockMoveOtherPrisonersInNonAssociationsList(
+              mockMovePrisonerInNonAssociationsList(davidJones2OpenNonAssociations, outsidePrisonId),
+              undefined,
+            ),
+          )
+
+          return new ExpectNonAssociationList().shouldHaveTwoGroups('outside', true)
+        })
       })
 
       describe('should show closed ones', () => {
@@ -606,6 +694,17 @@ describe('Non-associations list page', () => {
           )
 
           return new ExpectNonAssociationList(true).shouldHaveTwoGroups('outside')
+        })
+
+        it('with unknown locations', () => {
+          nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
+            mockMoveOtherPrisonersInNonAssociationsList(
+              mockMovePrisonerInNonAssociationsList(davidJones2ClosedNonAssociations, outsidePrisonId),
+              undefined,
+            ),
+          )
+
+          return new ExpectNonAssociationList(true).shouldHaveTwoGroups('outside', true)
         })
       })
     })

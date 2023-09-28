@@ -152,6 +152,15 @@ export function mockMovePrisonerInNonAssociationsList(
     }
   }
 
+  if (!prisonId) {
+    return {
+      ...nonAssociations,
+      prisonId: undefined,
+      prisonName: undefined,
+      cellLocation: undefined,
+    }
+  }
+
   return {
     ...nonAssociations,
     prisonId,
@@ -191,6 +200,23 @@ export function mockMoveOtherPrisonersInNonAssociationsList(
             ...nonAssociation.otherPrisonerDetails,
             prisonId,
             prisonName: 'Outside',
+            cellLocation: undefined,
+          },
+        }
+      }),
+    }
+  }
+
+  if (!prisonId) {
+    return {
+      ...nonAssociations,
+      nonAssociations: nonAssociations.nonAssociations.map(nonAssociation => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId: undefined,
+            prisonName: undefined,
             cellLocation: undefined,
           },
         }

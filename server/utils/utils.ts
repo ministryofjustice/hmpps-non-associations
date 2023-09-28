@@ -50,10 +50,10 @@ export const reversedNameOfPerson = (prisoner: { firstName: string; lastName: st
  */
 export const prisonerLocation = (prisoner: OffenderSearchResult): string => {
   if (isBeingTransferred(prisoner)) {
-    return prisoner.locationDescription ?? 'Transfer'
+    return prisoner.locationDescription || 'Transfer'
   }
   if (isOutside(prisoner)) {
-    return prisoner.locationDescription ?? 'Outside'
+    return prisoner.locationDescription || 'Outside'
   }
-  return prisoner.cellLocation ?? 'Not known'
+  return prisoner.cellLocation || 'Not known'
 }

@@ -315,6 +315,43 @@ describe('Search for a prisoner page', () => {
       })
   })
 
+  it('should not display a blank location if prisoner search returns nothing', () => {
+    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+    const mockSearchResults: OffenderSearchResults = {
+      content: [fredMills].map(result => {
+        // eslint-disable-next-line no-param-reassign
+        delete result.prisonName
+        // eslint-disable-next-line no-param-reassign
+        result = {
+          ...result,
+          cellLocation: '',
+          prisonId: undefined,
+        }
+        return result
+      }),
+      totalElements: 1,
+    }
+    offenderSearchClient.searchInPrison.mockResolvedValueOnce(mockSearchResults)
+
+    return request(app)
+      .get(routeUrls.prisonerSearch(prisonerNumber))
+      .query({
+        q: 'Mills',
+        formId: 'search',
+        page: '1',
+      })
+      .expect(200)
+      .expect(res => {
+        let found = 0
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const match of res.text.matchAll(/Not known/g)) {
+          found += 1
+        }
+        // "Not known" for both location and establishment columns of the 1 row of results
+        expect(found).toEqual(2)
+      })
+  })
+
   it('should perform global search filtering by last name when 1 search term is provided', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.searchGlobally.mockResolvedValueOnce(sampleOffenderSearchResults)
