@@ -113,7 +113,7 @@ export default {
       agent: new AgentConfig(Number(get('HMPPS_NON_ASSOCIATIONS_API_TIMEOUT_RESPONSE', 60000))),
     },
     frontendComponents: {
-      url: get('COMPONENT_API_URL', 'http://localhost:8082', requiredInProduction),
+      url: get('COMPONENT_API_URL', 'http://localhost:8083', requiredInProduction),
       timeout: {
         response: Number(get('COMPONENT_API_TIMEOUT_SECONDS', 5000)),
         deadline: Number(get('COMPONENT_API_TIMEOUT_SECONDS', 5000)),
@@ -124,5 +124,6 @@ export default {
   googleAnalyticsMeasurementId: get('GOOGLE_ANALYTICS_MEASUREMENT_ID', ''),
   domain: get('INGRESS_URL', 'http://localhost:3000', requiredInProduction),
   dpsUrl: get('DPS_URL', 'http://dps.local', requiredInProduction),
-  supportUrl: get('SUPPORT_URL', 'http://support.dps.local', requiredInProduction),
+  feedbackSurveyUrl: get('FEEDBACK_SURVEY_URL', 'http://feedback.dps.local', requiredInProduction),
+  supportUrl: get('SUPPORT_URL', 'http://support.dps.local'),
 }

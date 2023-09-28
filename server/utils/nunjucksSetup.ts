@@ -21,6 +21,7 @@ export default function nunjucksSetup(app: express.Express, services: Services):
 
   app.locals.authUrl = config.apis.hmppsAuth.externalUrl
   app.locals.dpsUrl = config.dpsUrl
+  app.locals.feedbackSurveyUrl = config.feedbackSurveyUrl
   app.locals.supportUrl = config.supportUrl
   app.locals.routeUrls = services.routeUrls
 
