@@ -24,12 +24,14 @@ context('Close prisoner non-association page', () => {
     cy.task('stubCloseNonAssociation')
 
     const closePage = Page.verifyOnPage(ClosePage)
+    closePage.checkFeedbackBanner()
     closePage.checkLastBreadcrumb('Non-associations')
 
     closePage.getCloseCommentBox().type('They are now friends')
     closePage.getCloseButton().click()
 
     const confirmationPage = Page.verifyOnPage(CloseConfirmationPage)
+    confirmationPage.checkFeedbackBanner()
     confirmationPage.checkLastBreadcrumb('Non-associations')
 
     // Clicking on the link sends a GA event

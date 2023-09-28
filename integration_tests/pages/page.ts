@@ -29,6 +29,14 @@ export default abstract class Page {
     return cy.get('[data-test=active-location]')
   }
 
+  get feedbackBanner(): PageElement<HTMLDivElement> {
+    return cy.get('aside.app-feedback-banner')
+  }
+
+  checkFeedbackBanner(): void {
+    this.feedbackBanner.should('exist').should('contain.text', 'Help improve it by telling us what you think')
+  }
+
   get breadcrumbs(): PageElement<HTMLDivElement> {
     return cy.get('.govuk-breadcrumbs__list-item')
   }

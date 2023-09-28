@@ -1,0 +1,10 @@
+.app-feedback-banner {
+  @extend .govuk-\!-padding-5;
+  @extend %govuk-body-m;
+  background: govuk-tint(govuk-colour('green'), 75%);
+  @include govuk-text-colour;
+
+  a {
+    @include govuk-link-style-text;
+  }
+}

@@ -30,6 +30,10 @@ context('View non-association details page', () => {
     viewPage.otherPrisonerBox.should('contain.text', 'See IR 12133100')
   })
 
+  it('shows feedback banner', () => {
+    viewPage.checkFeedbackBanner()
+  })
+
   it('has correct breadcrumb', () => {
     viewPage.checkLastBreadcrumb('Non-associations')
   })

@@ -24,12 +24,14 @@ context('Update prisoner non-association page', () => {
     cy.task('stubUpdateNonAssociation')
 
     const updatePage = Page.verifyOnPage(UpdatePage)
+    updatePage.checkFeedbackBanner()
     updatePage.checkLastBreadcrumb('Non-associations')
 
     updatePage.commentBox.type(' and IR456456')
     updatePage.saveButton.click()
 
     const confirmationPage = Page.verifyOnPage(UpdateConfirmationPage)
+    confirmationPage.checkFeedbackBanner()
     confirmationPage.checkLastBreadcrumb('Non-associations')
 
     // Clicking on the link sends a GA event
