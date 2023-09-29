@@ -5,11 +5,11 @@ export default class ClosePage extends Page {
     super('Close a non-association')
   }
 
-  getCloseCommentBox(): PageElement<HTMLElement> {
-    return cy.get('#close-closedReason')
+  get closeCommentBox(): PageElement<HTMLTextAreaElement> {
+    return cy.get('textarea#close-closedReason')
   }
 
-  getCloseButton(): PageElement<HTMLElement> {
+  get closeButton(): PageElement<HTMLButtonElement> {
     return cy.get('button[class="govuk-button"]')
   }
 }

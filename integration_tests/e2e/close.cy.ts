@@ -27,8 +27,8 @@ context('Close prisoner non-association page', () => {
     closePage.checkFeedbackBanner()
     closePage.checkLastBreadcrumb('Non-associations')
 
-    closePage.getCloseCommentBox().type('They are now friends')
-    closePage.getCloseButton().click()
+    closePage.closeCommentBox.type('They are now friends')
+    closePage.closeButton.click()
 
     const confirmationPage = Page.verifyOnPage(CloseConfirmationPage)
     confirmationPage.checkFeedbackBanner()
