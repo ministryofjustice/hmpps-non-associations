@@ -5,7 +5,7 @@ export default class ViewPage extends Page {
     private readonly prisonerName: string,
     private readonly otherPrisonerName: string,
   ) {
-    super(`Non-association: ${prisonerName} and ${otherPrisonerName}`)
+    super(`Non-association: ${prisonerName} and ${otherPrisonerName}`, 'Non-association details')
   }
 
   get miniProfileHeader(): PageElement<HTMLDivElement> {

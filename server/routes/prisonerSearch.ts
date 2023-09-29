@@ -14,12 +14,32 @@ import PrisonerSearchForm from '../forms/prisonerSearchForm'
 const tableColumns: SortableTableColumns<
   'photo' | 'lastName' | 'prisonerNumber' | 'cellLocation' | 'prisonName' | 'action'
 > = [
-  { column: 'photo', escapedHtml: '<span class="govuk-visually-hidden">Photo</span>', unsortable: true },
-  { column: 'lastName', escapedHtml: 'Name' },
-  { column: 'prisonerNumber', escapedHtml: 'Prison number', unsortable: true },
-  { column: 'cellLocation', escapedHtml: 'Location' },
-  { column: 'prisonName', escapedHtml: 'Establishment', unsortable: true },
-  { column: 'action', escapedHtml: '<span class="govuk-visually-hidden">Actions</span>', unsortable: true },
+  {
+    column: 'photo',
+    escapedHtml: '<span class="govuk-visually-hidden">Photo</span>',
+    classes: 'app-prisoner-search__cell--photo',
+    unsortable: true,
+  },
+  { column: 'lastName', escapedHtml: 'Name', classes: 'app-prisoner-search__cell--name' },
+  {
+    column: 'prisonerNumber',
+    escapedHtml: 'Prison number',
+    classes: 'app-prisoner-search__cell--prisoner-number',
+    unsortable: true,
+  },
+  { column: 'cellLocation', escapedHtml: 'Location', classes: 'app-prisoner-search__cell--location' },
+  {
+    column: 'prisonName',
+    escapedHtml: 'Establishment',
+    classes: 'app-prisoner-search__cell--prison-name',
+    unsortable: true,
+  },
+  {
+    column: 'action',
+    escapedHtml: '<span class="govuk-visually-hidden">Actions</span>',
+    classes: 'app-prisoner-search__cell--actions',
+    unsortable: true,
+  },
 ]
 
 export default function prisonerSearchRoutes(service: Services): Router {

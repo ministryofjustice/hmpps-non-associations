@@ -5,12 +5,16 @@ export default abstract class Page {
     return new constructor(...args)
   }
 
-  constructor(protected readonly title: string) {
+  constructor(
+    protected readonly h1: string,
+    protected readonly pageTitle?: string,
+  ) {
     this.checkOnPage()
   }
 
   checkOnPage(): void {
-    cy.get('h1').contains(this.title)
+    cy.get('h1').contains(this.h1)
+    cy.title().should('eq', `${this.pageTitle ?? this.h1} – Digital Prison Services`)
   }
 
   get headerUserName(): PageElement<HTMLSpanElement> {
