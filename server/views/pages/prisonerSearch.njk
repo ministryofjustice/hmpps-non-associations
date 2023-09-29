@@ -119,12 +119,12 @@
         {% endset %}
 
         {% set _ = tableRows.push([
-          {html: photo},
-          {html: name},
-          {text: result.prisonerNumber},
-          {text: location},
-          {text: establishment},
-          {html: link}
+          {html: photo, classes: "app-prisoner-search__cell--photo"},
+          {html: name, classes: "app-prisoner-search__cell--name"},
+          {text: result.prisonerNumber, classes: "app-prisoner-search__cell--prisoner-number"},
+          {text: location, classes: "app-prisoner-search__cell--location"},
+          {text: establishment, classes: "app-prisoner-search__cell--prison-name"},
+          {html: link, classes: "app-prisoner-search__cell--actions"}
         ]) %}
       {% endfor %}
 
