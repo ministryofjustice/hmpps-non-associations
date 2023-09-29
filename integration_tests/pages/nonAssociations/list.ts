@@ -2,7 +2,7 @@ import Page, { type PageElement } from '../page'
 
 export default class ListPage extends Page {
   constructor(private readonly prisonerName: string) {
-    super(`${prisonerName} non-associations`)
+    super(`${prisonerName} non-associations`, 'Non-associations')
   }
 
   get addButton(): PageElement<HTMLAnchorElement> {

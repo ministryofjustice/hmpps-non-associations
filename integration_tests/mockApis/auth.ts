@@ -24,6 +24,17 @@ const createToken = (roles: string[]) => {
   return jwt.sign(payload, 'secret', { expiresIn: '1h' })
 }
 
+const mockHtmlResponse = (title: string) => `
+<html lang="en">
+<head>
+  <title>${title} – Digital Prison Services</title>
+</head>
+<body>
+  <h1>${title}</h1>
+</body>
+</html>
+`
+
 const createUser = (name: string): User => {
   return {
     userId: '231232',
@@ -78,7 +89,7 @@ const redirect = () =>
         'Content-Type': 'text/html',
         Location: 'http://localhost:3007/sign-in/callback?code=codexxxx&state=stateyyyy',
       },
-      body: '<html><body>SignIn page<h1>Sign in</h1></body></html>',
+      body: mockHtmlResponse('Sign in'),
     },
   })
 
@@ -93,7 +104,7 @@ const signOut = () =>
       headers: {
         'Content-Type': 'text/html',
       },
-      body: '<html><body>SignIn page<h1>Sign in</h1></body></html>',
+      body: mockHtmlResponse('Sign in'),
     },
   })
 
@@ -108,7 +119,7 @@ const manageDetails = () =>
       headers: {
         'Content-Type': 'text/html',
       },
-      body: '<html><body><h1>Your account details</h1></body></html>',
+      body: mockHtmlResponse('Your account details'),
     },
   })
 

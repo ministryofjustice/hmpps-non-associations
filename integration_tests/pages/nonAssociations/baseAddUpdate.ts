@@ -5,6 +5,10 @@ import type { Role, Reason, RestrictionType } from '../../../server/data/nonAsso
 export default abstract class BaseAddUpdatePage extends Page {
   abstract formId: string
 
+  constructor() {
+    super('Non-association details', 'Enter non-association details')
+  }
+
   get form(): PageElement<HTMLFormElement> {
     return cy.get('form')
   }

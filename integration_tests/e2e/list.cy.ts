@@ -11,10 +11,6 @@ context('List non-associations page', () => {
     })
   })
 
-  it('has correct title', () => {
-    cy.title().should('eq', 'Non-associations – Digital Prison Services')
-  })
-
   it('shows username in fallback header', () => {
     listPage.headerUserName.should('contain.text', 'J. Smith')
   })
