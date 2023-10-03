@@ -14,7 +14,8 @@ export default class PrisonApi extends RestClient {
 
   getPhoto(prisonerNumber: string): Promise<Buffer | null> {
     return this.get({
-      path: `/api/bookings/offenderNo/${encodeURIComponent(prisonerNumber)}/image/data?fullSizeImage=false`,
+      path: `/api/bookings/offenderNo/${encodeURIComponent(prisonerNumber)}/image/data`,
+      query: { fullSizeImage: 'false' },
       handle404: true,
     })
   }
