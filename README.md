@@ -2,8 +2,7 @@
 
 This application is a front-end application used by staff in HMPPS prisons to view and manage non-associations between offenders.
 
-It is backed by [hmpps-non-associations-api](https://github.com/ministryofjustice/hmpps-non-associations-api)
-which currently is a facade to information held in NOMIS but will become the single source of truth in future.
+It is backed by [hmpps-non-associations-api](https://github.com/ministryofjustice/hmpps-non-associations-api).
 
 ## Running locally
 
