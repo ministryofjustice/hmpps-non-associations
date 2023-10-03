@@ -10,10 +10,6 @@ import type {
 import type { OffenderSearchResult } from '../offenderSearch'
 import { davidJones, fredMills, oscarJones } from './offenderSearch'
 
-/**
- * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
- */
-
 export const davidJones0NonAssociations: NonAssociationsList<never> = {
   prisonId: davidJones.prisonId,
   prisonName: davidJones.prisonName,
