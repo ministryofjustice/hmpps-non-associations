@@ -12,10 +12,6 @@ import {
 } from '../../server/data/testData/nonAssociationsApi'
 import { davidJones, fredMills } from '../../server/data/testData/offenderSearch'
 
-/**
- * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
- */
-
 export default {
   stubNonAssociationsApiPing(): SuperAgentRequest {
     return stubFor({

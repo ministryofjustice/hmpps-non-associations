@@ -5,10 +5,6 @@ import { transferPrisonId, outsidePrisonId } from './constants'
 import RestClient from './restClient'
 import PrisonApi, { type StaffMember } from './prisonApi'
 
-/**
- * TODO: THIS ENTIRE API IS A WORK-IN-PROGRESS
- */
-
 export const roleOptions = {
   VICTIM: 'Victim',
   PERPETRATOR: 'Perpetrator',
