@@ -323,10 +323,12 @@ export class NonAssociationsApi extends RestClient {
       includeClosed?: boolean
     } = {},
   ): Promise<NonAssociation[]> {
-    const open = encodeURIComponent(includeOpen.toString())
-    const closed = encodeURIComponent(includeClosed.toString())
     return this.post<NonAssociation[]>({
-      path: `/non-associations/between?includeOpen=${open}&includeClosed=${closed}`,
+      path: '/non-associations/between',
+      query: {
+        includeOpen: includeOpen.toString(),
+        includeClosed: includeClosed.toString(),
+      },
       data: prisonerNumbers as unknown as Record<string, unknown>,
     }).then(nonAssociations => {
       return nonAssociations.map(nonAssociation => parseDates(nonAssociation))
@@ -379,10 +381,12 @@ export class NonAssociationsApi extends RestClient {
       includeClosed?: boolean
     } = {},
   ): Promise<NonAssociation[]> {
-    const open = encodeURIComponent(includeOpen.toString())
-    const closed = encodeURIComponent(includeClosed.toString())
     return this.post<NonAssociation[]>({
-      path: `/non-associations/involving?includeOpen=${open}&includeClosed=${closed}`,
+      path: '/non-associations/involving',
+      query: {
+        includeOpen: includeOpen.toString(),
+        includeClosed: includeClosed.toString(),
+      },
       data: prisonerNumbers as unknown as Record<string, unknown>,
     }).then(nonAssociations => {
       return nonAssociations.map(nonAssociation => parseDates(nonAssociation))

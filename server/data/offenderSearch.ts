@@ -122,7 +122,11 @@ export class OffenderSearchClient extends RestClient {
       filters.includeAliases = true
     }
     return this.post<OffenderSearchResults>({
-      path: `/global-search?size=${OffenderSearchClient.PAGE_SIZE}&page=${encodeURIComponent(page)}`,
+      path: '/global-search',
+      query: {
+        size: OffenderSearchClient.PAGE_SIZE,
+        page: encodeURIComponent(page),
+      },
       data: filters,
     })
   }
