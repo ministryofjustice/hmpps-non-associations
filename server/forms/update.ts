@@ -1,4 +1,5 @@
-import type { NonAssociation } from '../data/nonAssociationsApi'
+import type { NonAssociation } from '@ministryofjustice/hmpps-non-associations-api'
+
 import NonAssociationForm from './nonAssociation'
 
 export default class UpdateForm extends NonAssociationForm {

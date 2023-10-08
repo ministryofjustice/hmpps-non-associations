@@ -1,3 +1,8 @@
+import {
+  type NonAssociationsList,
+  type SortBy,
+  type SortDirection,
+} from '@ministryofjustice/hmpps-non-associations-api'
 import { type RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
 import { NotFound } from 'http-errors'
@@ -8,10 +13,7 @@ import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import {
   NonAssociationsApi,
-  type NonAssociationsList,
   type NonAssociationGroups,
-  type SortBy,
-  type SortDirection,
   lookupStaffInNonAssociations,
   groupListByLocation,
   sortList,

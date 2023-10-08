@@ -11,11 +11,11 @@ import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones, maxClarke, joePeters } from '../data/testData/offenderSearch'
 import { nameOfPerson } from '../utils/utils'
 
-jest.mock('../data/nonAssociationsApi', () => {
+jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
-  type Module = typeof import('../data/nonAssociationsApi')
-  const realModule = jest.requireActual<Module>('../data/nonAssociationsApi')
-  const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
+  type Module = typeof import('@ministryofjustice/hmpps-non-associations-api')
+  const realModule = jest.requireActual<Module>('@ministryofjustice/hmpps-non-associations-api')
+  const mockedModule = jest.createMockFromModule<Module>('@ministryofjustice/hmpps-non-associations-api')
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
 jest.mock('../data/offenderSearch', () => {

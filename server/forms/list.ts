@@ -1,4 +1,10 @@
-import { sortByOptions, sortDirectionOptions, type SortBy, type SortDirection } from '../data/nonAssociationsApi'
+import {
+  type SortBy,
+  type SortDirection,
+  sortByOptions,
+  sortDirectionOptions,
+} from '@ministryofjustice/hmpps-non-associations-api'
+
 import { BaseForm } from './index'
 
 export const tables = ['same', 'other', 'any', 'outside'] as const

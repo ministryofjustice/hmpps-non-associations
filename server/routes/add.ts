@@ -1,20 +1,18 @@
-import { Router } from 'express'
-import { NotFound } from 'http-errors'
-
-import logger from '../../logger'
-import type { SanitisedError } from '../sanitisedError'
-import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import {
-  NonAssociationsApi,
   ErrorCode,
-  ErrorResponse,
+  isErrorResponse,
   type CreateNonAssociationRequest,
   roleOptions,
   reasonOptions,
   restrictionTypeOptions,
-  maxCommentLength,
-} from '../data/nonAssociationsApi'
+} from '@ministryofjustice/hmpps-non-associations-api'
+import { Router } from 'express'
+import { NotFound } from 'http-errors'
+
+import logger from '../../logger'
+import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
+import asyncMiddleware from '../middleware/asyncMiddleware'
+import { NonAssociationsApi, maxCommentLength } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
@@ -102,11 +100,8 @@ export default function addRoutes(service: Services): Router {
             `Non-association could NOT be created by ${user.username} between ${prisonerNumber} and ${otherPrisonerNumber}!`,
             error,
           )
-          const errorResponse = (error as SanitisedError<ErrorResponse>).data
-          if (
-            ErrorResponse.isErrorResponse(errorResponse) &&
-            errorResponse.errorCode === ErrorCode.OpenNonAssociationAlreadyExist
-          ) {
+          const errorResponse = error.data
+          if (isErrorResponse(errorResponse) && errorResponse.errorCode === ErrorCode.OpenNonAssociationAlreadyExist) {
             let errorMessage = 'There is already an open non-association between these 2 prisoners'
             const openNonAssociations = await api.listNonAssociationsBetween([prisonerNumber, otherPrisonerNumber])
             if (openNonAssociations.length === 1) {

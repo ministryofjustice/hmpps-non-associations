@@ -1,6 +1,8 @@
+import type { Reason, RestrictionType, Role } from '@ministryofjustice/hmpps-non-associations-api'
+import { roleOptions, reasonOptions, restrictionTypeOptions } from '@ministryofjustice/hmpps-non-associations-api'
+
 import format from '../utils/format'
-import type { Reason, RestrictionType, Role } from '../data/nonAssociationsApi'
-import { roleOptions, reasonOptions, restrictionTypeOptions, maxCommentLength } from '../data/nonAssociationsApi'
+import { maxCommentLength } from '../data/nonAssociationsApi'
 import { BaseForm } from './index'
 
 export type NonAssociationFormData = {

@@ -1,4 +1,10 @@
-import { SortBy, sortByOptions, SortDirection, sortDirectionOptions } from '../data/nonAssociationsApi'
+import {
+  type SortBy,
+  type SortDirection,
+  sortByOptions,
+  sortDirectionOptions,
+} from '@ministryofjustice/hmpps-non-associations-api'
+
 import ListForm, { type ListData, type Table, tables } from './list'
 
 const validEmptyPayload: Partial<ListData> = {}
