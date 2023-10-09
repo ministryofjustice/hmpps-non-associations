@@ -99,7 +99,7 @@
   },
   "dependencies": {
     "@ministryofjustice/frontend": "^1.8.0",
-    "@ministryofjustice/hmpps-non-associations-api": "0.0.0",
+    "@ministryofjustice/hmpps-non-associations-api": "https://github.com/ministryofjustice/hmpps-non-associations-api/releases/download/node-client-0.1.0/node-client.tgz",
     "agentkeepalive": "^4.5.0",
     "applicationinsights": "^2.9.0",
     "body-parser": "^1.20.2",
