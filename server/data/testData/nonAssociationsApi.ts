@@ -1,4 +1,3 @@
-import { transferPrisonId, outsidePrisonId } from '../constants'
 import type {
   NonAssociationsList,
   OpenNonAssociationsListItem,
@@ -6,7 +5,9 @@ import type {
   NonAssociation,
   OpenNonAssociation,
   ClosedNonAssociation,
-} from '../nonAssociationsApi'
+} from '@ministryofjustice/hmpps-non-associations-api'
+
+import { transferPrisonId, outsidePrisonId } from '../constants'
 import type { OffenderSearchResult } from '../offenderSearch'
 import { davidJones, fredMills, oscarJones } from './offenderSearch'
 

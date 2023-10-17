@@ -1,18 +1,17 @@
+import {
+  type NonAssociation,
+  type UpdateNonAssociationRequest,
+  roleOptions,
+  reasonOptions,
+  restrictionTypeOptions,
+} from '@ministryofjustice/hmpps-non-associations-api'
 import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
-import {
-  NonAssociationsApi,
-  type NonAssociation,
-  type UpdateNonAssociationRequest,
-  roleOptions,
-  reasonOptions,
-  restrictionTypeOptions,
-  maxCommentLength,
-} from '../data/nonAssociationsApi'
+import { NonAssociationsApi, maxCommentLength } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import type { Services } from '../services'
 import formPostRoute from './forms/post'

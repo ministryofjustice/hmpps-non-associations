@@ -1,6 +1,6 @@
-import Page, { type PageElement } from '../page'
+import type { Role, Reason, RestrictionType } from '@ministryofjustice/hmpps-non-associations-api'
 
-import type { Role, Reason, RestrictionType } from '../../../server/data/nonAssociationsApi'
+import Page, { type PageElement } from '../page'
 
 export default abstract class BaseAddUpdatePage extends Page {
   abstract formId: string

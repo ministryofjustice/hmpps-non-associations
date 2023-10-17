@@ -1,7 +1,7 @@
+import type { NonAssociation, NonAssociationsList } from '@ministryofjustice/hmpps-non-associations-api'
 import type { SuperAgentRequest } from 'superagent'
 
 import { stubFor } from './wiremock'
-import type { NonAssociation, NonAssociationsList } from '../../server/data/nonAssociationsApi'
 import {
   davidJones0NonAssociations,
   davidJones1OpenNonAssociation,

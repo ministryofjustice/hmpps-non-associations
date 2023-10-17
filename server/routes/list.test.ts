@@ -1,3 +1,9 @@
+import {
+  type NonAssociationsList,
+  sortDirectionOptions,
+  type SortBy,
+  type SortDirection,
+} from '@ministryofjustice/hmpps-non-associations-api'
 import type { Express } from 'express'
 import request from 'supertest'
 
@@ -5,13 +11,7 @@ import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes, mockReadOnlyUser, mockUserWithoutGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { transferPrisonId, outsidePrisonId } from '../data/constants'
-import {
-  NonAssociationsApi,
-  sortDirectionOptions,
-  type SortBy,
-  type SortDirection,
-  type NonAssociationsList,
-} from '../data/nonAssociationsApi'
+import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
 import {
@@ -37,11 +37,11 @@ import {
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
 import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
-jest.mock('../data/nonAssociationsApi', () => {
+jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
-  type Module = typeof import('../data/nonAssociationsApi')
-  const realModule = jest.requireActual<Module>('../data/nonAssociationsApi')
-  const mockedModule = jest.createMockFromModule<Module>('../data/nonAssociationsApi')
+  type Module = typeof import('@ministryofjustice/hmpps-non-associations-api')
+  const realModule = jest.requireActual<Module>('@ministryofjustice/hmpps-non-associations-api')
+  const mockedModule = jest.createMockFromModule<Module>('@ministryofjustice/hmpps-non-associations-api')
   return { __esModule: true, ...realModule, NonAssociationsApi: mockedModule.NonAssociationsApi }
 })
 jest.mock('../data/offenderSearch', () => {

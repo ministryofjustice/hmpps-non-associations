@@ -1,6 +1,7 @@
-import { roleOptions, reasonOptions, restrictionTypeOptions } from '../data/nonAssociationsApi'
+import { roleOptions, reasonOptions, restrictionTypeOptions } from '@ministryofjustice/hmpps-non-associations-api'
+
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
-import { type NonAssociationFormData } from './nonAssociation'
+import type { NonAssociationFormData } from './nonAssociation'
 import UpdateForm from './update'
 
 describe('UpdateForm', () => {

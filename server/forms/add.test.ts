@@ -1,4 +1,4 @@
-import { roleOptions, reasonOptions, restrictionTypeOptions } from '../data/nonAssociationsApi'
+import { roleOptions, reasonOptions, restrictionTypeOptions } from '@ministryofjustice/hmpps-non-associations-api'
 import AddForm from './add'
 import { type NonAssociationFormData } from './nonAssociation'
 
