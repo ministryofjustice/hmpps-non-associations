@@ -44,6 +44,11 @@ export const mockUser: Express.User = {
   roles: [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations],
 }
 
+export const mockNonPrisonUser: Express.User = {
+  ...mockUser,
+  roles: [],
+}
+
 export const mockReadOnlyUser: Express.User = {
   ...mockUser,
   roles: [userRolePrison],
@@ -57,6 +62,11 @@ export const mockUserWithoutGlobalSearch: Express.User = {
 export const mockUserWithGlobalSearch: Express.User = {
   ...mockUser,
   roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
+}
+
+export const mockUserWithInactiveBookings: Express.User = {
+  ...mockUser,
+  roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
 }
 
 function appSetup(services: Services, production: boolean, userSupplier: () => Express.User): Express {

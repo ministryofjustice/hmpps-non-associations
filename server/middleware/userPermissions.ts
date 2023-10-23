@@ -22,7 +22,7 @@ export class UserPermissions {
   public readonly write: boolean
 
   /**
-   * Can see prisoners in other prisons
+   * Can search for prisoners in other prisons
    */
   public readonly globalSearch: boolean
 
