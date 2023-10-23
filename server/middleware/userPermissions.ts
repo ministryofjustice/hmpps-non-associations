@@ -71,6 +71,9 @@ export class UserPermissions {
       return false
     }
 
+    const prisonerInCaseloads = this.caseloadSet.has(prisoner.prisonId)
+    const otherPrisonerInCaseloads = this.caseloadSet.has(otherPrisoner.prisonId)
+
     if (isBeingTransferred(prisoner)) {
       if (!this.globalSearch) {
         return false
@@ -79,8 +82,8 @@ export class UserPermissions {
       if (!this.inactiveBookings) {
         return false
       }
-    } else if (!this.caseloadSet.has(prisoner.prisonId)) {
-      return false
+    } else if (!prisonerInCaseloads) {
+      return this.globalSearch && otherPrisonerInCaseloads
     }
 
     if (isBeingTransferred(otherPrisoner)) {
@@ -91,8 +94,8 @@ export class UserPermissions {
       if (!this.inactiveBookings) {
         return false
       }
-    } else if (!this.caseloadSet.has(otherPrisoner.prisonId)) {
-      return false
+    } else if (!otherPrisonerInCaseloads) {
+      return this.globalSearch && prisonerInCaseloads
     }
 
     return true

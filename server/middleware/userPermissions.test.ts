@@ -344,14 +344,14 @@ describe('userPermissions', () => {
   describe('should not allow modifying a non-association when', () => {
     it.each([
       {
-        scenario: 'key prisoner is not in your caseloads',
-        user: mockUser,
+        scenario: 'key prisoner is not in your caseloads if you don’t have global search',
+        user: mockUserWithoutGlobalSearch,
         prisoner: andrewBrown,
         otherPrisoner: davidJones,
       },
       {
-        scenario: 'other prisoner is not in your caseloads',
-        user: mockUser,
+        scenario: 'other prisoner is not in your caseloads if you don’t have global search',
+        user: mockUserWithoutGlobalSearch,
         prisoner: davidJones,
         otherPrisoner: andrewBrown,
       },
@@ -487,14 +487,14 @@ describe('userPermissions', () => {
       )
     })
 
-    describe('and allow prison users with global search to modify non-associations in their caseloads or in transfer', () => {
+    describe('and allow prison users with global search to modify non-associations in transfer or when at least one is in their caseloads', () => {
       expectAllCombinations(
         mockUserWithGlobalSearch,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['Y', 'N', 'Y', 'N'],
+          ['Y', 'Y', 'Y', 'N'],
           [' ', 'N', 'N', 'N'],
           [' ', ' ', 'Y', 'N'],
           [' ', ' ', ' ', 'N'],
@@ -517,14 +517,14 @@ describe('userPermissions', () => {
       )
     })
 
-    describe('and allow prison users with global search and inactive bookings to modify non-associations in their caseloads, in transfer or outside', () => {
+    describe('and allow prison users with global search and inactive bookings to modify non-associations in transfer, outside or when at least one is in their caseloads', () => {
       expectAllCombinations(
         mockUser,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['Y', 'N', 'Y', 'Y'],
+          ['Y', 'Y', 'Y', 'Y'],
           [' ', 'N', 'N', 'N'],
           [' ', ' ', 'Y', 'Y'],
           [' ', ' ', ' ', 'Y'],
