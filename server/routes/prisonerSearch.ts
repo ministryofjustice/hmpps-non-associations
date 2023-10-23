@@ -187,6 +187,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
         { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
       )
       res.render('pages/prisonerSearch.njk', {
+        prisoner,
         prisonName,
         prisonerNumber,
         prisonerName: nameOfPerson(prisoner),

@@ -127,7 +127,7 @@ context('Add non-association page', () => {
       expect(walterSmithRow[1]).to.contain('Smith, Walter')
       expect(walterSmithRow[3]).to.contain('2-4-002')
       expect(walterSmithRow[4]).to.contain('Brixton')
-      expect(walterSmithRow[5]).not.to.contain('Select prisoner')
+      expect(walterSmithRow[5]).to.contain('Select prisoner')
 
       expect(maxClarkeRow[1]).to.contain('Clarke, Max')
       expect(maxClarkeRow[3]).to.contain('Transfer')
