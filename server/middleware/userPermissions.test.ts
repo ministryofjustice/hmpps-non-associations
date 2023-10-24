@@ -17,8 +17,16 @@ import {
   joePeters,
   mockMovePrisoner,
 } from '../data/testData/offenderSearch'
-import { mockUser, mockCaseloads } from '../routes/testutils/appSetup'
-import userPermissions from './userPermissions'
+import {
+  mockUser,
+  mockNonPrisonUser,
+  mockReadOnlyUser,
+  mockUserWithoutGlobalSearch,
+  mockUserWithGlobalSearch,
+  mockUserWithInactiveBookings,
+  mockCaseloads,
+} from '../routes/testutils/appSetup'
+import userPermissions, { type UserPermissions } from './userPermissions'
 
 function expectUser(user: Express.User) {
   const req = jest.fn() as unknown as jest.Mocked<Request>
@@ -37,6 +45,10 @@ function expectUser(user: Express.User) {
   const { permissions } = res.locals.user
 
   return {
+    get permissions(): UserPermissions {
+      return permissions
+    },
+
     toHavePermissionFlags(
       flags: Pick<Express.User['permissions'], 'read' | 'write' | 'globalSearch' | 'inactiveBookings'>,
     ): void {
@@ -76,10 +88,7 @@ type HasWritePermissionScenarios = ReadonlyArray<{
 
 describe('userPermissions', () => {
   it('should set no read/write flags if the user is missing roles', () => {
-    expectUser({
-      ...mockUser,
-      roles: [],
-    }).toHavePermissionFlags({
+    expectUser(mockNonPrisonUser).toHavePermissionFlags({
       read: false,
       write: false,
       globalSearch: false,
@@ -88,10 +97,7 @@ describe('userPermissions', () => {
   })
 
   it('should set read flag if user has necessary role', () => {
-    expectUser({
-      ...mockUser,
-      roles: [userRolePrison],
-    }).toHavePermissionFlags({
+    expectUser(mockReadOnlyUser).toHavePermissionFlags({
       read: true,
       write: false,
       globalSearch: false,
@@ -100,10 +106,7 @@ describe('userPermissions', () => {
   })
 
   it('should set read & write flags if user has necessary roles', () => {
-    expectUser({
-      ...mockUser,
-      roles: [userRolePrison, userRoleManageNonAssociations],
-    }).toHavePermissionFlags({
+    expectUser(mockUserWithoutGlobalSearch).toHavePermissionFlags({
       read: true,
       write: true,
       globalSearch: false,
@@ -137,10 +140,7 @@ describe('userPermissions', () => {
     })
 
     it('if they also have write permission', () => {
-      expectUser({
-        ...mockUser,
-        roles: [userRolePrison, userRoleGlobalSearch, userRoleManageNonAssociations],
-      }).toHavePermissionFlags({
+      expectUser(mockUserWithGlobalSearch).toHavePermissionFlags({
         read: true,
         write: true,
         globalSearch: true,
@@ -344,14 +344,14 @@ describe('userPermissions', () => {
   describe('should not allow modifying a non-association when', () => {
     it.each([
       {
-        scenario: 'key prisoner is not in your caseloads',
-        user: mockUser,
+        scenario: 'key prisoner is not in your caseloads if you don’t have global search',
+        user: mockUserWithoutGlobalSearch,
         prisoner: andrewBrown,
         otherPrisoner: davidJones,
       },
       {
-        scenario: 'other prisoner is not in your caseloads',
-        user: mockUser,
+        scenario: 'other prisoner is not in your caseloads if you don’t have global search',
+        user: mockUserWithoutGlobalSearch,
         prisoner: davidJones,
         otherPrisoner: andrewBrown,
       },
@@ -400,6 +400,136 @@ describe('userPermissions', () => {
       },
     ] satisfies HasWritePermissionScenarios)('$scenario', ({ user, prisoner, otherPrisoner }) => {
       expectUser(user).toNotHaveWritePermission(prisoner, otherPrisoner)
+    })
+  })
+
+  describe('should check roles and caseloads', () => {
+    const labels = ['in caseloads', 'not in caseloads', 'being transferred', 'not in an establishment']
+    const prisoners = [fredMills, andrewBrown, maxClarke, joePeters]
+
+    type Expected = 'Y' | 'N' | ' '
+    type ExpectationRow = readonly [Expected, Expected, Expected, Expected]
+    type ExpectationTable = readonly [ExpectationRow, ExpectationRow, ExpectationRow, ExpectationRow]
+    type Challenge = (
+      userPermissions: UserPermissions,
+      prisoner: OffenderSearchResult,
+      otherPrisoner: OffenderSearchResult,
+    ) => boolean
+
+    function expectAllCombinations(user: Express.User, challenge: Challenge, expected: ExpectationTable): void {
+      const { permissions } = expectUser(user)
+
+      prisoners.forEach((prisoner, rowIndex) => {
+        const prisonerLabel = labels[rowIndex]
+
+        prisoners.forEach((otherPrisoner, columnIndex) => {
+          const otherPrisonerLabel = labels[columnIndex]
+
+          let expectation = expected[rowIndex][columnIndex]
+          if (expectation === ' ') {
+            // non-associations are symmetrical: ' ' means use inverse combination’s expected result
+            expectation = expected[columnIndex][rowIndex]
+          }
+          const expectedResult = expectation === 'Y'
+
+          it(`challenge for a non-association between a prionser ${prisonerLabel} and a prisoner ${otherPrisonerLabel} should be ${expectedResult}`, () => {
+            const result = challenge(permissions, prisoner, otherPrisoner)
+            expect(result).toEqual(expectedResult)
+          })
+        })
+      })
+    }
+
+    describe('and forbid non-prison users from viewing or modifying any non-associations', () => {
+      expectAllCombinations(
+        mockNonPrisonUser,
+        (permissions, prisoner, otherPrisoner) => {
+          return permissions.read || permissions.canWriteNonAssociation(prisoner, otherPrisoner)
+        },
+        [
+          ['N', 'N', 'N', 'N'],
+          [' ', 'N', 'N', 'N'],
+          [' ', ' ', 'N', 'N'],
+          [' ', ' ', ' ', 'N'],
+        ],
+      )
+    })
+
+    describe('and allow prison users to view non-associations', () => {
+      for (const user of [
+        mockReadOnlyUser,
+        mockUserWithoutGlobalSearch,
+        mockUserWithGlobalSearch,
+        mockUserWithInactiveBookings,
+        mockUser,
+      ]) {
+        expectAllCombinations(user, permissions => permissions.read, [
+          ['Y', 'Y', 'Y', 'Y'],
+          [' ', 'Y', 'Y', 'Y'],
+          [' ', ' ', 'Y', 'Y'],
+          [' ', ' ', ' ', 'Y'],
+        ])
+      }
+    })
+
+    describe('and allow prison users to only modify non-associations in their caseloads', () => {
+      expectAllCombinations(
+        mockUserWithoutGlobalSearch,
+        (permissions, prisoner, otherPrisoner) => {
+          return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
+        },
+        [
+          ['Y', 'N', 'N', 'N'],
+          [' ', 'N', 'N', 'N'],
+          [' ', ' ', 'N', 'N'],
+          [' ', ' ', ' ', 'N'],
+        ],
+      )
+    })
+
+    describe('and allow prison users with global search to modify non-associations in transfer or when at least one is in their caseloads', () => {
+      expectAllCombinations(
+        mockUserWithGlobalSearch,
+        (permissions, prisoner, otherPrisoner) => {
+          return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
+        },
+        [
+          ['Y', 'Y', 'Y', 'N'],
+          [' ', 'N', 'N', 'N'],
+          [' ', ' ', 'Y', 'N'],
+          [' ', ' ', ' ', 'N'],
+        ],
+      )
+    })
+
+    describe('and allow prison users with inactive bookings to modify non-associations in their caseloads or outside', () => {
+      expectAllCombinations(
+        mockUserWithInactiveBookings,
+        (permissions, prisoner, otherPrisoner) => {
+          return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
+        },
+        [
+          ['Y', 'N', 'N', 'Y'],
+          [' ', 'N', 'N', 'N'],
+          [' ', ' ', 'N', 'N'],
+          [' ', ' ', ' ', 'Y'],
+        ],
+      )
+    })
+
+    describe('and allow prison users with global search and inactive bookings to modify non-associations in transfer, outside or when at least one is in their caseloads', () => {
+      expectAllCombinations(
+        mockUser,
+        (permissions, prisoner, otherPrisoner) => {
+          return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
+        },
+        [
+          ['Y', 'Y', 'Y', 'Y'],
+          [' ', 'N', 'N', 'N'],
+          [' ', ' ', 'Y', 'Y'],
+          [' ', ' ', ' ', 'Y'],
+        ],
+      )
     })
   })
 })

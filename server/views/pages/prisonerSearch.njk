@@ -111,7 +111,7 @@
             <a href="{{ routeUrls.view(prisonerNumber, openNonAssociationsMap.get(result.prisonerNumber)) }}">
               View non-association
             </a>
-          {% elif canViewProfile %}
+          {% elif user.permissions.canWriteNonAssociation(prisoner, result) %}
             <a href="{{ routeUrls.add(prisonerNumber, result.prisonerNumber) }}">
               Select prisoner
             </a>

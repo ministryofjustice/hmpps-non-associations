@@ -15,7 +15,7 @@ export const userRolePrison = 'ROLE_PRISON' as const
 export const userRoleGlobalSearch = 'ROLE_GLOBAL_SEARCH' as const
 
 /**
- * Users without inactive bookings cannot search for released prisoners not link out to profiles to those individuals
+ * Users without inactive bookings cannot search for released prisoners nor link out to profiles of those individuals
  */
 export const userRoleInactiveBookings = 'ROLE_INACTIVE_BOOKINGS' as const
 
