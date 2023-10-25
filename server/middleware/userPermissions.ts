@@ -52,6 +52,12 @@ export class UserPermissions {
    * Whether prisoner photos and links to their profiles should show
    */
   canViewProfile(prisoner: { prisonId: string }): boolean {
+    if (!this.read) {
+      return false
+    }
+    if (!prisoner.prisonId) {
+      return false
+    }
     if (isBeingTransferred(prisoner)) {
       return this.user.permissions.globalSearch
     }
@@ -68,6 +74,10 @@ export class UserPermissions {
    */
   canWriteNonAssociation(prisoner: { prisonId: string }, otherPrisoner: { prisonId: string }): boolean {
     if (!this.write) {
+      return false
+    }
+
+    if (!prisoner.prisonId || !otherPrisoner.prisonId) {
       return false
     }
 
