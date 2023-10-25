@@ -71,6 +71,10 @@ export class UserPermissions {
       return false
     }
 
+    if (!prisoner.prisonId || !otherPrisoner.prisonId) {
+      return false
+    }
+
     const prisonerInCaseloads = this.caseloadSet.has(prisoner.prisonId)
     const otherPrisonerInCaseloads = this.caseloadSet.has(otherPrisoner.prisonId)
 

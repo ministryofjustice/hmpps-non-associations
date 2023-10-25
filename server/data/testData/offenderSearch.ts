@@ -80,13 +80,13 @@ export const joePeters: OffenderSearchResultOut = {
 }
 
 export const nathanLost: OffenderSearchResult = {
-  prisonId: '',
-  prisonName: '',
-  bookingId: 12350,
+  prisonId: undefined,
+  prisonName: undefined,
+  bookingId: undefined,
   prisonerNumber: 'D1234DD',
   firstName: 'NATHAN',
   lastName: 'LOST',
-  cellLocation: '',
+  cellLocation: undefined,
 }
 
 export const mockPrisoners = [davidJones, fredMills, oscarJones, andrewBrown, walterSmith, maxClarke, joePeters]

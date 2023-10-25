@@ -15,6 +15,7 @@ import {
   andrewBrown,
   maxClarke,
   joePeters,
+  nathanLost,
   mockMovePrisoner,
 } from '../data/testData/offenderSearch'
 import {
@@ -67,7 +68,7 @@ function expectUser(user: Express.User) {
       expect(permissions.canWriteNonAssociation(prisoner, otherPrisoner)).toEqual(true)
     },
 
-    toNotHaveWritePermission(prisoner: OffenderSearchResult, otherPrisoner: OffenderSearchResult): void {
+    notToHaveWritePermission(prisoner: OffenderSearchResult, otherPrisoner: OffenderSearchResult): void {
       expect(permissions.canWriteNonAssociation(prisoner, otherPrisoner)).toEqual(false)
     },
   }
@@ -264,6 +265,11 @@ describe('userPermissions', () => {
         },
         prisoner: joePeters,
       },
+      {
+        scenario: 'of people with unknown locations',
+        user: mockUser,
+        prisoner: nathanLost,
+      },
     ] satisfies ViewProfileScenarios)('$scenario', ({ user, prisoner }) => {
       expectUser(user).cannotViewPrisonerProfile(prisoner)
     })
@@ -398,18 +404,30 @@ describe('userPermissions', () => {
         prisoner: andrewBrown,
         otherPrisoner: andrewBrown,
       },
+      {
+        scenario: 'of people with unknown locations (possibly without even a booking)',
+        user: mockUser,
+        prisoner: nathanLost,
+        otherPrisoner: davidJones,
+      },
     ] satisfies HasWritePermissionScenarios)('$scenario', ({ user, prisoner, otherPrisoner }) => {
-      expectUser(user).toNotHaveWritePermission(prisoner, otherPrisoner)
+      expectUser(user).notToHaveWritePermission(prisoner, otherPrisoner)
     })
   })
 
   describe('should check roles and caseloads', () => {
-    const labels = ['in caseloads', 'not in caseloads', 'being transferred', 'not in an establishment']
-    const prisoners = [fredMills, andrewBrown, maxClarke, joePeters]
+    const labels = [
+      'in caseloads',
+      'not in caseloads',
+      'being transferred',
+      'not in an establishment',
+      'with no location',
+    ]
+    const prisoners = [fredMills, andrewBrown, maxClarke, joePeters, nathanLost]
 
     type Expected = 'Y' | 'N' | ' '
-    type ExpectationRow = readonly [Expected, Expected, Expected, Expected]
-    type ExpectationTable = readonly [ExpectationRow, ExpectationRow, ExpectationRow, ExpectationRow]
+    type ExpectationRow = readonly [Expected, Expected, Expected, Expected, Expected]
+    type ExpectationTable = readonly [ExpectationRow, ExpectationRow, ExpectationRow, ExpectationRow, ExpectationRow]
     type Challenge = (
       userPermissions: UserPermissions,
       prisoner: OffenderSearchResult,
@@ -447,10 +465,11 @@ describe('userPermissions', () => {
           return permissions.read || permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['N', 'N', 'N', 'N'],
-          [' ', 'N', 'N', 'N'],
-          [' ', ' ', 'N', 'N'],
-          [' ', ' ', ' ', 'N'],
+          ['N', 'N', 'N', 'N', 'N'],
+          [' ', 'N', 'N', 'N', 'N'],
+          [' ', ' ', 'N', 'N', 'N'],
+          [' ', ' ', ' ', 'N', 'N'],
+          [' ', ' ', ' ', ' ', 'N'],
         ],
       )
     })
@@ -464,10 +483,11 @@ describe('userPermissions', () => {
         mockUser,
       ]) {
         expectAllCombinations(user, permissions => permissions.read, [
-          ['Y', 'Y', 'Y', 'Y'],
-          [' ', 'Y', 'Y', 'Y'],
-          [' ', ' ', 'Y', 'Y'],
-          [' ', ' ', ' ', 'Y'],
+          ['Y', 'Y', 'Y', 'Y', 'Y'],
+          [' ', 'Y', 'Y', 'Y', 'Y'],
+          [' ', ' ', 'Y', 'Y', 'Y'],
+          [' ', ' ', ' ', 'Y', 'Y'],
+          [' ', ' ', ' ', ' ', 'Y'],
         ])
       }
     })
@@ -479,10 +499,11 @@ describe('userPermissions', () => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['Y', 'N', 'N', 'N'],
-          [' ', 'N', 'N', 'N'],
-          [' ', ' ', 'N', 'N'],
-          [' ', ' ', ' ', 'N'],
+          ['Y', 'N', 'N', 'N', 'N'],
+          [' ', 'N', 'N', 'N', 'N'],
+          [' ', ' ', 'N', 'N', 'N'],
+          [' ', ' ', ' ', 'N', 'N'],
+          [' ', ' ', ' ', ' ', 'N'],
         ],
       )
     })
@@ -494,10 +515,11 @@ describe('userPermissions', () => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['Y', 'Y', 'Y', 'N'],
-          [' ', 'N', 'N', 'N'],
-          [' ', ' ', 'Y', 'N'],
-          [' ', ' ', ' ', 'N'],
+          ['Y', 'Y', 'Y', 'N', 'N'],
+          [' ', 'N', 'N', 'N', 'N'],
+          [' ', ' ', 'Y', 'N', 'N'],
+          [' ', ' ', ' ', 'N', 'N'],
+          [' ', ' ', ' ', ' ', 'N'],
         ],
       )
     })
@@ -509,10 +531,11 @@ describe('userPermissions', () => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['Y', 'N', 'N', 'Y'],
-          [' ', 'N', 'N', 'N'],
-          [' ', ' ', 'N', 'N'],
-          [' ', ' ', ' ', 'Y'],
+          ['Y', 'N', 'N', 'Y', 'N'],
+          [' ', 'N', 'N', 'N', 'N'],
+          [' ', ' ', 'N', 'N', 'N'],
+          [' ', ' ', ' ', 'Y', 'N'],
+          [' ', ' ', ' ', ' ', 'N'],
         ],
       )
     })
@@ -524,10 +547,11 @@ describe('userPermissions', () => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
         },
         [
-          ['Y', 'Y', 'Y', 'Y'],
-          [' ', 'N', 'N', 'N'],
-          [' ', ' ', 'Y', 'Y'],
-          [' ', ' ', ' ', 'Y'],
+          ['Y', 'Y', 'Y', 'Y', 'N'],
+          [' ', 'N', 'N', 'N', 'N'],
+          [' ', ' ', 'Y', 'Y', 'N'],
+          [' ', ' ', ' ', 'Y', 'N'],
+          [' ', ' ', ' ', ' ', 'N'],
         ],
       )
     })
