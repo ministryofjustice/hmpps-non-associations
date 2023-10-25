@@ -54,7 +54,7 @@ class ExpectUser {
   }
 
   toHavePermissionFlags(
-    flags: Pick<Express.User['permissions'], 'read' | 'write' | 'globalSearch' | 'inactiveBookings'>,
+    flags: Pick<Express.User['permissions'], 'read' | 'write' | 'prisonUser' | 'globalSearch' | 'inactiveBookings'>,
   ): void {
     expect(this.permissions).toEqual(expect.objectContaining(flags))
   }
@@ -146,6 +146,7 @@ describe('userPermissions', () => {
     new ExpectUser(mockNonPrisonUser).toHavePermissionFlags({
       read: false,
       write: false,
+      prisonUser: false,
       globalSearch: false,
       inactiveBookings: false,
     })
@@ -155,6 +156,7 @@ describe('userPermissions', () => {
     new ExpectUser(mockReadOnlyUser).toHavePermissionFlags({
       read: true,
       write: false,
+      prisonUser: true,
       globalSearch: false,
       inactiveBookings: false,
     })
@@ -164,6 +166,7 @@ describe('userPermissions', () => {
     new ExpectUser(mockUserWithoutGlobalSearch).toHavePermissionFlags({
       read: true,
       write: true,
+      prisonUser: true,
       globalSearch: false,
       inactiveBookings: false,
     })
@@ -176,6 +179,7 @@ describe('userPermissions', () => {
     }).toHavePermissionFlags({
       read: false,
       write: false,
+      prisonUser: false,
       globalSearch: false,
       inactiveBookings: false,
     })
@@ -189,6 +193,7 @@ describe('userPermissions', () => {
       }).toHavePermissionFlags({
         read: true,
         write: false,
+        prisonUser: true,
         globalSearch: true,
         inactiveBookings: false,
       })
@@ -198,6 +203,7 @@ describe('userPermissions', () => {
       new ExpectUser(mockUserWithGlobalSearch).toHavePermissionFlags({
         read: true,
         write: true,
+        prisonUser: true,
         globalSearch: true,
         inactiveBookings: false,
       })
@@ -210,6 +216,7 @@ describe('userPermissions', () => {
       }).toHavePermissionFlags({
         read: false,
         write: false,
+        prisonUser: false,
         globalSearch: false,
         inactiveBookings: false,
       })
@@ -224,6 +231,7 @@ describe('userPermissions', () => {
       }).toHavePermissionFlags({
         read: true,
         write: false,
+        prisonUser: true,
         globalSearch: false,
         inactiveBookings: true,
       })
@@ -236,6 +244,7 @@ describe('userPermissions', () => {
       }).toHavePermissionFlags({
         read: true,
         write: true,
+        prisonUser: true,
         globalSearch: false,
         inactiveBookings: true,
       })
@@ -248,6 +257,7 @@ describe('userPermissions', () => {
       }).toHavePermissionFlags({
         read: false,
         write: false,
+        prisonUser: false,
         globalSearch: false,
         inactiveBookings: false,
       })
@@ -261,6 +271,7 @@ describe('userPermissions', () => {
     }).toHavePermissionFlags({
       read: true,
       write: true,
+      prisonUser: true,
       globalSearch: true,
       inactiveBookings: true,
     })

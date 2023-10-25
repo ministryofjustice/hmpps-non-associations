@@ -22,6 +22,11 @@ export class UserPermissions {
   public readonly write: boolean
 
   /**
+   * Can view prisoner-related information
+   */
+  public readonly prisonUser: boolean
+
+  /**
    * Can search for prisoners in other prisons
    */
   public readonly globalSearch: boolean
@@ -38,7 +43,8 @@ export class UserPermissions {
     this.inactiveBookings = false
 
     const roles = user.roles ?? []
-    if (roles.includes(userRolePrison)) {
+    this.prisonUser = roles.includes(userRolePrison)
+    if (this.prisonUser) {
       this.read = true
       this.write = roles.includes(userRoleManageNonAssociations)
       this.globalSearch = roles.includes(userRoleGlobalSearch)
@@ -52,7 +58,7 @@ export class UserPermissions {
    * Whether prisoner photos and links to their profiles should show
    */
   canViewProfile(prisoner: { prisonId: string }): boolean {
-    if (!this.read) {
+    if (!this.prisonUser) {
       return false
     }
     if (!prisoner.prisonId) {
