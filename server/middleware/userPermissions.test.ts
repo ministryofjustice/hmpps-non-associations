@@ -425,16 +425,26 @@ describe('userPermissions', () => {
     ]
     const prisoners = [fredMills, andrewBrown, maxClarke, joePeters, nathanLost]
 
-    type Expected = 'Y' | 'N' | ' '
-    type ExpectationRow = readonly [Expected, Expected, Expected, Expected, Expected]
-    type ExpectationTable = readonly [ExpectationRow, ExpectationRow, ExpectationRow, ExpectationRow, ExpectationRow]
-    type Challenge = (
+    type ExpectationRow<T> = readonly [T, T, T, T, T]
+    type ExpectationGrid<T> = readonly [
+      ExpectationRow<T>,
+      ExpectationRow<T>,
+      ExpectationRow<T>,
+      ExpectationRow<T>,
+      ExpectationRow<T>,
+    ]
+    type ChallengeWith2Prisoners = (
       userPermissions: UserPermissions,
       prisoner: OffenderSearchResult,
       otherPrisoner: OffenderSearchResult,
     ) => boolean
 
-    function expectAllCombinations(user: Express.User, challenge: Challenge, expected: ExpectationTable): void {
+    function expectAllCombinationsWith2Prisoners(
+      user: Express.User,
+      challenge: ChallengeWith2Prisoners,
+      // non-associations are symmetrical: ' ' means use inverse combination’s expected result
+      expected: ExpectationGrid<'Y' | 'N' | ' '>,
+    ): void {
       const { permissions } = expectUser(user)
 
       prisoners.forEach((prisoner, rowIndex) => {
@@ -445,7 +455,6 @@ describe('userPermissions', () => {
 
           let expectation = expected[rowIndex][columnIndex]
           if (expectation === ' ') {
-            // non-associations are symmetrical: ' ' means use inverse combination’s expected result
             expectation = expected[columnIndex][rowIndex]
           }
           const expectedResult = expectation === 'Y'
@@ -459,7 +468,7 @@ describe('userPermissions', () => {
     }
 
     describe('and forbid non-prison users from viewing or modifying any non-associations', () => {
-      expectAllCombinations(
+      expectAllCombinationsWith2Prisoners(
         mockNonPrisonUser,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read || permissions.canWriteNonAssociation(prisoner, otherPrisoner)
@@ -482,7 +491,7 @@ describe('userPermissions', () => {
         mockUserWithInactiveBookings,
         mockUser,
       ]) {
-        expectAllCombinations(user, permissions => permissions.read, [
+        expectAllCombinationsWith2Prisoners(user, permissions => permissions.read, [
           ['Y', 'Y', 'Y', 'Y', 'Y'],
           [' ', 'Y', 'Y', 'Y', 'Y'],
           [' ', ' ', 'Y', 'Y', 'Y'],
@@ -493,7 +502,7 @@ describe('userPermissions', () => {
     })
 
     describe('and allow prison users to only modify non-associations in their caseloads', () => {
-      expectAllCombinations(
+      expectAllCombinationsWith2Prisoners(
         mockUserWithoutGlobalSearch,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
@@ -509,7 +518,7 @@ describe('userPermissions', () => {
     })
 
     describe('and allow prison users with global search to modify non-associations in transfer or when at least one is in their caseloads', () => {
-      expectAllCombinations(
+      expectAllCombinationsWith2Prisoners(
         mockUserWithGlobalSearch,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
@@ -525,7 +534,7 @@ describe('userPermissions', () => {
     })
 
     describe('and allow prison users with inactive bookings to modify non-associations in their caseloads or outside', () => {
-      expectAllCombinations(
+      expectAllCombinationsWith2Prisoners(
         mockUserWithInactiveBookings,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
@@ -541,7 +550,7 @@ describe('userPermissions', () => {
     })
 
     describe('and allow prison users with global search and inactive bookings to modify non-associations in transfer, outside or when at least one is in their caseloads', () => {
-      expectAllCombinations(
+      expectAllCombinationsWith2Prisoners(
         mockUser,
         (permissions, prisoner, otherPrisoner) => {
           return permissions.read && permissions.canWriteNonAssociation(prisoner, otherPrisoner)
