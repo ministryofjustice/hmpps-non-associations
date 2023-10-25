@@ -52,6 +52,12 @@ export class UserPermissions {
    * Whether prisoner photos and links to their profiles should show
    */
   canViewProfile(prisoner: { prisonId: string }): boolean {
+    if (!this.read) {
+      return false
+    }
+    if (!prisoner.prisonId) {
+      return false
+    }
     if (isBeingTransferred(prisoner)) {
       return this.user.permissions.globalSearch
     }

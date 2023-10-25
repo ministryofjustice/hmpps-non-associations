@@ -421,11 +421,81 @@ describe('userPermissions', () => {
       'not in caseloads',
       'being transferred',
       'not in an establishment',
-      'with no location',
+      'with unknown location', // possibly doesn't even have a booking
     ]
     const prisoners = [fredMills, andrewBrown, maxClarke, joePeters, nathanLost]
 
     type ExpectationRow<T> = readonly [T, T, T, T, T]
+    type ChallengeWith1Prisoner = (userPermissions: UserPermissions, prisoner: OffenderSearchResult) => boolean
+
+    function expectForPrisoners(
+      user: Express.User,
+      challenge: ChallengeWith1Prisoner,
+      expected: ExpectationRow<'Y' | 'N'>,
+    ) {
+      const { permissions } = expectUser(user)
+
+      prisoners.forEach((prisoner, rowIndex) => {
+        const prisonerLabel = labels[rowIndex]
+        const expectedResult = expected[rowIndex] === 'Y'
+
+        it(`challenge for a prionser ${prisonerLabel} should be ${expectedResult}`, () => {
+          const result = challenge(permissions, prisoner)
+          expect(result).toEqual(expectedResult)
+        })
+      })
+    }
+
+    describe('and forbid non-prison users from viewing prisoner profiles', () => {
+      expectForPrisoners(
+        mockNonPrisonUser,
+        (permissions, prisoner) => {
+          return permissions.canViewProfile(prisoner)
+        },
+        ['N', 'N', 'N', 'N', 'N'],
+      )
+    })
+
+    describe('and allow prison users to view profiles in their caseloads', () => {
+      expectForPrisoners(
+        mockReadOnlyUser,
+        (permissions, prisoner) => {
+          return permissions.canViewProfile(prisoner)
+        },
+        ['Y', 'N', 'N', 'N', 'N'],
+      )
+    })
+
+    describe('and allow prison users with global search to view profiles in their caseloads or in transfer', () => {
+      expectForPrisoners(
+        mockUserWithGlobalSearch,
+        (permissions, prisoner) => {
+          return permissions.canViewProfile(prisoner)
+        },
+        ['Y', 'N', 'Y', 'N', 'N'],
+      )
+    })
+
+    describe('and allow prison users with inactive bookings to view profiles in their caseloads or outside', () => {
+      expectForPrisoners(
+        mockUserWithInactiveBookings,
+        (permissions, prisoner) => {
+          return permissions.canViewProfile(prisoner)
+        },
+        ['Y', 'N', 'N', 'Y', 'N'],
+      )
+    })
+
+    describe('and allow prison users with global search and inactive bookings to view profiles in their caseloads, in transfer or outside', () => {
+      expectForPrisoners(
+        mockUser,
+        (permissions, prisoner) => {
+          return permissions.canViewProfile(prisoner)
+        },
+        ['Y', 'N', 'Y', 'Y', 'N'],
+      )
+    })
+
     type ExpectationGrid<T> = readonly [
       ExpectationRow<T>,
       ExpectationRow<T>,
