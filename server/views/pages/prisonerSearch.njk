@@ -7,14 +7,11 @@
 {% from "moj/components/pagination/macro.njk" import mojPagination %}
 
 {% set pageTitle = "Search for a prisoner" %}
-{% set pageHeading -%}
-  Search for a prisoner to keep apart from {{ prisonerName }}
-{%- endset %}
 
 {% block content %}
   {% include "../partials/formErrorSummary.njk" %}
 
-  <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+  <h1 class="govuk-heading-l">Search for a prisoner to keep apart from {{ prisonerName }}</h1>
 
   <form method="get" novalidate>
     {% if hasGlobalSearch %}
