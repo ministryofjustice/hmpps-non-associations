@@ -489,5 +489,63 @@ describe('Non-associations API REST client', () => {
         })
       })
     })
+
+    describe('when locations are missing', () => {
+      let nonAssociationsWithMissingLocations: ClosedNonAssociationsListItem[]
+      beforeEach(() => {
+        nonAssociationsWithMissingLocations = [...davidJones2ClosedNonAssociations.nonAssociations]
+        nonAssociationsWithMissingLocations[0] = {
+          ...nonAssociationsWithMissingLocations[0],
+          otherPrisonerDetails: {
+            ...nonAssociationsWithMissingLocations[0].otherPrisonerDetails,
+            prisonId: undefined,
+            prisonName: undefined,
+            cellLocation: undefined,
+          },
+        }
+      })
+
+      it('should work by prison ID, ascending', () => {
+        const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_ID', 'ASC').map(
+          item => item.otherPrisonerDetails.prisonId,
+        )
+        expect(sortedValues).toStrictEqual([undefined, 'MDI'])
+      })
+
+      it('should work by prison ID, descending', () => {
+        const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_ID', 'DESC').map(
+          item => item.otherPrisonerDetails.prisonId,
+        )
+        expect(sortedValues).toStrictEqual(['MDI', undefined])
+      })
+
+      it('should work by prison name, ascending', () => {
+        const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_NAME', 'ASC').map(
+          item => item.otherPrisonerDetails.prisonName,
+        )
+        expect(sortedValues).toStrictEqual([undefined, 'Moorland (HMP)'])
+      })
+
+      it('should work by prison name, descending', () => {
+        const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_NAME', 'DESC').map(
+          item => item.otherPrisonerDetails.prisonName,
+        )
+        expect(sortedValues).toStrictEqual(['Moorland (HMP)', undefined])
+      })
+
+      it('should work by cell location, ascending', () => {
+        const sortedValues = sortList(nonAssociationsWithMissingLocations, 'CELL_LOCATION', 'ASC').map(
+          item => item.otherPrisonerDetails.cellLocation,
+        )
+        expect(sortedValues).toStrictEqual([undefined, '1-1-003'])
+      })
+
+      it('should work by cell location, descending', () => {
+        const sortedValues = sortList(nonAssociationsWithMissingLocations, 'CELL_LOCATION', 'DESC').map(
+          item => item.otherPrisonerDetails.cellLocation,
+        )
+        expect(sortedValues).toStrictEqual(['1-1-003', undefined])
+      })
+    })
   })
 })
