@@ -260,11 +260,12 @@ export function sortList<Item extends BaseNonAssociationsListItem>(
       break
     case 'PRISON_ID':
       comparator = (first, second) =>
-        reversed * first.otherPrisonerDetails.prisonId.localeCompare(second.otherPrisonerDetails.prisonId)
+        reversed * (first.otherPrisonerDetails.prisonId ?? '').localeCompare(second.otherPrisonerDetails.prisonId ?? '')
       break
     case 'PRISON_NAME':
       comparator = (first, second) =>
-        reversed * first.otherPrisonerDetails.prisonName.localeCompare(second.otherPrisonerDetails.prisonName)
+        reversed *
+        (first.otherPrisonerDetails.prisonName ?? '').localeCompare(second.otherPrisonerDetails.prisonName ?? '')
       break
     case 'CELL_LOCATION':
       comparator = (first, second) =>
