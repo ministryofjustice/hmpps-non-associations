@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express'
-import jwtDecode, { type JwtPayload } from 'jwt-decode'
+import { jwtDecode, type JwtPayload } from 'jwt-decode'
 
 import logger from '../../logger'
 
