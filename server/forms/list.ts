@@ -15,21 +15,25 @@ export const twoTables: Table[] = ['any', 'outside']
 
 export type ListData = Record<`${Table}Sort`, SortBy> & Record<`${Table}Order`, SortDirection>
 
-const defaultSort: SortBy = 'WHEN_UPDATED'
-const defaultOrder: SortDirection = 'DESC'
-
 export default class ListForm extends BaseForm<ListData> {
+  constructor(
+    private readonly defaultSort: SortBy = 'WHEN_UPDATED',
+    private readonly defaultOrder: SortDirection = 'DESC',
+  ) {
+    super()
+  }
+
   protected validate(): void {
     for (const table of tables) {
       const sortKey = `${table}Sort` as const
-      this.data[sortKey] = this.data[sortKey] ?? defaultSort
+      this.data[sortKey] = this.data[sortKey] ?? this.defaultSort
       if (!sortByOptions.includes(this.data[sortKey])) {
         this.addError(sortKey, 'Invalid sort column')
         delete this.data[sortKey]
       }
 
       const orderKey = `${table}Order` as const
-      this.data[orderKey] = this.data[orderKey] ?? defaultOrder
+      this.data[orderKey] = this.data[orderKey] ?? this.defaultOrder
       if (!sortDirectionOptions.includes(this.data[orderKey])) {
         this.addError(orderKey, 'Invalid order')
         delete this.data[orderKey]
@@ -50,12 +54,12 @@ export default class ListForm extends BaseForm<ListData> {
     otherTables.forEach(otherTable => {
       const sortParam: `${Table}Sort` = `${otherTable}Sort`
       const sortValue = this.fields[sortParam].value
-      if (sortValue !== defaultSort) {
+      if (sortValue !== this.defaultSort) {
         params.push(`${sortParam}=${sortValue}`)
       }
       const orderParam: `${Table}Order` = `${otherTable}Order`
       const orderValue = this.fields[orderParam].value
-      if (orderValue !== defaultOrder) {
+      if (orderValue !== this.defaultOrder) {
         params.push(`${orderParam}=${orderValue}`)
       }
     })
