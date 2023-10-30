@@ -44,7 +44,7 @@ context('Add non-association page', () => {
     prisonerSearchPage.getTableHeaderSortingLink(3).should('contain.text', 'Location')
     prisonerSearchPage.getTableHeaderSortingLink(3).click()
 
-    prisonerSearchPage.tableHeader.spread((...th) => {
+    prisonerSearchPage.tableHeader.spread((...th: HTMLTableCellElement[]) => {
       expect(th[1].attributes.getNamedItem('aria-sort').value).to.equal('none')
       expect(th[3].attributes.getNamedItem('aria-sort').value).to.equal('ascending')
     })

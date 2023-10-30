@@ -7,26 +7,41 @@ import {
 
 import ListForm, { type ListData, type Table, tables } from './list'
 
-const validEmptyPayload: Partial<ListData> = {}
-const validDefaultPayload: ListData = {
-  sameSort: 'WHEN_UPDATED',
-  sameOrder: 'DESC',
-  otherSort: 'WHEN_UPDATED',
-  otherOrder: 'DESC',
-  anySort: 'WHEN_UPDATED',
-  anyOrder: 'DESC',
-  outsideSort: 'WHEN_UPDATED',
-  outsideOrder: 'DESC',
+function validEmptyPayload(): Partial<ListData> {
+  return {}
+}
+
+function validDefaultPayload(): ListData {
+  return {
+    sameSort: 'WHEN_UPDATED',
+    sameOrder: 'DESC',
+    otherSort: 'WHEN_UPDATED',
+    otherOrder: 'DESC',
+    anySort: 'WHEN_UPDATED',
+    anyOrder: 'DESC',
+    outsideSort: 'WHEN_UPDATED',
+    outsideOrder: 'DESC',
+  }
 }
 
 describe('ListForm', () => {
   it('should be valid with an empty payload', () => {
     const form = new ListForm()
-    form.submit(validEmptyPayload)
+    form.submit(validEmptyPayload())
     expect(form.hasErrors).toBeFalsy()
     tables.forEach(table => {
       expect(form.fields[`${table}Sort`].value).toEqual<SortBy>('WHEN_UPDATED')
       expect(form.fields[`${table}Order`].value).toEqual<SortDirection>('DESC')
+    })
+  })
+
+  it('should allow changing default sort and order', () => {
+    const form = new ListForm('WHEN_CLOSED', 'ASC')
+    form.submit(validEmptyPayload())
+    expect(form.hasErrors).toBeFalsy()
+    tables.forEach(table => {
+      expect(form.fields[`${table}Sort`].value).toEqual<SortBy>('WHEN_CLOSED')
+      expect(form.fields[`${table}Order`].value).toEqual<SortDirection>('ASC')
     })
   })
 
@@ -69,7 +84,7 @@ describe('ListForm', () => {
 
         it('should be valid if all parameters are provided', () => {
           expectValidPayload(table, sort, order, {
-            ...validDefaultPayload,
+            ...validDefaultPayload(),
             [`${table}Sort`]: sort,
             [`${table}Order`]: order,
           })
@@ -88,7 +103,7 @@ describe('ListForm', () => {
       it('should be invalid when order is incorrect but other options are correctly provided', () => {
         expectInvalidPayload(
           {
-            ...validDefaultPayload,
+            ...validDefaultPayload(),
             [`${table}Order`]: 'reversed',
           },
           `${table}Order`,

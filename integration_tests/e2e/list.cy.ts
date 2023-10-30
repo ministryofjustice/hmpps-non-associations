@@ -47,7 +47,7 @@ context('List non-associations page', () => {
   it('should show a table of open non-associations', () => {
     listPage.tables.should('have.length', 1)
 
-    listPage.getTableHeader(0).spread((...th) => {
+    listPage.getTableHeader(0).spread((...th: HTMLTableCellElement[]) => {
       const [photo, name, location, role, restrictionType, updatedDate, actions] = th
       expect(photo.textContent).to.contain('Photo')
       expect(name.textContent).to.contain('Name')
@@ -85,7 +85,7 @@ context('List non-associations page', () => {
     listPage.getTableHeaderSortingLink(0, 2).should('contain.text', 'Location')
     listPage.getTableHeaderSortingLink(0, 2).click()
 
-    listPage.getTableHeader(0).spread((...th) => {
+    listPage.getTableHeader(0).spread((...th: HTMLTableCellElement[]) => {
       expect(th[1].attributes.getNamedItem('aria-sort').value).to.equal('none')
       expect(th[2].attributes.getNamedItem('aria-sort').value).to.equal('descending')
       expect(th[5].attributes.getNamedItem('aria-sort').value).to.equal('none')
@@ -99,7 +99,7 @@ context('List non-associations page', () => {
 
     listPage.getTableHeaderSortingLink(0, 2).click()
 
-    listPage.getTableHeader(0).spread((...th) => {
+    listPage.getTableHeader(0).spread((...th: HTMLTableCellElement[]) => {
       expect(th[1].attributes.getNamedItem('aria-sort').value).to.equal('none')
       expect(th[2].attributes.getNamedItem('aria-sort').value).to.equal('ascending')
       expect(th[5].attributes.getNamedItem('aria-sort').value).to.equal('none')
@@ -114,7 +114,20 @@ context('List non-associations page', () => {
 
   it('should display the closed tab', () => {
     listPage.closedTab.should('not.have.class', 'govuk-tabs__list-item--selected')
+    cy.task('stubListNonAssociations', { returning: 'twoClosed' })
     listPage.closedTab.find('a').click()
     listPage.closedTab.should('have.class', 'govuk-tabs__list-item--selected')
+
+    listPage.getTableHeader(0).spread((...th: HTMLTableCellElement[]) => {
+      expect(th[1].attributes.getNamedItem('aria-sort').value).to.equal('none')
+      expect(th[2].attributes.getNamedItem('aria-sort').value).to.equal('none')
+      expect(th[5].attributes.getNamedItem('aria-sort').value).to.equal('descending')
+      expect(th[5].textContent).to.contain('Date closed')
+    })
+    listPage.getTableRowContents(0).then(rows => {
+      const [oscarJonesRow, fredMillsRow] = rows
+      expect(oscarJonesRow[5]).to.contain('28/07/2023')
+      expect(fredMillsRow[5]).to.contain('27/07/2023')
+    })
   })
 })

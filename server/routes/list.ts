@@ -24,6 +24,8 @@ import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import ListForm, { type ListData, type Table } from '../forms/list'
 
+type Listing = 'open' | 'closed'
+
 type Columns =
   | 'photo'
   | 'LAST_NAME'
@@ -32,6 +34,7 @@ type Columns =
   | 'role'
   | 'restrictionType'
   | 'WHEN_UPDATED'
+  | 'WHEN_CLOSED'
   | 'actions'
 const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
   photo: {
@@ -58,7 +61,8 @@ const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
     classes: 'app-list__cell--restriction-type',
     unsortable: true,
   },
-  WHEN_UPDATED: { column: 'WHEN_UPDATED', escapedHtml: 'Last updated', classes: 'app-list__cell--date-updated' },
+  WHEN_UPDATED: { column: 'WHEN_UPDATED', escapedHtml: 'Last updated', classes: 'app-list__cell--date' },
+  WHEN_CLOSED: { column: 'WHEN_CLOSED', escapedHtml: 'Date closed', classes: 'app-list__cell--date' },
   actions: {
     column: 'actions',
     escapedHtml: '<span class="govuk-visually-hidden">Actions</span>',
@@ -73,6 +77,7 @@ function makeTableHead(
   prisonerName: string,
   sortBy: SortBy,
   sortDirection: SortDirection,
+  listing: Listing,
 ): HeaderCell[] {
   const sortParameter: keyof ListData = `${table}Sort`
   const orderParameter: keyof ListData = `${table}Order`
@@ -102,7 +107,7 @@ function makeTableHead(
         escapedHtml: `${format.possessiveName(prisonerName)} role`,
       },
       tableColumns.restrictionType,
-      tableColumns.WHEN_UPDATED,
+      listing === 'open' ? tableColumns.WHEN_UPDATED : tableColumns.WHEN_CLOSED,
       tableColumns.actions,
     ],
     sortColumn: sortBy,
@@ -120,7 +125,7 @@ export default function listRoutes(service: Services): Router {
 
   get(['/', '/closed'], async (req, res) => {
     const { user } = res.locals
-    const listing: 'open' | 'closed' = req.path.includes('/closed') ? 'closed' : 'open'
+    const listing: Listing = req.path.includes('/closed') ? 'closed' : 'open'
     const { prisonerNumber } = req.params
 
     if (!user.permissions?.read) {
@@ -136,7 +141,7 @@ export default function listRoutes(service: Services): Router {
     let nonAssociationsList: NonAssociationsList
     let nonAssociationGroups: NonAssociationGroups
 
-    const form = new ListForm()
+    const form = new ListForm(listing === 'closed' ? 'WHEN_CLOSED' : 'WHEN_UPDATED', 'DESC')
     form.submit(req.query)
     if (!form.hasErrors) {
       const api = new NonAssociationsApi(systemToken)
@@ -162,6 +167,7 @@ export default function listRoutes(service: Services): Router {
             prisonerName,
             form.fields.sameSort.value,
             form.fields.sameOrder.value,
+            listing,
           )
 
           nonAssociationGroups.other = sortList(
@@ -175,6 +181,7 @@ export default function listRoutes(service: Services): Router {
             prisonerName,
             form.fields.otherSort.value,
             form.fields.otherOrder.value,
+            listing,
           )
 
           nonAssociationGroups.outside = sortList(
@@ -188,6 +195,7 @@ export default function listRoutes(service: Services): Router {
             prisonerName,
             form.fields.outsideSort.value,
             form.fields.outsideOrder.value,
+            listing,
           )
         } else if (nonAssociationGroups.type === 'twoGroups') {
           nonAssociationGroups.any = sortList(
@@ -201,6 +209,7 @@ export default function listRoutes(service: Services): Router {
             prisonerName,
             form.fields.anySort.value,
             form.fields.anyOrder.value,
+            listing,
           )
 
           nonAssociationGroups.outside = sortList(
@@ -214,6 +223,7 @@ export default function listRoutes(service: Services): Router {
             prisonerName,
             form.fields.outsideSort.value,
             form.fields.outsideOrder.value,
+            listing,
           )
         }
       } catch (error) {

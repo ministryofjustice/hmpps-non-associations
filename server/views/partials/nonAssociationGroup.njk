@@ -55,8 +55,12 @@
     {{ nonAssociation.restrictionTypeDescription }}
   {% endset %}
 
-  {% set lastUpdated %}
-    {{ nonAssociation.whenUpdated | shortDate }}
+  {% set date %}
+    {% if listing == 'closed' %}
+      {{ nonAssociation.closedAt | shortDate }}
+    {% else %}
+      {{ nonAssociation.whenUpdated | shortDate }}
+    {% endif %}
   {% endset %}
 
   {% set actions %}
@@ -69,7 +73,7 @@
     {html: location, classes: "app-list__cell--location"},
     {html: role, classes: "app-list__cell--role"},
     {html: restrictionType, classes: "app-list__cell--restriction-type"},
-    {html: lastUpdated, classes: "app-list__cell--date-updated"},
+    {html: date, classes: "app-list__cell--date"},
     {html: actions, classes: "app-list__cell--actions"}
   ]) %}
 {% endfor %}
