@@ -2,6 +2,9 @@ const notNumber = (n: unknown): n is number => typeof n !== 'number' || Number.i
 
 export default {
   dateAndTime(date: Date): string {
+    if (typeof date === 'undefined' || date === null) {
+      return ''
+    }
     const formatted = date.toLocaleDateString('en-GB', {
       hour: '2-digit',
       hour12: false,
@@ -15,6 +18,9 @@ export default {
   },
 
   date(date: Date): string {
+    if (typeof date === 'undefined' || date === null) {
+      return ''
+    }
     return date.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'long',
@@ -24,6 +30,9 @@ export default {
   },
 
   shortDate(date: Date): string {
+    if (typeof date === 'undefined' || date === null) {
+      return ''
+    }
     return date.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'numeric',
