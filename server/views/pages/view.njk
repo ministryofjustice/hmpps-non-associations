@@ -118,11 +118,22 @@
       {% endif %}
 
       <dl>
-        <dt>Last updated</dt>
-        <dd>{{ nonAssociation.whenUpdated | date }}</dd>
+        <dt>Date added</dt>
+        <dd>{{ nonAssociation.whenCreated | date }}</dd>
 
-        <dt>Updated by</dt>
-        <dd>{{ nonAssociation.updatedBy }}</dd>
+        {% if nonAssociation.isClosed %}
+          <dt>Date closed</dt>
+          <dd>
+            {{ nonAssociation.closedAt | date }}<br />
+            by {{ nonAssociation.closedBy }}
+          </dd>
+        {% else %}
+          <dt>Last updated</dt>
+          <dd>
+            {{ nonAssociation.whenUpdated | date }}<br />
+            by {{ nonAssociation.updatedBy }}
+          </dd>
+        {% endif %}
       </dl>
 
     </div>

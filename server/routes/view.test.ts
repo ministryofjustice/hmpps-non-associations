@@ -127,7 +127,7 @@ describe('View non-association details page', () => {
       prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
     })
 
-    function expectCommonDetails(res: request.Response, closed = false): void {
+    function expectCommonDetails(res: request.Response): void {
       expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledWith(nonAssociation.id)
       expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
       expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
@@ -143,24 +143,46 @@ describe('View non-association details page', () => {
 
       expect(res.text).toContain('Threat')
       expect(res.text).toContain('Cell only')
-      if (closed) {
-        expect(res.text).toContain('Problem solved')
-      } else {
-        expect(res.text).toContain('See IR 12133100')
-      }
+
+      // when added
+      expect(res.text).toContain('Date added')
       expect(res.text).toContain('21 July 2023')
-      expect(res.text).not.toContain('cde87s')
-      expect(res.text).toContain('Mark Simmons')
     }
 
     function expectOpen(res: request.Response): void {
+      // comments
+      expect(res.text).toContain('See IR 12133100')
+
+      // when updated
+      expect(res.text).toContain('Last updated')
+      expect(res.text).not.toContain('cde87s')
+      expect(res.text).toContain('Mark Simmons')
+
+      // no badge
       expect(res.text).not.toContain('Closed')
+
+      // buttons
       expect(res.text).toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).toContain(`non-associations/${nonAssociationId}/close`)
     }
 
     function expectClosed(res: request.Response): void {
+      // comments
+      expect(res.text).not.toContain('See IR 12133100')
+      expect(res.text).toContain('Problem solved')
+
+      // when closed
+      expect(res.text).not.toContain('Last updated')
+      expect(res.text).toContain('Date closed')
+      expect(res.text).toContain('26 July 2023')
+      expect(res.text).not.toContain('abc12a')
+      expect(res.text).toContain('Mary Johnson')
+      expect(res.text).not.toContain('Mark Simmons')
+
+      // badge
       expect(res.text).toContain('Closed')
+
+      // buttons
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
     }
@@ -225,7 +247,7 @@ describe('View non-association details page', () => {
           .expect(200)
           .expect('Content-Type', /html/)
           .expect(res => {
-            expectCommonDetails(res, true)
+            expectCommonDetails(res)
             expectClosed(res)
             expectDavidJonesFirst(res)
           })
@@ -237,7 +259,7 @@ describe('View non-association details page', () => {
           .expect(200)
           .expect('Content-Type', /html/)
           .expect(res => {
-            expectCommonDetails(res, true)
+            expectCommonDetails(res)
             expectClosed(res)
             expectFredMillsFirst(res)
           })
