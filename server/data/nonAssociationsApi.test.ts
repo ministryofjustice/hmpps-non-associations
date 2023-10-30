@@ -430,7 +430,7 @@ describe('Non-associations API REST client', () => {
         prisonName: 'Leeds (HMP)',
       },
     ]
-    const nonAssociations: OpenNonAssociationsListItem[] = davidJones2OpenNonAssociations.nonAssociations.map(
+    const nonAssociations: ClosedNonAssociationsListItem[] = davidJones2ClosedNonAssociations.nonAssociations.map(
       nonAssociation => {
         const { prisonId, prisonName } = prisons.pop()
         return {
@@ -452,6 +452,8 @@ describe('Non-associations API REST client', () => {
             return item.whenCreated
           case 'WHEN_UPDATED':
             return item.whenUpdated
+          case 'WHEN_CLOSED':
+            return item.closedAt
           case 'LAST_NAME':
             return item.otherPrisonerDetails.lastName
           case 'FIRST_NAME':

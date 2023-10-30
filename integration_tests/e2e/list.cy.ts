@@ -114,6 +114,7 @@ context('List non-associations page', () => {
 
   it('should display the closed tab', () => {
     listPage.closedTab.should('not.have.class', 'govuk-tabs__list-item--selected')
+    cy.task('stubListNonAssociations', { returning: 'twoClosed' })
     listPage.closedTab.find('a').click()
     listPage.closedTab.should('have.class', 'govuk-tabs__list-item--selected')
   })

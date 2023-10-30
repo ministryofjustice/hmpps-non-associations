@@ -246,6 +246,9 @@ export function sortList<Item extends BaseNonAssociationsListItem>(
     case 'WHEN_UPDATED':
       comparator = (first, second) => reversed * (first.whenUpdated.valueOf() - second.whenUpdated.valueOf())
       break
+    case 'WHEN_CLOSED':
+      comparator = (first, second) => reversed * ((first.closedAt?.valueOf() ?? 0) - (second.closedAt?.valueOf() ?? 0))
+      break
     case 'LAST_NAME':
       comparator = (first, second) =>
         reversed * first.otherPrisonerDetails.lastName.localeCompare(second.otherPrisonerDetails.lastName)

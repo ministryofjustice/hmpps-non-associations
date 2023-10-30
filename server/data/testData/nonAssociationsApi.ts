@@ -98,14 +98,15 @@ export const davidJones1ClosedNonAssociation: NonAssociationsList<ClosedNonAssoc
   ...davidJones1OpenNonAssociation,
   openCount: 1,
   closedCount: 1,
-  nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
+  nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map((nonAssociation, index) => {
+    const closedDate = new Date(`2023-07-${27 + index}T12:34:56`)
     return {
       ...nonAssociation,
       isClosed: true,
       closedBy: 'lev79n',
       closedReason: 'Problem solved',
-      closedAt: new Date('2023-07-27T12:34:56'),
-      whenUpdated: new Date('2023-07-27T12:34:56'),
+      closedAt: closedDate,
+      whenUpdated: closedDate,
     }
   }),
 }
@@ -114,14 +115,15 @@ export const davidJones2ClosedNonAssociations: NonAssociationsList<ClosedNonAsso
   ...davidJones2OpenNonAssociations,
   openCount: 1,
   closedCount: 2,
-  nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map(nonAssociation => {
+  nonAssociations: davidJones2OpenNonAssociations.nonAssociations.map((nonAssociation, index) => {
+    const closedDate = new Date(`2023-07-${27 + index}T12:34:56`)
     return {
       ...nonAssociation,
       isClosed: true,
       closedBy: 'lev79n',
       closedReason: 'Problem solved',
-      closedAt: new Date('2023-07-27T12:34:56'),
-      whenUpdated: new Date('2023-07-27T12:34:56'),
+      closedAt: closedDate,
+      whenUpdated: closedDate,
     }
   }),
 }
