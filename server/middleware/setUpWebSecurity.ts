@@ -16,39 +16,30 @@ export default function setUpWebSecurity(): Router {
     next()
   })
 
-  const scriptSrc = [
-    "'self'",
-    '*.google-analytics.com',
-    '*.googletagmanager.com',
-    (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
-  ]
-  const styleSrc = ["'self'", (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`]
-  const imgSrc = ["'self'", 'data:', '*.google-analytics.com', '*.googletagmanager.com']
-  const fontSrc = ["'self'"]
-
-  if (config.apis.frontendComponents.url) {
-    scriptSrc.push(config.apis.frontendComponents.url)
-    styleSrc.push(config.apis.frontendComponents.url)
-    imgSrc.push(config.apis.frontendComponents.url)
-    fontSrc.push(config.apis.frontendComponents.url)
-  }
+  const authHost = new URL(config.apis.hmppsAuth.externalUrl).hostname
+  const dpsHost = new URL(config.dpsUrl).hostname
+  const frontendComponentsHost = new URL(config.apis.frontendComponents.url).hostname
 
   router.use(
     helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          // This nonce allows us to use scripts with the use of the `cspNonce` local, e.g (in a Nunjucks template):
-          // <script nonce="{{ cspNonce }}">
-          // or
-          // <link href="http://example.com/" rel="stylesheet" nonce="{{ cspNonce }}">
-          // This ensures only scripts we trust are loaded, and not anything injected into the
-          // page by an attacker.
-          imgSrc,
-          scriptSrc,
-          styleSrc,
-          fontSrc,
-          formAction: [`'self' ${config.apis.hmppsAuth.externalUrl} ${config.dpsUrl}`],
+          imgSrc: ["'self'", 'data:', frontendComponentsHost, '*.google-analytics.com', '*.googletagmanager.com'],
+          scriptSrc: [
+            "'self'",
+            frontendComponentsHost,
+            '*.google-analytics.com',
+            '*.googletagmanager.com',
+            (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
+          ],
+          styleSrc: [
+            "'self'",
+            frontendComponentsHost,
+            (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
+          ],
+          fontSrc: ["'self'", frontendComponentsHost],
+          formAction: ["'self'", authHost, dpsHost],
           connectSrc: ["'self'", '*.google-analytics.com', '*.googletagmanager.com', '*.analytics.google.com'],
         },
       },
