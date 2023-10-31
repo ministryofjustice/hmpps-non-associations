@@ -405,10 +405,12 @@ describe('Non-associations list page', () => {
         // table
         expect(res.text).toContain('app-sortable-table')
         expect(res.text).toContain('Mills, Fred')
-        expect(res.text).toContain('Perpetrator')
+        expect(res.text).toContain('Violence')
+        expect(res.text).not.toContain('Perpetrator')
         expect(res.text).not.toContain('Victim')
         expect(res.text).toContain('Jones, Oscar')
-        expect(res.text).toContain('Not relevant')
+        expect(res.text).toContain('Police or legal request')
+        expect(res.text).not.toContain('Not relevant')
         expect(res.text).toContain('Cell and landing')
         if (this.table === 'same') {
           expect(res.text).toContain('1-1-002')
