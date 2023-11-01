@@ -8,7 +8,6 @@ import type { PathParams } from 'express-serve-static-core'
 import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
-import format from '../utils/format'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import {
@@ -31,7 +30,7 @@ type Columns =
   | 'LAST_NAME'
   | 'CELL_LOCATION'
   | 'PRISON_NAME'
-  | 'role'
+  | 'reason'
   | 'restrictionType'
   | 'WHEN_UPDATED'
   | 'WHEN_CLOSED'
@@ -54,7 +53,7 @@ const tableColumns: Record<Columns, SortableTableColumns<Columns>[number]> = {
     escapedHtml: 'Establishment',
     classes: 'app-list__cell--location',
   },
-  role: { column: 'role', escapedHtml: 'Role', classes: 'app-list__cell--role', unsortable: true },
+  reason: { column: 'reason', escapedHtml: 'Reason', classes: 'app-list__cell--reason', unsortable: true },
   restrictionType: {
     column: 'restrictionType',
     escapedHtml: 'Where&nbsp;to keep&nbsp;apart',
@@ -102,10 +101,7 @@ function makeTableHead(
       tableColumns.photo,
       tableColumns.LAST_NAME,
       locationColumn,
-      {
-        ...tableColumns.role,
-        escapedHtml: `${format.possessiveName(prisonerName)} role`,
-      },
+      tableColumns.reason,
       tableColumns.restrictionType,
       listing === 'open' ? tableColumns.WHEN_UPDATED : tableColumns.WHEN_CLOSED,
       tableColumns.actions,

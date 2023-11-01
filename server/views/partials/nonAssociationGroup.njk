@@ -47,8 +47,8 @@
     {% endif %}
   {% endset %}
 
-  {% set role %}
-    {{ nonAssociation.roleDescription }}
+  {% set reason %}
+    {{ nonAssociation.reasonDescription }}
   {% endset %}
 
   {% set restrictionType %}
@@ -71,7 +71,7 @@
     {html: otherPrisonerPhoto, classes: "app-list__cell--photo"},
     {html: otherPrisonerProfileLink, classes: "app-list__cell--prisoner"},
     {html: location, classes: "app-list__cell--location"},
-    {html: role, classes: "app-list__cell--role"},
+    {html: reason, classes: "app-list__cell--reason"},
     {html: restrictionType, classes: "app-list__cell--restriction-type"},
     {html: date, classes: "app-list__cell--date"},
     {html: actions, classes: "app-list__cell--actions"}
