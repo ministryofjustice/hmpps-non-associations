@@ -210,6 +210,7 @@ describe('Update non-association page', () => {
             const otherPrisonerRolePosition = res.text.indexOf(otherPrisonerRoleLabel)
             expect(prisonerRolePosition).toBeGreaterThan(0)
             expect(prisonerRolePosition).toBeLessThan(otherPrisonerRolePosition)
+            expect(res.text).toContain('For example, equal parties or co-defendants')
 
             expect(res.text).toContain(`/prisoner/${prisoner.prisonerNumber}/non-associations/${nonAssociation.id}`)
           })

@@ -159,6 +159,7 @@ describe('Add non-association details page', () => {
         const davidJonesPosition = res.text.indexOf('David Jones’ role')
         const fredMillsPosition = res.text.indexOf('Fred Mills’ role')
         expect(davidJonesPosition).toBeLessThan(fredMillsPosition)
+        expect(res.text).toContain('For example, equal parties or co-defendants')
       })
   })
 
