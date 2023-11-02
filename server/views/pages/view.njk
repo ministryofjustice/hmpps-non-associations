@@ -62,12 +62,12 @@
           firstCellIsHeader: true,
           rows: [
             [
-              {text: otherPrisonerName | possessiveName + " role"},
-              {text: nonAssociation.secondPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.firstPrisonerRoleDescription}
-            ],
-            [
               {text: "Reason"},
               {text: nonAssociation.reasonDescription}
+            ],
+            [
+              {text: otherPrisonerName | possessiveName + " role"},
+              {text: nonAssociation.secondPrisonerRoleDescription if keyPrisonerIsFirst else nonAssociation.firstPrisonerRoleDescription}
             ],
             [
               {text: "Where to keep apart"},

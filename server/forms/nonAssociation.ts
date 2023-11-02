@@ -54,3 +54,33 @@ export default class NonAssociationForm extends BaseForm<NonAssociationFormData>
     }
   }
 }
+
+interface RadioButtonItem {
+  text: string
+  value: string
+  hint?: { text: string }
+}
+
+interface FormChoices {
+  reasonChoices: RadioButtonItem[]
+  roleChoices: RadioButtonItem[]
+  restrictionTypeChoices: RadioButtonItem[]
+}
+
+export function formChoices(): FormChoices {
+  return {
+    reasonChoices: Object.entries(reasonOptions).map(([key, label]) => {
+      return { value: key, text: label }
+    }),
+    roleChoices: Object.entries(roleOptions).map(([key, label]) => {
+      const choice: RadioButtonItem = { value: key, text: label }
+      if (key === 'NOT_RELEVANT') {
+        choice.hint = { text: 'For example, equal parties or co-defendants.' }
+      }
+      return choice
+    }),
+    restrictionTypeChoices: Object.entries(restrictionTypeOptions).map(([key, label]) => {
+      return { value: key, text: label }
+    }),
+  }
+}

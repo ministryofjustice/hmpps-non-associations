@@ -18,6 +18,21 @@
       <h1 class="govuk-heading-l">Non-association details</h1>
 
       <form method="post" novalidate>
+        {% set fieldId = "reason" %}
+        {% set field = form.fields[fieldId] %}
+        {{ govukRadios({
+          attributes: { id: formId + "-" + fieldId },
+          name: fieldId,
+          fieldset: {
+            legend: {
+              text: "Reason",
+              classes: "govuk-fieldset__legend--m"
+            }
+          },
+          items: reasonChoices | checkedItems(field.value),
+          errorMessage: { text: field.error } if field.error else undefined
+        }) }}
+
         {% call govukFieldset({
           legend: {
             text: "Prisoners’ roles in the situation",
@@ -27,12 +42,15 @@
 
           {% set fieldId = "prisonerRole" %}
           {% set field = form.fields[fieldId] %}
+          {% set legend %}
+            {{ prisonerName | possessiveName }} role
+          {% endset %}
           {{ govukRadios({
             attributes: { id: formId + "-" + fieldId },
             name: fieldId,
             fieldset: {
               legend: {
-                text: "Is " + prisonerName + " a victim or perpetrator?",
+                text: legend,
                 classes: "govuk-fieldset__legend--s"
               }
             },
@@ -42,12 +60,15 @@
 
           {% set fieldId = "otherPrisonerRole" %}
           {% set field = form.fields[fieldId] %}
+          {% set legend %}
+            {{ otherPrisonerName | possessiveName }} role
+          {% endset %}
           {{ govukRadios({
             attributes: { id: formId + "-" + fieldId },
             name: fieldId,
             fieldset: {
               legend: {
-                text: "Is " + otherPrisonerName + " a victim or perpetrator?",
+                text: legend,
                 classes: "govuk-fieldset__legend--s"
               }
             },
@@ -55,54 +76,39 @@
             errorMessage: { text: field.error } if field.error else undefined
           }) }}
 
-          {% set fieldId = "reason" %}
-          {% set field = form.fields[fieldId] %}
-          {{ govukRadios({
-            attributes: { id: formId + "-" + fieldId },
-            name: fieldId,
-            fieldset: {
-              legend: {
-                text: "Reason for the non-association",
-                classes: "govuk-fieldset__legend--m"
-              }
-            },
-            items: reasonChoices | checkedItems(field.value),
-            errorMessage: { text: field.error } if field.error else undefined
-          }) }}
-
-          {% set fieldId = "restrictionType" %}
-          {% set field = form.fields[fieldId] %}
-          {{ govukRadios({
-            attributes: { id: formId + "-" + fieldId },
-            name: fieldId,
-            fieldset: {
-              legend: {
-                text: "Where to keep these prisoners apart",
-                classes: "govuk-fieldset__legend--m"
-              }
-            },
-            items: restrictionTypeChoices | checkedItems(field.value),
-            errorMessage: { text: field.error } if field.error else undefined
-          }) }}
-
-          {% set fieldId = "comment" %}
-          {% set field = form.fields[fieldId] %}
-          {{ govukCharacterCount({
-            id: formId + "-" + fieldId,
-            name: fieldId,
-            label: {
-              text: "Comments",
-              classes: "govuk-label--m"
-            },
-            hint: {
-              text: "Explain why these prisoners should be kept apart. Include any relevant IR numbers, if you have them."
-            },
-            maxlength: maxCommentLength,
-            value: field.value,
-            errorMessage: { text: field.error } if field.error else undefined
-          }) }}
-
         {% endcall %}
+
+        {% set fieldId = "restrictionType" %}
+        {% set field = form.fields[fieldId] %}
+        {{ govukRadios({
+          attributes: { id: formId + "-" + fieldId },
+          name: fieldId,
+          fieldset: {
+            legend: {
+              text: "Where to keep these prisoners apart",
+              classes: "govuk-fieldset__legend--m"
+            }
+          },
+          items: restrictionTypeChoices | checkedItems(field.value),
+          errorMessage: { text: field.error } if field.error else undefined
+        }) }}
+
+        {% set fieldId = "comment" %}
+        {% set field = form.fields[fieldId] %}
+        {{ govukCharacterCount({
+          id: formId + "-" + fieldId,
+          name: fieldId,
+          label: {
+            text: "Comments",
+            classes: "govuk-label--m"
+          },
+          hint: {
+            text: "Explain why these prisoners should be kept apart. Include any relevant IR numbers, if you have them."
+          },
+          maxlength: maxCommentLength,
+          value: field.value,
+          errorMessage: { text: field.error } if field.error else undefined
+        }) }}
 
         <h2 class="govuk-heading-m">Next</h2>
         <p>By saving these details, you confirm that, to the best of your knowledge, the information you have provided is correct.</p>

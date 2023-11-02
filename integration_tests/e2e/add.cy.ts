@@ -67,9 +67,9 @@ context('Add non-association page', () => {
     addDetailsPage.checkFeedbackBanner()
     addDetailsPage.checkLastBreadcrumb('Non-associations')
 
+    addDetailsPage.getRadioButtonReason('Threat').click()
     addDetailsPage.getRadioButtonForPrisonerRole('Perpetrator').click()
     addDetailsPage.getRadioButtonOtherPrisonerRole('Victim').click()
-    addDetailsPage.getRadioButtonReason('Threat').click()
     addDetailsPage.getRadioButtonRestrictionType('Cell only').click()
     addDetailsPage.commentBox.type('David is a bully')
     addDetailsPage.saveButton.click()

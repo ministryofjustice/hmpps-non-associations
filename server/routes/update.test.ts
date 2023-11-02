@@ -9,7 +9,6 @@ import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones, maxClarke, joePeters } from '../data/testData/offenderSearch'
-import { nameOfPerson } from '../utils/utils'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -177,22 +176,17 @@ describe('Update non-association page', () => {
   })
 
   describe('rendering a form before anything was submitted', () => {
-    describe.each([
+    it.each([
       ['via 1st prisoner', [prisoner, otherPrisoner]],
       ['via 2nd prisoner', [otherPrisoner, prisoner]],
-    ])('when opening form %s', (scenario: string, prisonersOrder: Array<OffenderSearchResult>) => {
-      it('loads data in correct order', () => {
+    ])(
+      'should loads data in correct order when opening form %s',
+      (scenario: string, prisonersOrder: Array<OffenderSearchResult>) => {
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const [prisoner, otherPrisoner] = prisonersOrder
         nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
-
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-        offenderSearchClient.getPrisoner.mockImplementation(prisonerNumber => {
-          if (prisonerNumber === davidJones.prisonerNumber) {
-            return Promise.resolve(davidJones)
-          }
-          return Promise.resolve(fredMills)
-        })
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
+        offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
 
         return request(app)
           .get(routeUrls.update(prisoner.prisonerNumber, nonAssociation.id))
@@ -206,17 +200,22 @@ describe('Update non-association page', () => {
             expect(res.text).not.toContain('There is a problem')
             expect(res.text).toContain(nonAssociation.comment)
 
-            // Check names are shown in correct order (key prisoner first)
-            const roles = res.text.match(/Is (.+) a victim or perpetrator\?/g)
-            expect(roles).toEqual([
-              `Is ${nameOfPerson(prisoner)} a victim or perpetrator?`,
-              `Is ${nameOfPerson(otherPrisoner)} a victim or perpetrator?`,
-            ])
+            const davidJonesRoleLabel = 'David Jones’ role'
+            const fredMillsRoleLabel = 'Fred Mills’ role'
+            const [prisonerRoleLabel, otherPrisonerRoleLabel] =
+              prisoner.prisonerNumber === davidJones.prisonerNumber
+                ? [davidJonesRoleLabel, fredMillsRoleLabel]
+                : [fredMillsRoleLabel, davidJonesRoleLabel]
+            const prisonerRolePosition = res.text.indexOf(prisonerRoleLabel)
+            const otherPrisonerRolePosition = res.text.indexOf(otherPrisonerRoleLabel)
+            expect(prisonerRolePosition).toBeGreaterThan(0)
+            expect(prisonerRolePosition).toBeLessThan(otherPrisonerRolePosition)
+            expect(res.text).toContain('For example, equal parties or co-defendants')
 
             expect(res.text).toContain(`/prisoner/${prisoner.prisonerNumber}/non-associations/${nonAssociation.id}`)
           })
-      })
-    })
+      },
+    )
   })
 
   it('should show error messages if form has errors', () => {

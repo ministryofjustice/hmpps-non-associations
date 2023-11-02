@@ -1,10 +1,4 @@
-import {
-  type NonAssociation,
-  type UpdateNonAssociationRequest,
-  roleOptions,
-  reasonOptions,
-  restrictionTypeOptions,
-} from '@ministryofjustice/hmpps-non-associations-api'
+import { type NonAssociation, type UpdateNonAssociationRequest } from '@ministryofjustice/hmpps-non-associations-api'
 import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
@@ -16,6 +10,7 @@ import { OffenderSearchClient, type OffenderSearchResult } from '../data/offende
 import type { Services } from '../services'
 import formPostRoute from './forms/post'
 import UpdateForm from '../forms/update'
+import { formChoices } from '../forms/nonAssociation'
 
 export default function updateRoutes(service: Services): Router {
   const { hmppsAuthClient } = service
@@ -158,16 +153,8 @@ export default function updateRoutes(service: Services): Router {
         nonAssociation,
         formId,
         form,
-        roleChoices: Object.entries(roleOptions).map(([key, label]) => {
-          return { value: key, text: label }
-        }),
-        reasonChoices: Object.entries(reasonOptions).map(([key, label]) => {
-          return { value: key, text: label }
-        }),
-        restrictionTypeChoices: Object.entries(restrictionTypeOptions).map(([key, label]) => {
-          return { value: key, text: label }
-        }),
         maxCommentLength,
+        ...formChoices(),
       })
     }),
   )
