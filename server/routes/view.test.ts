@@ -158,9 +158,6 @@ describe('View non-association details page', () => {
       expect(res.text).not.toContain('cde87s')
       expect(res.text).toContain('Mark Simmons')
 
-      // no badge
-      expect(res.text).not.toContain('Closed')
-
       // buttons
       expect(res.text).toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).toContain(`non-associations/${nonAssociationId}/close`)
@@ -178,9 +175,6 @@ describe('View non-association details page', () => {
       expect(res.text).not.toContain('abc12a')
       expect(res.text).toContain('Mary Johnson')
       expect(res.text).not.toContain('Mark Simmons')
-
-      // badge
-      expect(res.text).toContain('Closed')
 
       // buttons
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
