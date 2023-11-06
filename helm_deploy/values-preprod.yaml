@@ -8,6 +8,12 @@ generic-service:
   ingress:
     host: non-associations-preprod.hmpps.service.justice.gov.uk
 
+  allowlist:
+    groups:
+      - internal
+      - prisons
+      - private_prisons
+
   env:
     ENVIRONMENT: preprod
 
