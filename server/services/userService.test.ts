@@ -1,26 +1,26 @@
 import UserService from './userService'
-import HmppsAuthClient, { type User } from '../data/hmppsAuthClient'
+import ManageUsersApiClient, { type User } from '../data/manageUsersApiClient'
 import { NomisUserRolesApi } from '../data/nomisUserRolesApi'
 
-jest.mock('../data/hmppsAuthClient')
+jest.mock('../data/manageUsersApiClient')
 jest.mock('../data/nomisUserRolesApi')
 
 const token = 'some token'
 
 describe('UserService', () => {
-  let hmppsAuthClient: jest.Mocked<HmppsAuthClient>
+  let manageUsersApiClient: jest.Mocked<ManageUsersApiClient>
   let nomisUserRolesApi: jest.Mocked<NomisUserRolesApi>
   let userService: UserService
 
   describe('getUser()', () => {
     beforeEach(() => {
-      hmppsAuthClient = new HmppsAuthClient(null) as jest.Mocked<HmppsAuthClient>
+      manageUsersApiClient = new ManageUsersApiClient() as jest.Mocked<ManageUsersApiClient>
       nomisUserRolesApi = NomisUserRolesApi.prototype as jest.Mocked<NomisUserRolesApi>
-      userService = new UserService(hmppsAuthClient)
+      userService = new UserService(manageUsersApiClient)
     })
 
-    it('retrieves and formats user name', async () => {
-      hmppsAuthClient.getUser.mockResolvedValue({ name: 'john smith' } as User)
+    it('Retrieves and formats user name', async () => {
+      manageUsersApiClient.getUser.mockResolvedValue({ name: 'john smith' } as User)
 
       nomisUserRolesApi.getUserCaseloads.mockResolvedValue({
         activeCaseload: {
@@ -34,17 +34,14 @@ describe('UserService', () => {
           },
         ],
       })
-
       const result = await userService.getUser(token)
-
       expect(result.displayName).toEqual('John Smith')
     })
-
     it('returns activeCaseload and activeCaseloads', async () => {
       const authUser = {
         name: 'john smith',
       }
-      hmppsAuthClient.getUser.mockResolvedValue(authUser as User)
+      manageUsersApiClient.getUser.mockResolvedValue(authUser as User)
 
       const activeCaseload = {
         id: 'MDI',
@@ -60,17 +57,14 @@ describe('UserService', () => {
         activeCaseload,
         caseloads: allCaseloads,
       }
-
       nomisUserRolesApi.getUserCaseloads.mockResolvedValue(userCaseloads)
-
       const result = await userService.getUser(token)
-
       expect(result.activeCaseload).toEqual(activeCaseload)
       expect(result.caseloads).toEqual(allCaseloads)
     })
 
-    it('propagates error', async () => {
-      hmppsAuthClient.getUser.mockRejectedValue(new Error('some error'))
+    it('Propagates error', async () => {
+      manageUsersApiClient.getUser.mockRejectedValue(new Error('some error'))
 
       await expect(userService.getUser(token)).rejects.toEqual(new Error('some error'))
     })

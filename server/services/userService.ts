@@ -1,25 +1,30 @@
 import { convertToTitleCase } from '../utils/utils'
-import type HmppsAuthClient from '../data/hmppsAuthClient'
-import type { User } from '../data/hmppsAuthClient'
-import { NomisUserRolesApi, type UserCaseloads } from '../data/nomisUserRolesApi'
+import { NomisUserRolesApi, type Caseload } from '../data/nomisUserRolesApi'
+import ManageUsersApiClient from '../data/manageUsersApiClient'
 
-export interface UserDetails extends User, UserCaseloads {
+export interface UserDetails {
+  username?: string
   displayName: string
+  caseloads: Array<Caseload>
+  activeCaseload: Caseload
 }
 
 export default class UserService {
-  constructor(private readonly hmppsAuthClient: HmppsAuthClient) {}
+  // eslint-disable-next-line no-empty-function
+  constructor(private readonly manageUsersApiClient: ManageUsersApiClient) {}
 
   async getUser(token: string): Promise<UserDetails> {
-    const nomisUserRolesApi = new NomisUserRolesApi(token)
+    return this.manageUsersApiClient.getUser(token).then(user => {
+      const nomisUserRolesApi = new NomisUserRolesApi(token)
 
-    const user = await this.hmppsAuthClient.getUser(token)
-    const userCaseloads = await nomisUserRolesApi.getUserCaseloads()
-
-    return {
-      ...user,
-      ...userCaseloads,
-      displayName: convertToTitleCase(user.name),
-    }
+      return nomisUserRolesApi.getUserCaseloads().then(uc => {
+        return {
+          ...user,
+          displayName: convertToTitleCase(user.name),
+          caseloads: uc.caseloads,
+          activeCaseload: uc.activeCaseload,
+        }
+      })
+    })
   }
 }
