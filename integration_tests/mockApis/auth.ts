@@ -7,7 +7,7 @@ import {
   userRoleInactiveBookings,
   userRoleManageNonAssociations,
 } from '../../server/data/constants'
-import type { User } from '../../server/data/hmppsAuthClient'
+import type { User } from '../../server/data/manageUsersApiClient'
 import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
 
@@ -146,37 +146,37 @@ const token = (roles: string[]) =>
     },
   })
 
-const stubUser = (name: string) =>
-  stubFor({
-    request: {
-      method: 'GET',
-      urlPath: '/auth/api/user/me',
-    },
-    response: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      jsonBody: createUser(name),
-    },
-  })
-
-const stubUserRoles = (roles: string[]) =>
-  stubFor({
-    request: {
-      method: 'GET',
-      urlPath: '/auth/api/user/me/roles',
-    },
-    response: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      jsonBody: roles.map(roleCode => {
-        return { roleCode }
-      }),
-    },
-  })
+// const stubUser = (name: string) =>
+//   stubFor({
+//     request: {
+//       method: 'GET',
+//       urlPath: '/auth/api/user/me',
+//     },
+//     response: {
+//       status: 200,
+//       headers: {
+//         'Content-Type': 'application/json;charset=UTF-8',
+//       },
+//       jsonBody: createUser(name),
+//     },
+//   })
+//
+// const stubUserRoles = (roles: string[]) =>
+//   stubFor({
+//     request: {
+//       method: 'GET',
+//       urlPath: '/auth/api/user/me/roles',
+//     },
+//     response: {
+//       status: 200,
+//       headers: {
+//         'Content-Type': 'application/json;charset=UTF-8',
+//       },
+//       jsonBody: roles.map(roleCode => {
+//         return { roleCode }
+//       }),
+//     },
+//   })
 
 const defaultRoles = [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations]
 export default {
@@ -186,7 +186,7 @@ export default {
     [Response, Response, Response, Response, Response, Response]
   > =>
     Promise.all([favicon(), redirect(), signOut(), manageDetails(), token(roles), tokenVerification.stubVerifyToken()]),
-  stubAuthUser: ({ name = 'john smith', roles = defaultRoles }: { name?: string; roles?: string[] } = {}): Promise<
-    [Response, Response]
-  > => Promise.all([stubUser(name), stubUserRoles(roles)]),
+  // stubAuthUser: ({ name = 'john smith', roles = defaultRoles }: { name?: string; roles?: string[] } = {}): Promise<
+  //   [Response, Response]
+  // > => Promise.all([stubUser(name), stubUserRoles(roles)]),
 }

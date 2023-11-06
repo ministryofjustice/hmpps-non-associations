@@ -22,7 +22,7 @@ Cypress.Commands.add('trackGoogleAnalyticsCalls', (): Cypress.Chainable<GoogleAn
 Cypress.Commands.add('resetBasicStubs', () => {
   cy.task('reset')
   cy.task('stubSignIn')
-  cy.task('stubAuthUser')
+  cy.task('stubManageUser')
   cy.task('stubNomisUserCaseloads')
   cy.task('stubDpsComponentsFail')
 })
