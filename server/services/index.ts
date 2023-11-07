@@ -1,10 +1,11 @@
 import { dataAccess } from '../data'
 import routeUrls from './routeUrls'
+// import hmppsAuthClient from '../data/hmppsAuthClient'
 import UserService from './userService'
 import ComponentService from './dpsComponentService'
 
 export const services = () => {
-  const { manageUsersApiClient, componentApiClientBuilder, applicationInfo } = dataAccess()
+  const { hmppsAuthClient, manageUsersApiClient, componentApiClientBuilder, applicationInfo } = dataAccess()
 
   const userService = new UserService(manageUsersApiClient)
 
@@ -14,8 +15,8 @@ export const services = () => {
     applicationInfo,
     userService,
     routeUrls,
-    manageUsersApiClient,
     componentService,
+    hmppsAuthClient,
   }
 }
 

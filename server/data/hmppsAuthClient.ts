@@ -46,9 +46,7 @@ export default class HmppsAuthClient {
     if (token) {
       return token
     }
-
     const newToken = await getSystemClientTokenFromHmppsAuth(username)
-
     // set TTL slightly less than expiry of token. Async but no need to wait
     await this.tokenStore.setToken(key, newToken.body.access_token, newToken.body.expires_in - 60)
 
