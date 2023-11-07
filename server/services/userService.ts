@@ -1,9 +1,8 @@
 import { convertToTitleCase } from '../utils/utils'
 import { NomisUserRolesApi, type Caseload } from '../data/nomisUserRolesApi'
-import ManageUsersApiClient from '../data/manageUsersApiClient'
+import ManageUsersApiClient, { User } from '../data/manageUsersApiClient'
 
-export interface UserDetails {
-  username?: string
+export interface UserDetails extends User {
   displayName: string
   caseloads: Array<Caseload>
   activeCaseload: Caseload
