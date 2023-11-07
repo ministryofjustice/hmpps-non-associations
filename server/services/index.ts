@@ -1,6 +1,5 @@
 import { dataAccess } from '../data'
 import routeUrls from './routeUrls'
-// import hmppsAuthClient from '../data/hmppsAuthClient'
 import UserService from './userService'
 import ComponentService from './dpsComponentService'
 
