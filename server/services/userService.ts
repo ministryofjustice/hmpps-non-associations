@@ -9,7 +9,6 @@ export interface UserDetails extends User {
 }
 
 export default class UserService {
-  // eslint-disable-next-line no-empty-function
   constructor(private readonly manageUsersApiClient: ManageUsersApiClient) {}
 
   async getUser(token: string): Promise<UserDetails> {
