@@ -7,7 +7,6 @@ import {
   userRoleInactiveBookings,
   userRoleManageNonAssociations,
 } from '../../server/data/constants'
-import type { User } from '../../server/data/hmppsAuthClient'
 import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
 
@@ -34,16 +33,6 @@ const mockHtmlResponse = (title: string) => `
 </body>
 </html>
 `
-
-const createUser = (name: string): User => {
-  return {
-    userId: '231232',
-    username: 'USER1',
-    active: true,
-    activeCaseLoadId: 'MDI',
-    name,
-  }
-}
 
 const getSignInUrl = (): Promise<string> =>
   getMatchingRequests({
@@ -146,38 +135,6 @@ const token = (roles: string[]) =>
     },
   })
 
-const stubUser = (name: string) =>
-  stubFor({
-    request: {
-      method: 'GET',
-      urlPath: '/auth/api/user/me',
-    },
-    response: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      jsonBody: createUser(name),
-    },
-  })
-
-const stubUserRoles = (roles: string[]) =>
-  stubFor({
-    request: {
-      method: 'GET',
-      urlPath: '/auth/api/user/me/roles',
-    },
-    response: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      jsonBody: roles.map(roleCode => {
-        return { roleCode }
-      }),
-    },
-  })
-
 const defaultRoles = [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations]
 export default {
   getSignInUrl,
@@ -186,7 +143,4 @@ export default {
     [Response, Response, Response, Response, Response, Response]
   > =>
     Promise.all([favicon(), redirect(), signOut(), manageDetails(), token(roles), tokenVerification.stubVerifyToken()]),
-  stubAuthUser: ({ name = 'john smith', roles = defaultRoles }: { name?: string; roles?: string[] } = {}): Promise<
-    [Response, Response]
-  > => Promise.all([stubUser(name), stubUserRoles(roles)]),
 }

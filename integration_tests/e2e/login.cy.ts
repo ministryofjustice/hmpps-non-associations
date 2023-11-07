@@ -21,7 +21,7 @@ context('SignIn', () => {
   it('Non-prison users are not permitted', () => {
     cy.task('reset')
     cy.task('stubSignIn', { roles: [] })
-    cy.task('stubAuthUser', { roles: [] })
+    cy.task('stubManageUser', { roles: [] })
     cy.task('stubNomisUserCaseloads')
     cy.task('stubDpsComponentsFail')
     cy.signIn({ failOnStatusCode: false })
@@ -56,7 +56,7 @@ context('SignIn', () => {
       cy.request(`/prisoner/${davidJones.prisonerNumber}/non-associations`).its('body').should('contain', 'Sign in')
 
       cy.task('stubVerifyToken', true)
-      cy.task('stubAuthUser', { name: 'bobby brown' })
+      cy.task('stubManageUser', { name: 'bobby brown' })
       cy.signIn()
 
       listPage.headerUserName.contains('B. Brown')

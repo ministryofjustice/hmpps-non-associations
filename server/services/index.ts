@@ -4,9 +4,9 @@ import UserService from './userService'
 import ComponentService from './dpsComponentService'
 
 export const services = () => {
-  const { hmppsAuthClient, componentApiClientBuilder, applicationInfo } = dataAccess()
+  const { hmppsAuthClient, manageUsersApiClient, componentApiClientBuilder, applicationInfo } = dataAccess()
 
-  const userService = new UserService(hmppsAuthClient)
+  const userService = new UserService(manageUsersApiClient)
 
   const componentService = new ComponentService(componentApiClientBuilder)
 
@@ -14,8 +14,8 @@ export const services = () => {
     applicationInfo,
     userService,
     routeUrls,
-    hmppsAuthClient,
     componentService,
+    hmppsAuthClient,
   }
 }
 
