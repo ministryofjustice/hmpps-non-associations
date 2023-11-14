@@ -35,33 +35,43 @@ describe('authorisationMiddleware', () => {
     jest.resetAllMocks()
   })
 
-  it('should return next when no required roles', async () => {
+  it('should return next when no required roles', () => {
     const res = createResWithToken({ authorities: [] })
 
-    await authorisationMiddleware()(req, res, next)
+    authorisationMiddleware()(req, res, next)
 
     expect(next).toHaveBeenCalled()
     expect(res.redirect).not.toHaveBeenCalled()
     expect(res.locals.user.roles).toEqual([])
   })
 
-  it('should redirect when user has no authorised roles', async () => {
+  it('should redirect when user has no authorised roles', () => {
     const res = createResWithToken({ authorities: [] })
 
-    await authorisationMiddleware(['SOME_REQUIRED_ROLE'])(req, res, next)
+    authorisationMiddleware(['SOME_REQUIRED_ROLE'])(req, res, next)
 
     expect(next).not.toHaveBeenCalled()
     expect(res.redirect).toHaveBeenCalledWith('/authError')
     expect(res.locals.user.roles).toEqual([])
   })
 
-  it('should return next when user has authorised role', async () => {
-    const res = createResWithToken({ authorities: ['SOME_REQUIRED_ROLE'] })
+  it('should return next when user has authorised role', () => {
+    const res = createResWithToken({ authorities: ['ROLE_SOME_REQUIRED_ROLE'] })
 
-    await authorisationMiddleware(['SOME_REQUIRED_ROLE'])(req, res, next)
+    authorisationMiddleware(['SOME_REQUIRED_ROLE'])(req, res, next)
 
     expect(next).toHaveBeenCalled()
     expect(res.redirect).not.toHaveBeenCalled()
-    expect(res.locals.user.roles).toEqual(['SOME_REQUIRED_ROLE'])
+    expect(res.locals.user.roles).toEqual(['ROLE_SOME_REQUIRED_ROLE'])
+  })
+
+  it('should return next when user has authorised role and middleware created with ROLE_ prefix', () => {
+    const res = createResWithToken({ authorities: ['ROLE_SOME_REQUIRED_ROLE'] })
+
+    authorisationMiddleware(['ROLE_SOME_REQUIRED_ROLE'])(req, res, next)
+
+    expect(next).toHaveBeenCalled()
+    expect(res.redirect).not.toHaveBeenCalled()
+    expect(res.locals.user.roles).toEqual(['ROLE_SOME_REQUIRED_ROLE'])
   })
 })
