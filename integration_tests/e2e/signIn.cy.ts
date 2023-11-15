@@ -3,7 +3,7 @@ import AuthSignInPage from '../pages/authSignIn'
 import ListPage from '../pages/nonAssociations/list'
 import { davidJones } from '../../server/data/testData/offenderSearch'
 
-context('SignIn', () => {
+context('Sign in', () => {
   beforeEach(() => {
     cy.resetBasicStubs()
   })
@@ -21,7 +21,7 @@ context('SignIn', () => {
   it('Non-prison users are not permitted', () => {
     cy.task('reset')
     cy.task('stubSignIn', { roles: [] })
-    cy.task('stubManageUser', { roles: [] })
+    cy.task('stubManageUser')
     cy.task('stubNomisUserCaseloads')
     cy.task('stubDpsComponentsFail')
     cy.signIn({ failOnStatusCode: false })
@@ -56,7 +56,7 @@ context('SignIn', () => {
       cy.request(`/prisoner/${davidJones.prisonerNumber}/non-associations`).its('body').should('contain', 'Sign in')
 
       cy.task('stubVerifyToken', true)
-      cy.task('stubManageUser', { name: 'bobby brown' })
+      cy.task('stubManageUser', 'bobby brown')
       cy.signIn()
 
       listPage.headerUserName.contains('B. Brown')
