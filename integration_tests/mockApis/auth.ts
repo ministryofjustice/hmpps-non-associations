@@ -11,11 +11,13 @@ import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
 
 const createToken = (roles: string[]) => {
+  // authorities in the session are always prefixed by ROLE.
+  const authorities = roles.map(role => (role.startsWith('ROLE_') ? role : `ROLE_${role}`))
   const payload = {
     user_name: 'USER1',
     scope: ['read', 'write'],
     auth_source: 'NOMIS',
-    authorities: roles,
+    authorities,
     jti: '83b50a10-cca6-41db-985f-e87efb303ddb',
     client_id: 'clientid',
   }
@@ -139,8 +141,8 @@ const defaultRoles = [userRolePrison, userRoleGlobalSearch, userRoleInactiveBook
 export default {
   getSignInUrl,
   stubAuthPing: ping,
+  stubAuthManageDetails: manageDetails,
   stubSignIn: ({ roles = defaultRoles }: { roles?: string[] } = {}): Promise<
-    [Response, Response, Response, Response, Response, Response]
-  > =>
-    Promise.all([favicon(), redirect(), signOut(), manageDetails(), token(roles), tokenVerification.stubVerifyToken()]),
+    [Response, Response, Response, Response, Response]
+  > => Promise.all([favicon(), redirect(), signOut(), token(roles), tokenVerification.stubVerifyToken()]),
 }
