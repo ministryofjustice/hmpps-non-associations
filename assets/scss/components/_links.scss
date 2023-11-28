@@ -1,0 +1,15 @@
+@media print {
+  .app-link--print-plain-text {
+    color: #000 !important;
+    text-decoration: none !important;
+
+    // see `govuk-link-print-friendly` mixin
+    &[href^="/"],
+    &[href^="http://"],
+    &[href^="https://"] {
+      &:after {
+        display: none !important;
+      }
+    }
+  }
+}

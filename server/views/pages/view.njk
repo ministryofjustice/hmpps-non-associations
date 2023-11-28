@@ -27,7 +27,7 @@
       <div>
         {% set otherPrisonerLink %}
           {% if canViewProfile %}
-            <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}">
+            <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}" class="app-link--print-plain-text">
               {{ otherPrisoner | reversedNameOfPerson }}
             </a>
           {% else %}
