@@ -64,7 +64,9 @@
   {% endset %}
 
   {% set actions %}
-    <a href="{{ routeUrls.view(prisoner.prisonerNumber, nonAssociation.id) }}">View details</a>
+    <a href="{{ routeUrls.view(prisoner.prisonerNumber, nonAssociation.id) }}" class="govuk-!-display-none-print">
+      View details
+    </a>
   {% endset %}
 
   {% set _ = tableRows.push([
