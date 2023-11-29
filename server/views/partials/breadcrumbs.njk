@@ -1,5 +1,6 @@
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 
 {{ govukBreadcrumbs({
+  classes: "govuk-!-display-none-print",
   items: breadcrumbs.items
 }) }}

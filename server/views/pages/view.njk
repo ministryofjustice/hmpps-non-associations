@@ -27,7 +27,7 @@
       <div>
         {% set otherPrisonerLink %}
           {% if canViewProfile %}
-            <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}">
+            <a href="{{ dpsUrl }}/prisoner/{{ otherPrisonerNumber }}" class="app-link--print-plain-text">
               {{ otherPrisoner | reversedNameOfPerson }}
             </a>
           {% else %}
@@ -80,7 +80,7 @@
         }) }}
 
         {% if canModifyNonAssociation %}
-          <div class="govuk-button-group">
+          <div class="govuk-button-group govuk-!-display-none-print">
             {{ govukButton({
               text: "Update",
               classes: "govuk-button--secondary",
@@ -97,7 +97,7 @@
           </div>
         {% endif %}
 
-        <p class="govuk-!-margin-top-6">
+        <p class="govuk-!-margin-top-6 govuk-!-display-none-print">
           <a href="{{ routeUrls.list(prisonerNumber) }}">
             Return to {{ prisonerName | possessiveName }} non-associations
           </a>

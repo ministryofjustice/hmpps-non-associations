@@ -26,7 +26,7 @@
 
   {% set otherPrisonerProfileLink %}
     {% if canViewProfile %}
-      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}">
+      <a href="{{ dpsUrl }}/prisoner/{{ nonAssociation.otherPrisonerDetails.prisonerNumber }}" class="app-link--print-plain-text">
         <span class="govuk-visually-hidden">View prisoner profile for</span>
         {{ nonAssociation.otherPrisonerDetails | reversedNameOfPerson }}
       </a>
@@ -64,7 +64,9 @@
   {% endset %}
 
   {% set actions %}
-    <a href="{{ routeUrls.view(prisoner.prisonerNumber, nonAssociation.id) }}">View details</a>
+    <a href="{{ routeUrls.view(prisoner.prisonerNumber, nonAssociation.id) }}" class="govuk-!-display-none-print">
+      View details
+    </a>
   {% endset %}
 
   {% set _ = tableRows.push([

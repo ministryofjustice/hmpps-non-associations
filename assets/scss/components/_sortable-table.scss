@@ -26,6 +26,11 @@
         font-size: 14px;
         line-height: 1;
       }
+
+      @media print {
+        text-decoration: none;
+        color: #000;
+      }
     }
 
     th[aria-sort='none'] {

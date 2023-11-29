@@ -11,7 +11,7 @@
     <dt class="govuk-visually-hidden">Prisoner</dt>
     <dd>
       {% if canViewProfile %}
-        <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}">
+        <a href="{{ dpsUrl }}/prisoner/{{ prisoner.prisonerNumber }}" class="app-link--print-plain-text">
           <strong>
             {{ prisoner | reversedNameOfPerson }}
           </strong>
