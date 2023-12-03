@@ -18,7 +18,6 @@ generic-service:
     HMPPS_PRISON_API_URL: "https://api-preprod.prison.service.justice.gov.uk"
     OFFENDER_SEARCH_API_URL: "https://prisoner-search-preprod.prison.service.justice.gov.uk"
     HMPPS_NON_ASSOCIATIONS_API_URL: "https://non-associations-api-preprod.hmpps.service.justice.gov.uk"
-
     COMPONENT_API_URL: "https://frontend-components-preprod.hmpps.service.justice.gov.uk"
 
     INGRESS_URL: "https://non-associations-preprod.hmpps.service.justice.gov.uk"

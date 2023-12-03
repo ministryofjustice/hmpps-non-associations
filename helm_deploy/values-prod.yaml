@@ -21,4 +21,4 @@ generic-service:
     FEEDBACK_SURVEY_URL: "https://eu.surveymonkey.com/r/NHLY9CP"
 
 generic-prometheus-alerts:
-  alertSeverity: digital-prison-service-dev
+  alertSeverity: digital-prison-service
