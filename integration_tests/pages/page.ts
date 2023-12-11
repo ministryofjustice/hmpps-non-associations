@@ -38,7 +38,7 @@ export default abstract class Page {
   }
 
   checkFeedbackBanner(): void {
-    this.feedbackBanner.should('exist').and('contain.text', 'Help improve it by telling us what you think')
+    this.feedbackBanner.should('exist').and('contain.text', 'Share your feedback in this 2 question survey')
   }
 
   get breadcrumbs(): PageElement<HTMLDivElement> {
