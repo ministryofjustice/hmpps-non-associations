@@ -279,7 +279,7 @@ describe('Search for a prisoner page', () => {
         expect(filters.lastName).toEqual('Smith')
         expect(filters.firstName).toBeUndefined()
         expect(filters.prisonerIdentifier).toBeUndefined()
-        expect(filters.location).toEqual('IN')
+        expect(filters.location).toEqual('ALL')
         expect(filters.includeAliases).toEqual(true)
         expect(page).toEqual(0) // NB: page is 0-indexed in offender search
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
