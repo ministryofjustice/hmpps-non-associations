@@ -14,34 +14,31 @@
   <h1 class="govuk-heading-l">Search for a prisoner to keep apart from {{ prisonerName }}</h1>
 
   <form method="get" novalidate>
-    {% if hasGlobalSearch %}
-      {% set fieldId = "scope" %}
-      {% set field = form.fields[fieldId] %}
-      {{ govukRadios({
-        attributes: { id: formId + "-" + fieldId },
-        classes: "govuk-radios--inline govuk-radios--small",
-        name: fieldId,
-        fieldset: {
-          legend: {
-            text: "Search for prisoners",
-            classes: "govuk-visually-hidden"
-          }
-        },
-        items: [
-          {value: "prison", text: "In " + prisonName},
-          {value: "global", text: "In any establishment (global)"}
-        ] | checkedItems(field.value if field.value else "prison"),
-        errorMessage: { text: field.error } if field.error else undefined
-      }) }}
-    {% endif %}
+    {% set fieldId = "scope" %}
+    {% set field = form.fields[fieldId] %}
+    {{ govukRadios({
+      attributes: { id: formId + "-" + fieldId },
+      classes: "govuk-radios--inline govuk-radios--small",
+      name: fieldId,
+      fieldset: {
+        legend: {
+          text: "Search for prisoners",
+          classes: "govuk-visually-hidden"
+        }
+      },
+      items: [
+        {value: "prison", text: "In " + prisonName},
+        {value: "global", text: "In any establishment (global)"}
+      ] | checkedItems(field.value if field.value else "prison"),
+      errorMessage: { text: field.error } if field.error else undefined
+    }) }}
 
     <div class="app-prisoner-search-form govuk-!-margin-bottom-3">
       {% set fieldId = "q" %}
       {% set field = form.fields[fieldId] %}
       {{ govukInput({
         label: {
-          text: "Name or prison number" if hasGlobalSearch else "Enter name or prison number",
-          classes: "" if hasGlobalSearch else "govuk-label--m"
+          text: "Name or prison number"
         },
         id: formId + "-" + fieldId,
         name: fieldId,

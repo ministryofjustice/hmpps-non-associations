@@ -140,24 +140,6 @@ describe('Search for a prisoner page', () => {
       })
   })
 
-  it('should not show radio buttons to select scope if user doesn’t have global search', () => {
-    app = appWithAllRoutes({
-      userSupplier: () => mockUserWithoutGlobalSearch,
-    })
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-
-    return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
-      .expect(200)
-      .expect(res => {
-        expect(res.text).not.toContain('In Moorland')
-        expect(res.text).not.toContain('In any establishment (global)')
-        // search not performed
-        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
-        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
-      })
-  })
-
   it.each([
     {
       scenario: 'global search',
