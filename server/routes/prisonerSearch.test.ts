@@ -67,7 +67,7 @@ describe('Search for a prisoner page', () => {
       prisoner: davidJones,
     },
     {
-      scenario: 'is missing global search',
+      scenario: 'is missing global search and key prisoner is not in caseloads',
       user: {
         ...mockUser,
         roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
@@ -75,7 +75,7 @@ describe('Search for a prisoner page', () => {
       prisoner: maxClarke,
     },
     {
-      scenario: 'is missing inactive bookings role',
+      scenario: 'is missing inactive bookings role and key prisoner is not in caseloads',
       user: mockUserWithGlobalSearch,
       prisoner: joePeters,
     },
