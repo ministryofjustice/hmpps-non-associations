@@ -67,7 +67,7 @@ describe('Search for a prisoner page', () => {
       prisoner: davidJones,
     },
     {
-      scenario: 'is missing global search',
+      scenario: 'is missing global search and key prisoner is not in caseloads',
       user: {
         ...mockUser,
         roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
@@ -75,7 +75,7 @@ describe('Search for a prisoner page', () => {
       prisoner: maxClarke,
     },
     {
-      scenario: 'is missing inactive bookings role',
+      scenario: 'is missing inactive bookings role and key prisoner is not in caseloads',
       user: mockUserWithGlobalSearch,
       prisoner: joePeters,
     },
@@ -137,24 +137,6 @@ describe('Search for a prisoner page', () => {
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
         expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
         expect(nonAssociationsApi.listNonAssociationsBetween).not.toHaveBeenCalled()
-      })
-  })
-
-  it('should not show radio buttons to select scope if user doesn’t have global search', () => {
-    app = appWithAllRoutes({
-      userSupplier: () => mockUserWithoutGlobalSearch,
-    })
-    offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-
-    return request(app)
-      .get(routeUrls.prisonerSearch(prisonerNumber))
-      .expect(200)
-      .expect(res => {
-        expect(res.text).not.toContain('In Moorland')
-        expect(res.text).not.toContain('In any establishment (global)')
-        // search not performed
-        expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()
-        expect(offenderSearchClient.searchGlobally).not.toHaveBeenCalled()
       })
   })
 
@@ -297,7 +279,7 @@ describe('Search for a prisoner page', () => {
         expect(filters.lastName).toEqual('Smith')
         expect(filters.firstName).toBeUndefined()
         expect(filters.prisonerIdentifier).toBeUndefined()
-        expect(filters.location).toEqual('IN')
+        expect(filters.location).toEqual('ALL')
         expect(filters.includeAliases).toEqual(true)
         expect(page).toEqual(0) // NB: page is 0-indexed in offender search
         expect(offenderSearchClient.searchInPrison).not.toHaveBeenCalled()

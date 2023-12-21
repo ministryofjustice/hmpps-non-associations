@@ -322,7 +322,7 @@ describe('userPermissions', () => {
 
     describe('and allow prison users to only modify non-associations in their caseloads', () => {
       new ExpectUser(mockUserWithoutGlobalSearch).canModifySomeNonAssociations([
-        ['Y', 'N', 'N', 'N', 'N'],
+        ['Y', 'Y', 'Y', 'Y', 'N'],
         [' ', 'N', 'N', 'N', 'N'],
         [' ', ' ', 'N', 'N', 'N'],
         [' ', ' ', ' ', 'N', 'N'],
@@ -332,7 +332,7 @@ describe('userPermissions', () => {
 
     describe('and allow prison users with global search to modify non-associations in transfer or when at least one is in their caseloads', () => {
       new ExpectUser(mockUserWithGlobalSearch).canModifySomeNonAssociations([
-        ['Y', 'Y', 'Y', 'N', 'N'],
+        ['Y', 'Y', 'Y', 'Y', 'N'],
         [' ', 'N', 'N', 'N', 'N'],
         [' ', ' ', 'Y', 'N', 'N'],
         [' ', ' ', ' ', 'N', 'N'],
@@ -342,7 +342,7 @@ describe('userPermissions', () => {
 
     describe('and allow prison users with inactive bookings to modify non-associations in their caseloads or outside', () => {
       new ExpectUser(mockUserWithInactiveBookings).canModifySomeNonAssociations([
-        ['Y', 'N', 'N', 'Y', 'N'],
+        ['Y', 'Y', 'Y', 'Y', 'N'],
         [' ', 'N', 'N', 'N', 'N'],
         [' ', ' ', 'N', 'N', 'N'],
         [' ', ' ', ' ', 'Y', 'N'],

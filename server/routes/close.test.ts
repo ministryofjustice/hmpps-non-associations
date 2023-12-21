@@ -8,7 +8,7 @@ import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
-import { davidJones, fredMills, oscarJones, maxClarke, joePeters } from '../data/testData/offenderSearch'
+import { davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters } from '../data/testData/offenderSearch'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -58,20 +58,20 @@ describe('Close non-association page', () => {
       expectEarly404: true,
     },
     {
-      scenario: 'is missing global search',
+      scenario: 'is missing global search and neither prisoner is in caseloads',
       user: {
         ...mockUser,
         roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
       },
-      prisoner: davidJones,
+      prisoner: andrewBrown,
       otherPrisoner: maxClarke,
       expectEarly404: false,
     },
     {
-      scenario: 'is missing inactive bookings role',
+      scenario: 'is missing inactive bookings role and neither prisoner is in caseloads',
       user: mockUserWithGlobalSearch,
       prisoner: joePeters,
-      otherPrisoner: davidJones,
+      otherPrisoner: andrewBrown,
       expectEarly404: false,
     },
   ])('should return 404 if user $scenario', ({ user, prisoner: p1, otherPrisoner: p2, expectEarly404 }) => {

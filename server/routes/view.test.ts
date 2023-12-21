@@ -384,17 +384,19 @@ describe('View non-association details page', () => {
         nonAssociation,
       },
       {
-        scenario: 'a prisoner is being transferred but you do not have global search',
+        scenario:
+          'a prisoner is being transferred but you do not have global search whilst the other is not in your caseloads',
         user: {
           ...mockUser,
           roles: [userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations],
         },
-        nonAssociation: mockNonAssociation(davidJones.prisonerNumber, maxClarke.prisonerNumber),
+        nonAssociation: mockNonAssociation(andrewBrown.prisonerNumber, maxClarke.prisonerNumber),
       },
       {
-        scenario: 'a person is not in an establishment but you do not have inactive bookings role',
+        scenario:
+          'a person is not in an establishment but you do not have inactive bookings role whilst the other is not in your caseloads',
         user: mockUserWithGlobalSearch,
-        nonAssociation: mockNonAssociation(joePeters.prisonerNumber, davidJones.prisonerNumber),
+        nonAssociation: mockNonAssociation(joePeters.prisonerNumber, andrewBrown.prisonerNumber),
       },
     ])('$scenario', ({ user, nonAssociation: na }) => {
       app = appWithAllRoutes({

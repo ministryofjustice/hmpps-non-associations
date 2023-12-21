@@ -89,6 +89,11 @@ export class UserPermissions {
 
     const prisonerInCaseloads = this.caseloadSet.has(prisoner.prisonId)
     const otherPrisonerInCaseloads = this.caseloadSet.has(otherPrisoner.prisonId)
+    const eitherPrisonerInCaseloads = prisonerInCaseloads || otherPrisonerInCaseloads
+
+    if (eitherPrisonerInCaseloads) {
+      return true
+    }
 
     if (isBeingTransferred(prisoner)) {
       if (!this.globalSearch) {

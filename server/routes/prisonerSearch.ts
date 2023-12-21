@@ -67,8 +67,6 @@ export default function prisonerSearchRoutes(service: Services): Router {
           `User ${user.username} does not have permissions to add non-associations for ${prisonerNumber}`,
         )
       }
-      const hasGlobalSearch = user.permissions.globalSearch
-      const hasGlobalSearchAndInactiveBookings = hasGlobalSearch && user.permissions.inactiveBookings
 
       const form: PrisonerSearchForm | null = res.locals.submittedForm
 
@@ -85,10 +83,10 @@ export default function prisonerSearchRoutes(service: Services): Router {
         const order = form.fields.order.value
 
         let response: OffenderSearchResults
-        const globalSearch = hasGlobalSearch && scope === 'global'
+        const globalSearch = scope === 'global'
         if (globalSearch) {
           const filters: Parameters<OffenderSearchClient['searchGlobally']>[0] = {
-            location: hasGlobalSearchAndInactiveBookings ? 'ALL' : 'IN',
+            location: 'ALL',
             includeAliases: true,
           }
           if (/\d/.test(searchTerms)) {
@@ -197,7 +195,6 @@ export default function prisonerSearchRoutes(service: Services): Router {
         openNonAssociationsMap,
         tableHead,
         paginationParams,
-        hasGlobalSearch,
       })
     }),
   )
