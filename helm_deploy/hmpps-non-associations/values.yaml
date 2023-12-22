@@ -54,7 +54,6 @@ generic-service:
     metricsPath: /metrics
     metricsPort: 3001
 
-  # Environment variables to load into the deployment
   env:
     NODE_ENV: "production"
     REDIS_TLS_ENABLED: "true"
@@ -62,20 +61,11 @@ generic-service:
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY);IngestionEndpoint=https://northeurope-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/"
     BUNYAN_NO_COLOR: "1"
 
-  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
-  # namespace_secrets:
-  #   [name of kubernetes secret]:
-  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
+  envFrom:
+    - secretRef:
+        name: hmpps-non-associations
 
   namespace_secrets:
-    hmpps-non-associations:
-      APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
-      API_CLIENT_ID: "API_CLIENT_ID"
-      API_CLIENT_SECRET: "API_CLIENT_SECRET"
-      SYSTEM_CLIENT_ID: "SYSTEM_CLIENT_ID"
-      SYSTEM_CLIENT_SECRET: "SYSTEM_CLIENT_SECRET"
-      SESSION_SECRET: "SESSION_SECRET"
-      GOOGLE_ANALYTICS_MEASUREMENT_ID: "GOOGLE_ANALYTICS_MEASUREMENT_ID"
     elasticache-redis:
       REDIS_HOST: "primary_endpoint_address"
       REDIS_AUTH_TOKEN: "auth_token"
