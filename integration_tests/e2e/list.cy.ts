@@ -24,6 +24,15 @@ context('List non-associations page', () => {
     listPage.checkFeedbackBanner()
   })
 
+  it('should load frontend components', () => {
+    cy.task('stubFrontendComponentsHeaderAndFooter')
+    cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
+    cy.get('header').should('have.css', 'background-color', 'rgb(255, 0, 0)')
+    cy.get('footer').should('have.css', 'background-color', 'rgb(255, 255, 0)')
+    cy.window().its('FrontendComponentsHeaderDidLoad').should('be.true')
+    cy.window().its('FrontendComponentsFooterDidLoad').should('be.true')
+  })
+
   it('has correct breadcrumb', () => {
     listPage.checkLastBreadcrumb('Jones, David')
   })

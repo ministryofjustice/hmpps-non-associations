@@ -23,7 +23,7 @@ context('Sign in', () => {
     cy.task('stubSignIn', { roles: [] })
     cy.task('stubManageUser')
     cy.task('stubNomisUserCaseloads')
-    cy.task('stubDpsComponentsFail')
+    cy.task('stubFallbackHeaderAndFooter')
     cy.signIn({ failOnStatusCode: false })
     cy.get('body').should('contain.text', 'Authorisation Error')
   })

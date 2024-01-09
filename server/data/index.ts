@@ -11,7 +11,7 @@ initialiseAppInsights()
 buildAppInsightsClient(applicationInfo)
 
 import ManageUsersApiClient from './manageUsersApiClient'
-import DpsFeComponentsClient from './dpsFeComponentsClient'
+import FrontendComponentsClient from './frontendComponentsClient'
 import HmppsAuthClient from './hmppsAuthClient'
 
 import { createRedisClient } from './redisClient'
@@ -21,7 +21,7 @@ export const dataAccess = () => ({
   applicationInfo,
   hmppsAuthClient: new HmppsAuthClient(new TokenStore(createRedisClient())),
   manageUsersApiClient: new ManageUsersApiClient(),
-  componentApiClient: new DpsFeComponentsClient(),
+  frontendComponentsClient: new FrontendComponentsClient(),
 })
 
 export type DataAccess = ReturnType<typeof dataAccess>

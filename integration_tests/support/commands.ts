@@ -24,7 +24,7 @@ Cypress.Commands.add('resetBasicStubs', () => {
   cy.task('stubSignIn')
   cy.task('stubManageUser')
   cy.task('stubNomisUserCaseloads')
-  cy.task('stubDpsComponentsFail')
+  cy.task('stubFallbackHeaderAndFooter')
 })
 
 Cypress.Commands.add('navigateToDavidJonesNonAssociations', () => {
