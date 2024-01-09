@@ -1,12 +1,14 @@
-window.GOVUKFrontend.initAll()
+// eslint-disable-next-line import/extensions,import/no-absolute-path,import/no-unresolved
+import { initAll } from '/assets/govuk/govuk-frontend.min.js'
+
+initAll()
 window.MOJFrontend.initAll()
 
 /**
  * Sends an event to Google Analytics if the site tag is installed
  * @param {string} eventName
- * @param {Record<string, string>} [eventParameters]
+ * @param {Record<string, string | null>} [eventParameters]
  */
-
 function sendGoogleAnalyticsEvent(eventName, eventParameters) {
   if (typeof gtag === 'function') {
     if (eventParameters) {
@@ -15,6 +17,20 @@ function sendGoogleAnalyticsEvent(eventName, eventParameters) {
       gtag('event', eventName)
     }
   }
+}
+
+function gaEventHandler() {
+  const elem = $(this)
+
+  const gaCategory = elem.data('ga-category') || null
+  const gaAction = elem.data('ga-action') || null
+  const gaLabel = elem.data('ga-label') || null
+
+  sendGoogleAnalyticsEvent('non_associations_event', {
+    category: gaCategory,
+    action: gaAction,
+    label: gaLabel,
+  })
 }
 
 $(function pageLoaded() {
@@ -31,22 +47,7 @@ $(function pageLoaded() {
       })
     }
   })
-})
 
-function gaEventHandler() {
-  const elem = $(this)
-
-  const gaCategory = elem.data('ga-category') || null
-  const gaAction = elem.data('ga-action') || null
-  const gaLabel = elem.data('ga-label') || null
-
-  sendGoogleAnalyticsEvent('non_associations_event', {
-    category: gaCategory,
-    action: gaAction,
-    label: gaLabel,
-  })
-}
-
-$(() => {
+  // add GA click handler
   $('a[data-ga-category]').on('click', gaEventHandler)
 })

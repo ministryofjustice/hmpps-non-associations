@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express'
 
 import logger from '../../logger'
-import { Services } from '../services'
+import type { Services } from '../services'
 
 export default function getFrontendComponents({ componentService }: Services): RequestHandler {
   return async (req, res, next) => {

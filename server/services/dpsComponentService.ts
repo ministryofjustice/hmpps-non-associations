@@ -1,4 +1,4 @@
-import DpsFeComponentsClient, { AvailableComponent, Component } from '../data/dpsFeComponentsClient'
+import DpsFeComponentsClient, { type AvailableComponent, type Component } from '../data/dpsFeComponentsClient'
 
 export default class FeComponentsService {
   constructor(private readonly dpsFeComponentsClient: DpsFeComponentsClient) {}
