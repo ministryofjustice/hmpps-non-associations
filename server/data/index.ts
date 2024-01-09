@@ -21,7 +21,7 @@ export const dataAccess = () => ({
   applicationInfo,
   hmppsAuthClient: new HmppsAuthClient(new TokenStore(createRedisClient())),
   manageUsersApiClient: new ManageUsersApiClient(),
-  componentApiClientBuilder: new DpsFeComponentsClient(),
+  componentApiClient: new DpsFeComponentsClient(),
 })
 
 export type DataAccess = ReturnType<typeof dataAccess>
