@@ -287,6 +287,7 @@ describe('Non-associations list page', () => {
           .expect(res => {
             expect(res.text).toContain('Add a non-association')
             expect(res.text).toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+            expect(res.text).not.toContain('Need to add non-associations?')
           })
       })
 
@@ -303,6 +304,7 @@ describe('Non-associations list page', () => {
           .expect(res => {
             expect(res.text).not.toContain('Add a non-association')
             expect(res.text).not.toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+            expect(res.text).toContain('Need to add non-associations?')
           })
       })
     })
@@ -330,6 +332,7 @@ describe('Non-associations list page', () => {
           .expect(res => {
             expect(res.text).not.toContain('Add a non-association')
             expect(res.text).not.toContain(`${prisonerNumber}/non-associations/add/search-prisoner`)
+            expect(res.text).toContain('Need to add non-associations?')
           })
       })
     })

@@ -161,6 +161,9 @@ describe('View non-association details page', () => {
       // buttons
       expect(res.text).toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).toContain(`non-associations/${nonAssociationId}/close`)
+
+      // help with roles
+      expect(res.text).not.toContain('Need to update non-associations?')
     }
 
     function expectClosed(res: request.Response): void {
@@ -179,6 +182,9 @@ describe('View non-association details page', () => {
       // buttons
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
       expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
+
+      // help with roles
+      expect(res.text).not.toContain('Need to update non-associations?')
     }
 
     function expectDavidJonesFirst(res: request.Response): void {
@@ -411,8 +417,12 @@ describe('View non-association details page', () => {
         .expect(200)
         .expect('Content-Type', /html/)
         .expect(res => {
+          // buttons
           expect(res.text).not.toContain(`non-associations/${nonAssociationId}/update`)
           expect(res.text).not.toContain(`non-associations/${nonAssociationId}/close`)
+
+          // help with roles
+          expect(res.text).toContain('Need to update non-associations?')
         })
     })
   })
