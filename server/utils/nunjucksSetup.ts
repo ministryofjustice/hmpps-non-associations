@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
-import path from 'path'
+import path from 'node:path'
 
-import nunjucks from 'nunjucks'
 import express from 'express'
+import nunjucks from 'nunjucks'
 
 import config from '../config'
 import type { Services } from '../services'
@@ -43,9 +43,7 @@ export default function nunjucksSetup(app: express.Express, services: Services):
     [
       path.join(__dirname, '../../server/views'),
       'node_modules/govuk-frontend/dist/',
-      'node_modules/govuk-frontend/dist/components/',
       'node_modules/@ministryofjustice/frontend/',
-      'node_modules/@ministryofjustice/frontend/moj/components/',
     ],
     {
       autoescape: true,

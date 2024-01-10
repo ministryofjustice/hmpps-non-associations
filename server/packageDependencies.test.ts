@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 
 describe('app insights compatibility', () => {
   it('uses bunyan v1', () => {
