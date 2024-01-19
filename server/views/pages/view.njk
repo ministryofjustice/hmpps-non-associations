@@ -107,7 +107,7 @@
         {% endif %}
 
         <p class="govuk-!-margin-top-6 govuk-!-display-none-print">
-          <a href="{{ routeUrls.list(prisonerNumber) }}">
+          <a href="{{ routeUrls.list(prisonerNumber, nonAssociation.isClosed) }}">
             Return to {{ prisonerName | possessiveName }} non-associations
           </a>
         </p>
