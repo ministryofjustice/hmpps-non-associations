@@ -149,7 +149,7 @@ describe('View non-association details page', () => {
       expect(res.text).toContain('21 July 2023')
     }
 
-    function expectOpen(res: request.Response): void {
+    function expectOpen(res: request.Response, keyPrisonerNumber: string, nonKeyPrisonerNumber: string): void {
       // comments
       expect(res.text).toContain('See IR 12133100')
 
@@ -164,9 +164,15 @@ describe('View non-association details page', () => {
 
       // help with roles
       expect(res.text).not.toContain('Need to update non-associations?')
+
+      // links
+      expect(res.text).toContain(`"/prisoner/${keyPrisonerNumber}/non-associations"`)
+      expect(res.text).not.toContain(`"/prisoner/${keyPrisonerNumber}/non-associations/closed"`)
+      expect(res.text).not.toContain(`"/prisoner/${nonKeyPrisonerNumber}/non-associations"`)
+      expect(res.text).not.toContain(`"/prisoner/${nonKeyPrisonerNumber}/non-associations/closed"`)
     }
 
-    function expectClosed(res: request.Response): void {
+    function expectClosed(res: request.Response, keyPrisonerNumber: string, nonKeyPrisonerNumber: string): void {
       // comments
       expect(res.text).not.toContain('See IR 12133100')
       expect(res.text).toContain('Problem solved')
@@ -185,6 +191,12 @@ describe('View non-association details page', () => {
 
       // help with roles
       expect(res.text).not.toContain('Need to update non-associations?')
+
+      // links
+      expect(res.text).not.toContain(`"/prisoner/${keyPrisonerNumber}/non-associations"`)
+      expect(res.text).toContain(`"/prisoner/${keyPrisonerNumber}/non-associations/closed"`)
+      expect(res.text).not.toContain(`"/prisoner/${nonKeyPrisonerNumber}/non-associations"`)
+      expect(res.text).not.toContain(`"/prisoner/${nonKeyPrisonerNumber}/non-associations/closed"`)
     }
 
     function expectDavidJonesFirst(res: request.Response): void {
@@ -217,7 +229,7 @@ describe('View non-association details page', () => {
           .expect('Content-Type', /html/)
           .expect(res => {
             expectCommonDetails(res)
-            expectOpen(res)
+            expectOpen(res, prisonerNumber, otherPrisonerNumber)
             expectDavidJonesFirst(res)
           })
       })
@@ -229,7 +241,7 @@ describe('View non-association details page', () => {
           .expect('Content-Type', /html/)
           .expect(res => {
             expectCommonDetails(res)
-            expectOpen(res)
+            expectOpen(res, otherPrisonerNumber, prisonerNumber)
             expectFredMillsFirst(res)
           })
       })
@@ -248,7 +260,7 @@ describe('View non-association details page', () => {
           .expect('Content-Type', /html/)
           .expect(res => {
             expectCommonDetails(res)
-            expectClosed(res)
+            expectClosed(res, prisonerNumber, otherPrisonerNumber)
             expectDavidJonesFirst(res)
           })
       })
@@ -260,7 +272,7 @@ describe('View non-association details page', () => {
           .expect('Content-Type', /html/)
           .expect(res => {
             expectCommonDetails(res)
-            expectClosed(res)
+            expectClosed(res, otherPrisonerNumber, prisonerNumber)
             expectFredMillsFirst(res)
           })
       })
