@@ -14,7 +14,7 @@ declare namespace Cypress {
     /**
      * Set up stubs needed for all interactions
      */
-    resetBasicStubs(): Chainable<AUTWindow>
+    resetBasicStubs(options?: { roles?: string[] }): Chainable<AUTWindow>
 
     /**
      * Set up stubs needed for listing non-associations for David Jones
