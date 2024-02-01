@@ -137,7 +137,12 @@ const token = (roles: string[]) =>
     },
   })
 
-const defaultRoles = [userRolePrison, userRoleGlobalSearch, userRoleInactiveBookings, userRoleManageNonAssociations]
+export const defaultRoles = [
+  userRolePrison,
+  userRoleGlobalSearch,
+  userRoleInactiveBookings,
+  userRoleManageNonAssociations,
+]
 export default {
   getSignInUrl,
   stubAuthPing: ping,

@@ -66,6 +66,10 @@ export default abstract class Page {
     return this.errorSummary.find('.govuk-error-summary__list li')
   }
 
+  get helpWithRoles(): PageElement<HTMLDetailsElement> {
+    return cy.get('details.app-help-with-roles')
+  }
+
   get footer(): PageElement {
     return cy.get('footer.govuk-footer')
   }

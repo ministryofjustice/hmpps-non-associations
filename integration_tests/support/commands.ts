@@ -1,4 +1,5 @@
 import { davidJones } from '../../server/data/testData/offenderSearch'
+import { defaultRoles } from '../mockApis/auth'
 import Page from '../pages/page'
 import ListPage from '../pages/nonAssociations/list'
 import GoogleAnalyticsTracker, { type GtagCall } from './googleAnalyticsTracker'
@@ -19,9 +20,9 @@ Cypress.Commands.add('trackGoogleAnalyticsCalls', (): Cypress.Chainable<GoogleAn
   return cy.wrap(tracker)
 })
 
-Cypress.Commands.add('resetBasicStubs', () => {
+Cypress.Commands.add('resetBasicStubs', ({ roles = defaultRoles }: { roles?: string[] } = {}) => {
   cy.task('reset')
-  cy.task('stubSignIn')
+  cy.task('stubSignIn', { roles })
   cy.task('stubManageUser')
   cy.task('stubNomisUserCaseloads')
   cy.task('stubFallbackHeaderAndFooter')

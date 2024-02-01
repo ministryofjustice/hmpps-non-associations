@@ -1,7 +1,6 @@
 {% extends "../partials/layout.njk" %}
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "../partials/helpWithRoles.njk" import helpWithRoles %}
 
 {% macro displayCount(number) %}
@@ -119,10 +118,7 @@
   {% if not canAddNonAssociation %}
     <div class="govuk-grid-row govuk-!-margin-top-8 govuk-!-display-none-print">
       <div class="govuk-grid-column-two-thirds">
-        {{ govukDetails({
-          summaryText: "Need to add non-associations?",
-          html: helpWithRoles(teamEmail)
-        }) }}
+        {{ helpWithRoles("Need to add non-associations?", teamEmail) }}
       </div>
     </div>
   {% endif %}

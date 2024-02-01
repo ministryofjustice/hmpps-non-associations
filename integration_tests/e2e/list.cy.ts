@@ -139,4 +139,35 @@ context('List non-associations page', () => {
       expect(fredMillsRow[5]).to.contain('27/07/2023')
     })
   })
+
+  it('should not show help-with-roles details box if user has write access', () => {
+    listPage.helpWithRoles.should('not.exist')
+  })
+
+  it('should show help-with-roles details box if user has read-only access', () => {
+    listPage.signOut.click()
+    cy.resetBasicStubs({ roles: ['ROLE_PRISON'] })
+    cy.navigateToDavidJonesNonAssociations().then(result => {
+      listPage = result
+    })
+
+    listPage.helpWithRoles.should('contain.text', 'Need to add non-associations?')
+
+    // opening/closing help-with-roles details box sends GA events
+    cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {
+      listPage.helpWithRoles.find('summary').click()
+      cy.then(() => {
+        googleAnalyticsTracker.shouldHaveLastSent('event', 'non_associations_event', {
+          category: 'Help with roles > Opened box',
+        })
+      })
+
+      listPage.helpWithRoles.find('summary').click()
+      cy.then(() => {
+        googleAnalyticsTracker.shouldHaveLastSent('event', 'non_associations_event', {
+          category: 'Help with roles > Closed box',
+        })
+      })
+    })
+  })
 })

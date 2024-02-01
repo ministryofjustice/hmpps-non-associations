@@ -42,4 +42,36 @@ context('View non-association details page', () => {
     viewPage.updateButton.should('exist')
     viewPage.closeButton.should('exist')
   })
+
+  it('should not show help-with-roles details box if user has write access', () => {
+    viewPage.helpWithRoles.should('not.exist')
+  })
+
+  it('should show help-with-roles details box if user has read-only access', () => {
+    viewPage.signOut.click()
+    cy.resetBasicStubs({ roles: ['ROLE_PRISON'] })
+    cy.navigateToDavidJonesNonAssociations()
+    cy.task('stubGetNonAssociation')
+    cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations/101`)
+    viewPage = Page.verifyOnPage(ViewPage, 'David Jones', 'Fred Mills')
+
+    viewPage.helpWithRoles.should('contain.text', 'Need to update non-associations?')
+
+    // opening/closing help-with-roles details box sends GA events
+    cy.trackGoogleAnalyticsCalls().then(googleAnalyticsTracker => {
+      viewPage.helpWithRoles.find('summary').click()
+      cy.then(() => {
+        googleAnalyticsTracker.shouldHaveLastSent('event', 'non_associations_event', {
+          category: 'Help with roles > Opened box',
+        })
+      })
+
+      viewPage.helpWithRoles.find('summary').click()
+      cy.then(() => {
+        googleAnalyticsTracker.shouldHaveLastSent('event', 'non_associations_event', {
+          category: 'Help with roles > Closed box',
+        })
+      })
+    })
+  })
 })

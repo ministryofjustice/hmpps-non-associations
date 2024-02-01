@@ -50,4 +50,11 @@ $(function pageLoaded() {
 
   // add GA click handler
   $('a[data-ga-category]').on('click', gaEventHandler)
+
+  // add GA toggle handler to help-with-roles component
+  $('details.app-help-with-roles').on('toggle', event => {
+    sendGoogleAnalyticsEvent('non_associations_event', {
+      category: event.target.open ? 'Help with roles > Opened box' : 'Help with roles > Closed box',
+    })
+  })
 })

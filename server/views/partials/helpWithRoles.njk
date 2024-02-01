@@ -1,10 +1,20 @@
-{% macro helpWithRoles(teamEmail) %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
 
-  <p>
-    Ask your local system administrator (LSA) to add the ‘Non-associations’ role to your account.
-  </p>
-  <p>
-    If you have trouble getting access, email the team at <a href="mailto:{{ teamEmail }}">{{ teamEmail }}</a>
-  </p>
+{% macro helpWithRoles(summaryText, teamEmail) %}
+
+  {% set html %}
+    <p>
+      Ask your local system administrator (LSA) to add the ‘Non-associations’ role to your account.
+    </p>
+    <p>
+      If you have trouble getting access, email the team at <a href="mailto:{{ teamEmail }}">{{ teamEmail }}</a>
+    </p>
+  {% endset %}
+
+  {{ govukDetails({
+    summaryText: summaryText,
+    html: html,
+    classes: "app-help-with-roles"
+  }) }}
 
 {% endmacro %}
