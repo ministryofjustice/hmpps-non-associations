@@ -24,25 +24,25 @@ export default abstract class BaseAddUpdatePage extends Page {
   private getRadioButton(
     name: 'prisonerRole' | 'otherPrisonerRole' | 'reason' | 'restrictionType',
     label: string,
-  ): PageElement<HTMLInputElement> {
-    return this.form.find(`#${this.formId}-${name}`).contains(label).prev()
+  ): PageElement<HTMLLabelElement> {
+    return this.form.find<HTMLLabelElement>(`#${this.formId}-${name}`).contains(label)
   }
 
-  getRadioButtonForPrisonerRole(role: Role[keyof Role]): PageElement<HTMLInputElement> {
+  getRadioButtonForPrisonerRole(role: Role[keyof Role]): PageElement<HTMLLabelElement> {
     return this.getRadioButton('prisonerRole', role)
   }
 
-  getRadioButtonOtherPrisonerRole(role: Role[keyof Role]): PageElement<HTMLInputElement> {
+  getRadioButtonOtherPrisonerRole(role: Role[keyof Role]): PageElement<HTMLLabelElement> {
     return this.getRadioButton('otherPrisonerRole', role)
   }
 
-  getRadioButtonReason(reason: Reason[keyof Reason]): PageElement<HTMLInputElement> {
+  getRadioButtonReason(reason: Reason[keyof Reason]): PageElement<HTMLLabelElement> {
     return this.getRadioButton('reason', reason)
   }
 
   getRadioButtonRestrictionType(
     restrictionType: RestrictionType[keyof RestrictionType],
-  ): PageElement<HTMLInputElement> {
+  ): PageElement<HTMLLabelElement> {
     return this.getRadioButton('restrictionType', restrictionType)
   }
 
