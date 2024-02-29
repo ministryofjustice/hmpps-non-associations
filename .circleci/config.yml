@@ -16,6 +16,12 @@ parameters:
   node-version:
     type: string
     default: 20.11-browsers
+    description: cimg/node docker image tag
+
+  redis-version:
+    type: string
+    default: '7.0'
+    description: cimg/redis docker image tag
 
   cypress-videos:
     type: string
@@ -75,7 +81,7 @@ jobs:
     executor:
       name: hmpps/node_redis
       node_tag: << pipeline.parameters.node-version >>
-      redis_tag: '7.0'
+      redis_tag: << pipeline.parameters.redis-version >>
     steps:
       - checkout
       - attach_workspace:
@@ -93,7 +99,7 @@ jobs:
           command: java -jar wiremock.jar --port 9091
           background: true
       - run:
-          name: Run the node app.
+          name: Run the node app
           command: npm run start-feature
           background: true
       - run:
@@ -105,10 +111,10 @@ jobs:
       - store_test_results:
           path: test_results
       - store_artifacts:
-          name: 'Uploading cypress videos'
+          name: Uploading cypress videos
           path: integration_tests/videos
       - store_artifacts:
-          name: 'Uploading cypress screenshots'
+          name: Uploading cypress screenshots
           path: integration_tests/screenshots
 
 workflows:
