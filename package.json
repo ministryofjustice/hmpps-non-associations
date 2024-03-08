@@ -100,6 +100,7 @@
   },
   "dependencies": {
     "@ministryofjustice/frontend": "^2.1.2",
+    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^3.5.4",
     "@ministryofjustice/hmpps-non-associations-api": "https://github.com/ministryofjustice/hmpps-non-associations-api/releases/download/node-client-0.4.0/node-client.tgz",
     "agentkeepalive": "^4.5.0",
     "applicationinsights": "^2.9.5",

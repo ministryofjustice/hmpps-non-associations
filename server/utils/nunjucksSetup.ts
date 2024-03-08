@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import express from 'express'
 import nunjucks from 'nunjucks'
+import setUpNunjucksFilters from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/setUpNunjucksFilters'
 
 import config from '../config'
 import type { Services } from '../services'
@@ -45,12 +46,18 @@ export default function nunjucksSetup(app: express.Express, services: Services):
       path.join(__dirname, '../../server/views'),
       'node_modules/govuk-frontend/dist/',
       'node_modules/@ministryofjustice/frontend/',
+      // Digital Prison Reporting configuration
+      'node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/',
+      'node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/',
     ],
     {
       autoescape: true,
       express: app,
     },
   )
+
+  // Digital Prison Reporting configuration
+  setUpNunjucksFilters(njkEnv)
 
   // name formatting
   njkEnv.addFilter('convertToTitleCase', convertToTitleCase)
