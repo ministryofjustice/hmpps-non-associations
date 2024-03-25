@@ -32,6 +32,7 @@ export default function setUpStaticResources(): Router {
     '/assets/dpr',
     express.static(
       path.join(process.cwd(), '/node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/assets'),
+      cacheControl,
     ),
   )
   router.use(
