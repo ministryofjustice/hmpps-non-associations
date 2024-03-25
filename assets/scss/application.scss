@@ -7,6 +7,7 @@ $govuk-page-width: $moj-page-width;
 
 @import 'govuk/all';
 @import 'moj/all';
+@import 'dpr/all';
 
 @import './components/button';
 @import './components/card';

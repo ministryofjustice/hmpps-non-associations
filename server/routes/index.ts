@@ -1,6 +1,8 @@
 import flash from 'connect-flash'
 import { type RequestHandler, Router } from 'express'
 import type { PathParams } from 'express-serve-static-core'
+import defaultTokenProvider from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/report-list/defaultTokenProvider'
+import ReportListUtils from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/report-list/utils'
 
 import config from '../config'
 import asyncMiddleware from '../middleware/asyncMiddleware'
@@ -48,6 +50,19 @@ export default function routes(services: Services): Router {
       res.send(photoData)
     }
   })
+
+  get(
+    '/reports',
+    ReportListUtils.createReportListRequestHandler({
+      title: 'Non-associations reports',
+      definitionName: 'non-associations',
+      variantName: 'all',
+      apiUrl: config.apis.hmppsNonAssociationsApi.url,
+      apiTimeout: config.apis.hmppsNonAssociationsApi.timeout.deadline,
+      layoutTemplate: 'partials/reportsLayout.njk',
+      tokenProvider: defaultTokenProvider,
+    }),
+  )
 
   router.use(urlTemplates.list, listRoutes(services))
 
