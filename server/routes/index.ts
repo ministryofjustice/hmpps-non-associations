@@ -59,7 +59,7 @@ export default function routes(services: Services): Router {
       variantName: 'all',
       apiUrl: config.apis.hmppsNonAssociationsApi.url,
       apiTimeout: config.apis.hmppsNonAssociationsApi.timeout.deadline,
-      layoutTemplate: 'partials/layout.njk',
+      layoutTemplate: 'partials/reportsLayout.njk',
       tokenProvider: defaultTokenProvider,
     }),
   )
