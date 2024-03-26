@@ -36,6 +36,9 @@ export default function setUpWebSecurity(): Router {
           styleSrc: [
             "'self'",
             frontendComponentsHost,
+            // DPR
+            "'unsafe-hashes'",
+            "'sha256-eIUqgPTKhr3+WsA7FtEp+r8ITeTom+YQ/XO6GMvUtjc='",
             (_req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
           ],
           fontSrc: ["'self'", frontendComponentsHost],
