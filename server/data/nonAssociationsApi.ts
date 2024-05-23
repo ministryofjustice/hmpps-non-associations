@@ -13,7 +13,6 @@ import logger from '../../logger'
 import config from '../config'
 import { nameOfPerson } from '../utils/utils'
 import { transferPrisonId, outsidePrisonId } from './constants'
-import { restClientMetricsMiddleware } from './restClientMetricsMiddleware'
 import PrisonApi, { type StaffMember } from './prisonApi'
 
 export const maxCommentLength = 240 as const
@@ -22,7 +21,7 @@ type BaseNonAssociationsListItem = OpenNonAssociationsListItem | ClosedNonAssoci
 
 export class NonAssociationsApi extends BaseApi {
   constructor(systemToken: string) {
-    super(systemToken, config.apis.hmppsNonAssociationsApi, logger, [restClientMetricsMiddleware])
+    super(systemToken, config.apis.hmppsNonAssociationsApi, logger)
   }
 }
 

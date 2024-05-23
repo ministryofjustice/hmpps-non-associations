@@ -3,7 +3,6 @@ import { NotFound } from 'http-errors'
 
 import nunjucksSetup from './utils/nunjucksSetup'
 import errorHandler from './errorHandler'
-import { metricsMiddleware } from './monitoring/metricsApp'
 import { userRolePrison } from './data/constants'
 import authorisationMiddleware from './middleware/authorisationMiddleware'
 import breadcrumbs from './middleware/breadcrumbs'
@@ -28,7 +27,6 @@ export default function createApp(services: Services): express.Application {
   app.set('trust proxy', true)
   app.set('port', process.env.PORT || 3000)
 
-  app.use(metricsMiddleware)
   app.use(setUpHealthChecks(services.applicationInfo))
   app.use(setUpWebSecurity())
   app.use(setUpWebSession())
