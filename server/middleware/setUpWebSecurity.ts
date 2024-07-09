@@ -25,7 +25,16 @@ export default function setUpWebSecurity(): Router {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          imgSrc: ["'self'", 'data:', frontendComponentsHost, '*.google-analytics.com', '*.googletagmanager.com'],
+          imgSrc: [
+            "'self'",
+            'data:',
+            frontendComponentsHost,
+            '*.google-analytics.com',
+            '*.googletagmanager.com',
+            '*.g.doubleclick.net',
+            '*.google.com',
+            '*.google.co.uk',
+          ],
           scriptSrc: [
             "'self'",
             frontendComponentsHost,
@@ -40,7 +49,15 @@ export default function setUpWebSecurity(): Router {
           ],
           fontSrc: ["'self'", frontendComponentsHost],
           formAction: ["'self'", authHost, dpsHost],
-          connectSrc: ["'self'", '*.google-analytics.com', '*.googletagmanager.com', '*.analytics.google.com'],
+          connectSrc: [
+            "'self'",
+            '*.google-analytics.com',
+            '*.googletagmanager.com',
+            '*.analytics.google.com',
+            '*.g.doubleclick.net',
+            '*.google.com',
+            '*.google.co.uk',
+          ],
         },
       },
       crossOriginEmbedderPolicy: { policy: 'require-corp' },
