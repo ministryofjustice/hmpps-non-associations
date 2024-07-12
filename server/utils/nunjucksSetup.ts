@@ -1,10 +1,12 @@
 /* eslint-disable no-param-reassign */
+import fs from 'node:fs'
 import path from 'node:path'
 
 import express from 'express'
 import nunjucks from 'nunjucks'
 import setUpNunjucksFilters from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/setUpNunjucksFilters'
 
+import logger from '../../logger'
 import config from '../config'
 import type { Services } from '../services'
 import { checkedItems, multipleCheckedItems } from './checkedItems'
@@ -29,16 +31,12 @@ export default function nunjucksSetup(app: express.Express, services: Services):
 
   app.locals.googleAnalyticsMeasurementId = config.googleAnalyticsMeasurementId
 
-  // Cachebusting version string
-  if (config.production) {
-    // Version only changes with new commits
-    app.locals.version = services.applicationInfo.gitShortHash
-  } else {
-    // Version changes every request
-    app.use((req, res, next) => {
-      res.locals.version = Date.now().toString()
-      return next()
-    })
+  let assetManifest: Record<string, string> = {}
+  try {
+    const assetMetadataPath = path.resolve(__dirname, '../../assets/manifest.json')
+    assetManifest = JSON.parse(fs.readFileSync(assetMetadataPath, 'utf8'))
+  } catch (e) {
+    logger.error('Could not read asset manifest file')
   }
 
   const njkEnv = nunjucks.configure(
@@ -58,6 +56,9 @@ export default function nunjucksSetup(app: express.Express, services: Services):
 
   // Digital Prison Reporting configuration
   setUpNunjucksFilters(njkEnv)
+
+  // static asset
+  njkEnv.addFilter('assetMap', (url: string) => assetManifest[url] || url)
 
   // name formatting
   njkEnv.addFilter('convertToTitleCase', convertToTitleCase)
