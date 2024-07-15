@@ -1,7 +1,7 @@
 {% extends "govuk/template.njk" %}
 
 {% block head %}
-  <link href="/assets/stylesheets/application.css?{{ version }}" rel="stylesheet" />
+  <link href="{{ '/assets/css/app.css' | assetMap }}" rel="stylesheet" />
 
   {% if googleAnalyticsMeasurementId %}
     {# Global site tag (gtag.js) - Google Analytics 4  #}
@@ -59,7 +59,5 @@
 
 {% block bodyEnd %}
   <script src="/assets/js/jquery.min.js"></script>
-  <script type="module" src="/assets/govuk/govuk-frontend.min.js"></script>
-  <script src="/assets/moj/all.js"></script>
-  <script type="module" src="/assets/application.js"></script>
+  <script type="module" src="{{ '/assets/js/app.js' | assetMap }}"></script>
 {% endblock %}
