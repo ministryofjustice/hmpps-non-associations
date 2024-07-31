@@ -21,13 +21,15 @@ can be used to install appropriate node versions, e.g.:
 
 ```shell
 nvm use
+# or
+fnm use
 ```
 
 Additional tools are required to manage deployment: `kubectl` and `helm`.
 
 ### Using services in `dev` environment
 
-This is probably the easiest way to run and develop on your machine: by hooking into services that already exist
+This is the easiest way to run and develop on your machine: by hooking into services that already exist
 in the `dev` environment.
 A user account is needed in hmpps-auth with the appropriate roles.
 
@@ -52,6 +54,12 @@ It’s prudent to periodically update npm dependencies; continuous integration w
 Renovate (similar to dependabot) is set up to try to upgrade
 npm packages, base docker images, helm charts and CircleCI orbs
 by raising pull requests.
+
+This will attempt update npm packages manually and perform unit tests:
+
+```shell
+npx npm-check-updates --upgrade --doctor
+```
 
 ## Testing
 
@@ -151,7 +159,6 @@ There is a suite of tools used for monitoring deployed applications:
 * [Azure Application Insights](https://portal.azure.com/) – application profiling and introspection
 * [Prometheus](https://prometheus.cloud-platform.service.justice.gov.uk/) – application and request metrics
 * [Alertmanager](https://alertmanager.live.cloud-platform.service.justice.gov.uk/) – alerts based on metrics
-* [Sentry.io](https://sentry.io/organizations/ministryofjustice/issues/) – monitoring of errors and exceptions
 
 ## References
 
