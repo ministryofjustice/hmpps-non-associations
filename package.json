@@ -82,7 +82,7 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.623.0",
+    "@aws-sdk/client-sqs": "^3.624.0",
     "@ministryofjustice/frontend": "^2.2.0",
     "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^3.20.0",
     "@ministryofjustice/hmpps-non-associations-api": "https://github.com/ministryofjustice/hmpps-non-associations-api/releases/download/node-client-0.4.0/node-client.tgz",
@@ -97,7 +97,7 @@
     "csurf": "^1.11.0",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "govuk-frontend": "^5.4.1",
+    "govuk-frontend": "^5.5.0",
     "helmet": "^7.1.0",
     "http-errors": "^2.0.0",
     "jquery": "^3.7.1",
