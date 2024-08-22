@@ -1,4 +1,4 @@
-import type { SuperAgentRequest } from 'superagent'
+import type { SuperAgentRequest, Response } from 'superagent'
 
 import { stubFor } from './wiremock'
 import { OffenderSearchClient, type OffenderSearchResult } from '../../server/data/offenderSearch'
@@ -22,7 +22,7 @@ export default {
   /**
    * Stub gettings details for all mock prisoners
    */
-  stubOffenderSearchGetPrisoner(): Promise<unknown> {
+  stubOffenderSearchGetPrisoner(): Promise<Response[]> {
     return Promise.all(
       mockPrisoners.map(prisoner => {
         return stubFor({
