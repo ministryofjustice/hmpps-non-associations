@@ -1,7 +1,7 @@
 context('Healthcheck', () => {
   context('All healthy', () => {
     beforeEach(() => {
-      cy.task('reset')
+      cy.task('resetStubs')
       cy.task('stubAuthPing')
       cy.task('stubTokenVerificationPing')
       cy.task('stubManageUsersPing')
@@ -22,7 +22,7 @@ context('Healthcheck', () => {
 
   context('Some unhealthy', () => {
     it('Reports correctly when token verification down', () => {
-      cy.task('reset')
+      cy.task('resetStubs')
       cy.task('stubAuthPing')
       cy.task('stubTokenVerificationPing', 500)
 
