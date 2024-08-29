@@ -19,7 +19,7 @@ context('Sign in', () => {
   })
 
   it('Non-prison users are not permitted', () => {
-    cy.task('reset')
+    cy.task('resetStubs')
     cy.task('stubSignIn', { roles: [] })
     cy.task('stubManageUser')
     cy.task('stubNomisUserCaseloads')

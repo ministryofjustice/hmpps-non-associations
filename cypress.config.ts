@@ -26,7 +26,7 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on) {
       on('task', {
-        reset: resetStubs,
+        resetStubs,
         ...auth,
         ...manageUsersApi,
         ...tokenVerification,

@@ -19,8 +19,8 @@
   },
   "exclude": [
     "node_modules",
-    "assets",
     "esbuild",
+    "assets",
     "dist",
     "helm_deploy",
     "integration_tests",

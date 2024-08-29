@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { Response } from 'superagent'
+import type { Response } from 'superagent'
 
 import {
   userRolePrison,
@@ -143,6 +143,7 @@ export const defaultRoles = [
   userRoleInactiveBookings,
   userRoleManageNonAssociations,
 ]
+
 export default {
   getSignInUrl,
   stubAuthPing: ping,
