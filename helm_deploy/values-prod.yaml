@@ -20,4 +20,4 @@ generic-service:
     FEEDBACK_SURVEY_URL: "https://eu.surveymonkey.com/r/PJ8CKTH"
 
 generic-prometheus-alerts:
-  alertSeverity: digital-prison-service
+  alertSeverity: hmpps-non-associations-prod

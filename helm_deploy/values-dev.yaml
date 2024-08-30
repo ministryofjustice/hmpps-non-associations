@@ -26,5 +26,5 @@ generic-service:
     SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk"
 
 generic-prometheus-alerts:
-  alertSeverity: digital-prison-service-dev
+  alertSeverity: hmpps-non-associations-dev
   businessHoursOnly: true
