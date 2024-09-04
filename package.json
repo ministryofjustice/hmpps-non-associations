@@ -84,7 +84,7 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.637.0",
     "@ministryofjustice/frontend": "^2.2.0",
-    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^3.23.0",
+    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^3.23.3",
     "@ministryofjustice/hmpps-non-associations-api": "https://github.com/ministryofjustice/hmpps-non-associations-api/releases/download/node-client-0.4.0/node-client.tgz",
     "agentkeepalive": "^4.5.0",
     "applicationinsights": "^2.9.6",
@@ -142,7 +142,7 @@
     "chokidar": "^3.6.0",
     "concurrently": "^8.2.2",
     "cookie-session": "^2.1.0",
-    "cypress": "^13.14.0",
+    "cypress": "^13.14.1",
     "cypress-multi-reporters": "^1.6.4",
     "dotenv": "^16.4.5",
     "esbuild": "^0.23.1",
