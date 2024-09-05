@@ -8,7 +8,6 @@ import errorHandler from '../../errorHandler'
 import breadcrumbs from '../../middleware/breadcrumbs'
 import userPermissions from '../../middleware/userPermissions'
 import setUpHealthChecks from '../../middleware/setUpHealthChecks'
-import * as auth from '../../authentication/auth'
 import {
   userRolePrison,
   userRoleGlobalSearch,
@@ -104,7 +103,6 @@ export function appWithAllRoutes({
   services?: Partial<Services>
   userSupplier?: () => Express.User
 }): Express {
-  auth.default.authenticationMiddleware = () => (req, res, next) => next()
   // eslint-disable-next-line no-param-reassign
   services.routeUrls = routeUrls
   // eslint-disable-next-line no-param-reassign
