@@ -1,14 +1,30 @@
 import { Router } from 'express'
-import auth from '../authentication/auth'
-import tokenVerifier from '../data/tokenVerification'
+
+import logger from '../../logger'
 import type { Services } from '../services'
-import populateCurrentUser from './populateCurrentUser'
 import userPermissions from './userPermissions'
 
 export default function setUpCurrentUser({ userService }: Services): Router {
-  const router = Router({ mergeParams: true })
-  router.use(auth.authenticationMiddleware(tokenVerifier))
-  router.use(populateCurrentUser(userService))
+  const router = Router()
+
+  router.use(async (req, res, next) => {
+    try {
+      if (res.locals.user) {
+        const user = await userService.getUser(res.locals.user.token)
+        if (user) {
+          res.locals.user = { ...user, ...res.locals.user }
+        } else {
+          logger.info('No user available')
+        }
+      }
+      next()
+    } catch (error) {
+      logger.error(error, `Failed to retrieve user for: ${res.locals.user && res.locals.user.username}`)
+      next(error)
+    }
+  })
+
   router.use(userPermissions())
+
   return router
 }
