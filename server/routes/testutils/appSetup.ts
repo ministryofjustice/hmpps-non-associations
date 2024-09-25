@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import cookieSession from 'cookie-session'
 import express, { type Express } from 'express'
 import { NotFound } from 'http-errors'
@@ -74,10 +76,12 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   nunjucksSetup(app, services)
   app.use(cookieSession({ keys: [''] }))
   app.use((req, res, next) => {
+    req.id = randomUUID()
+
     // NB: in reality, req.user != res.locals.user
     req.user = userSupplier()
-    res.locals = {} as Express.Locals
     res.locals.user = { ...req.user }
+
     next()
   })
   app.use(express.json())
