@@ -40,11 +40,10 @@ describe('prisoner photos', () => {
     return request(app)
       .get(`/prisoner/${prisonerNumber}/photo.jpeg`)
       .expect('Content-Type', /image\/jpeg/)
+      .expect('Cache-Control', 'private, max-age=86400')
       .expect(200)
       .expect(res => {
-        expect(prisonApi.getPhoto).toBeCalledWith(prisonerNumber)
-
-        expect(res.headers['cache-control']).toEqual('private, max-age=86400')
+        expect(prisonApi.getPhoto).toHaveBeenLastCalledWith(prisonerNumber)
         expect(res.body).toEqual(imageData)
       })
   })
@@ -55,12 +54,11 @@ describe('prisoner photos', () => {
     return request(app)
       .get(`/prisoner/${prisonerNumber}/photo.jpeg`)
       .expect('Content-Type', /image\/jpeg/)
+      .expect('Cache-Control', 'private, max-age=86400')
       .expect(200)
       .expect(res => {
-        expect(prisonApi.getPhoto).toBeCalledWith(prisonerNumber)
-
-        expect(res.headers['cache-control']).toEqual('private, max-age=86400')
-        expect(res.body).toHaveLength(3165) // file size of assets/images/prisoner.jpeg
+        expect(prisonApi.getPhoto).toHaveBeenLastCalledWith(prisonerNumber)
+        expect(res.body).toHaveLength(3054) // file size of assets/images/prisoner.jpeg
       })
   })
 })

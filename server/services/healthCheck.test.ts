@@ -9,8 +9,8 @@ describe('Healthcheck', () => {
     buildNumber: '1',
     gitRef: 'long ref',
     gitShortHash: 'short ref',
-    packageJsonPath: '../..',
     branchName: 'main',
+    assetsPath: './assets',
   }
 
   it('Healthcheck reports healthy', done => {

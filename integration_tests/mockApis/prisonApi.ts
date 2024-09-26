@@ -26,7 +26,7 @@ export default {
    * Use generic photo for all prisoners
    */
   stubPrisonApiGetPhoto(): SuperAgentRequest {
-    const imagePath = path.join(applicationInfo().packageJsonPath, 'assets', 'images', 'prisoner.jpeg')
+    const imagePath = path.join(applicationInfo().assetsPath, 'images', 'prisoner.jpeg')
     const imageContents = fs.readFileSync(imagePath, { encoding: 'base64' })
 
     return stubFor({

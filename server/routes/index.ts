@@ -45,7 +45,7 @@ export default function routes(services: Services): Router {
     res.setHeader('Content-Type', 'image/jpeg')
 
     if (!photoData) {
-      res.sendFile('prisoner.jpeg', { root: `${services.applicationInfo.packageJsonPath}/assets/images` })
+      res.sendFile('images/prisoner.jpeg', { root: services.applicationInfo.assetsPath })
     } else {
       res.send(photoData)
     }
