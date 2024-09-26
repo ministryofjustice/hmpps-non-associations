@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 
 import config from './config'
@@ -10,10 +9,11 @@ export type ApplicationInfo = {
   gitRef: string
   gitShortHash: string
   branchName: string
-  packageJsonPath: string
+  assetsPath: string
 }
 
 export default (): ApplicationInfo => {
+  const assetsPath = path.join(__dirname, '../assets')
   const { buildNumber, gitRef } = config
   return {
     applicationName: 'hmpps-non-associations',
@@ -22,25 +22,6 @@ export default (): ApplicationInfo => {
     gitRef,
     gitShortHash: gitRef.substring(0, 7),
     branchName: config.branchName,
-    get packageJsonPath(): string {
-      return findPackageJson()
-    },
+    assetsPath,
   }
-}
-
-/**
- * The app runs from built JS files under ./dist
- * The tests run directly from TS files under ./
- * This function finds the application root where the package.json file resides
- */
-function findPackageJson(): string {
-  for (const p of [path.dirname(__dirname), path.dirname(path.dirname(__dirname))]) {
-    try {
-      fs.accessSync(path.join(p, 'package.json'), fs.constants.R_OK)
-      return p
-    } catch {
-      /* empty */
-    }
-  }
-  throw new Error('Could not find path of package.json')
 }
