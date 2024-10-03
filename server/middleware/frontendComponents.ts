@@ -1,16 +1,16 @@
-import type { RequestHandler } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 
 import logger from '../../logger'
 import type { Services } from '../services'
 
-export default function frontendComponents(services: Services): RequestHandler {
-  const { frontendComponentsClient } = services
-  return async (req, res, next) => {
+export default function frontendComponents({ frontendComponentsClient }: Services) {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const [header, footer] = await Promise.all([
-        frontendComponentsClient.getComponent('header', res.locals.user.token),
-        frontendComponentsClient.getComponent('footer', res.locals.user.token),
-      ])
+      const { header, footer } = await frontendComponentsClient.getComponents(
+        ['header', 'footer'],
+        res.locals.user.token,
+      )
+      // TODO: meta information from frontend components can be used to read active and available caseloads
       res.locals.feComponents = {
         header: header.html,
         footer: footer.html,
@@ -19,7 +19,7 @@ export default function frontendComponents(services: Services): RequestHandler {
       }
       next()
     } catch (error) {
-      logger.error(error, 'Failed to retrieve front end components')
+      logger.error(error, 'Failed to retrieve frontend components')
       next()
     }
   }
