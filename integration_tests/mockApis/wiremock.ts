@@ -10,6 +10,7 @@ export interface Mapping {
   request?: Partial<
     {
       method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
+      queryParameters: object
       bodyPatterns: { equalToJson: unknown }[]
     } & ({ url: string } | { urlPath: string } | { urlPathPattern: string } | { urlPattern: string })
   >
