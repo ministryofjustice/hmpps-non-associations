@@ -82,9 +82,9 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.658.1",
+    "@aws-sdk/client-sqs": "^3.664.0",
     "@ministryofjustice/frontend": "^2.2.4",
-    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^3.26.3",
+    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^3.26.8",
     "@ministryofjustice/hmpps-non-associations-api": "https://github.com/ministryofjustice/hmpps-non-associations-api/releases/download/node-client-0.4.0/node-client.tgz",
     "agentkeepalive": "^4.5.0",
     "applicationinsights": "^2.9.6",
@@ -155,7 +155,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-cypress": "^3.5.0",
-    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.2.1",
     "glob": "^11.0.0",
