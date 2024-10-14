@@ -45,15 +45,15 @@ context('Sign in', () => {
     it('Token verification failure takes user to sign in page', () => {
       cy.task('stubVerifyToken', false)
 
-      // can't do a visit here as cypress requires only one domain
-      cy.request(`/prisoner/${davidJones.prisonerNumber}/non-associations`).its('body').should('contain', 'Sign in')
+      cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
+      Page.verifyOnPage(AuthSignInPage)
     })
 
     it('Token verification failure clears user session', () => {
       cy.task('stubVerifyToken', false)
 
-      // can't do a visit here as cypress requires only one domain
-      cy.request(`/prisoner/${davidJones.prisonerNumber}/non-associations`).its('body').should('contain', 'Sign in')
+      cy.visit(`/prisoner/${davidJones.prisonerNumber}/non-associations`)
+      Page.verifyOnPage(AuthSignInPage)
 
       cy.task('stubVerifyToken', true)
       cy.task('stubManageUser', 'bobby brown')

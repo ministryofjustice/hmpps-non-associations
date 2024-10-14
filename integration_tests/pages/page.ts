@@ -5,7 +5,7 @@ export default abstract class Page {
     return new constructor(...args)
   }
 
-  constructor(
+  protected constructor(
     protected readonly h1: string,
     protected readonly pageTitle?: string,
   ) {
