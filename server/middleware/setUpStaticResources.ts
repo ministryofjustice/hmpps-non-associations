@@ -12,7 +12,7 @@ export default function setUpStaticResources(): Router {
   router.use(compression())
 
   //  Static Resources Configuration
-  const cacheControl = { maxAge: config.staticResourceCacheDuration }
+  const staticResourcesConfig = { maxAge: config.staticResourceCacheDuration, redirect: false }
 
   // Static assets
   Array.of(
@@ -23,19 +23,19 @@ export default function setUpStaticResources(): Router {
     '/node_modules/@ministryofjustice/frontend',
     '/node_modules/jquery/dist',
   ).forEach(dir => {
-    router.use('/assets', express.static(path.join(process.cwd(), dir), cacheControl))
+    router.use('/assets', express.static(path.join(process.cwd(), dir), staticResourcesConfig))
   })
   // Digital Prison Reporting configuration
   router.use(
     '/assets/dpr',
     express.static(
       path.join(process.cwd(), '/node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/assets'),
-      cacheControl,
+      staticResourcesConfig,
     ),
   )
   router.use(
     '/assets/js/jquery.min.js',
-    express.static(path.join(process.cwd(), '/node_modules/jquery/dist/jquery.min.js'), cacheControl),
+    express.static(path.join(process.cwd(), '/node_modules/jquery/dist/jquery.min.js'), staticResourcesConfig),
   )
 
   // Don't cache dynamic resources
