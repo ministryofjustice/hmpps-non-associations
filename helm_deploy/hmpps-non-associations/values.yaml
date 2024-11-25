@@ -54,7 +54,6 @@ generic-service:
     NODE_ENV: "production"
     REDIS_TLS_ENABLED: "true"
     TOKEN_VERIFICATION_ENABLED: "true"
-    APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY);IngestionEndpoint=https://northeurope-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/"
     BUNYAN_NO_COLOR: "1"
     AUDIT_ENABLED: "false"
     AUDIT_SQS_REGION: "eu-west-2"
@@ -63,6 +62,8 @@ generic-service:
   envFrom:
     - secretRef:
         name: hmpps-non-associations
+    - secretRef:
+        name: application-insights
 
   namespace_secrets:
     elasticache-redis:
