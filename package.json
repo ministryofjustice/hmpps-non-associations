@@ -82,9 +82,9 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.712.0",
-    "@ministryofjustice/frontend": "^3.2.1",
-    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "3.26.8",
+    "@aws-sdk/client-sqs": "^3.714.0",
+    "@ministryofjustice/frontend": "^3.2.2",
+    "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "3.34.0",
     "@ministryofjustice/hmpps-non-associations-api": "^0.5.0",
     "agentkeepalive": "^4.5.0",
     "applicationinsights": "^2.9.6",
@@ -139,7 +139,7 @@
     "chokidar": "^3.6.0",
     "concurrently": "^9.1.0",
     "cookie-session": "^2.1.0",
-    "cypress": "^13.16.1",
+    "cypress": "^13.17.0",
     "cypress-multi-reporters": "^2.0.4",
     "esbuild": "^0.24.0",
     "esbuild-plugin-clean": "^1.0.1",
