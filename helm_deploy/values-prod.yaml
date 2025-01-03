@@ -17,7 +17,7 @@ generic-service:
     INGRESS_URL: "https://non-associations.hmpps.service.justice.gov.uk"
     DPS_URL: "https://digital.prison.service.justice.gov.uk"
     SUPPORT_URL: "https://support.hmpps.service.justice.gov.uk"
-    FEEDBACK_SURVEY_URL: "https://eu.surveymonkey.com/r/PJ8CKTH"
+    FEEDBACK_SURVEY_URL: "https://www.smartsurvey.co.uk/s/H10VXN/"
 
 generic-prometheus-alerts:
   alertSeverity: hmpps-non-associations-prod
