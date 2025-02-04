@@ -51,7 +51,6 @@ const buildAssets = buildConfig => {
         loadPaths: [
           path.join(process.cwd(), 'node_modules'),
           process.cwd(), // needed for imports in @ministryofjustice/frontend/moj/all
-          path.join(process.cwd(), 'node_modules', 'govuk-frontend/dist'), // needed for imports in @ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/all
         ],
       }),
     ],
