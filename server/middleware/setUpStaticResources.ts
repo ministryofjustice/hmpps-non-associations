@@ -25,7 +25,12 @@ export default function setUpStaticResources(): Router {
   ).forEach(dir => {
     router.use('/assets', express.static(path.join(process.cwd(), dir), staticResourcesConfig))
   })
-  // Digital Prison Reporting configuration
+  router.use(
+    '/assets/js/jquery.min.js',
+    express.static(path.join(process.cwd(), '/node_modules/jquery/dist/jquery.min.js'), staticResourcesConfig),
+  )
+
+  // Digital Prison Reporting & third-party plugins
   router.use(
     '/assets/dpr',
     express.static(
@@ -34,8 +39,23 @@ export default function setUpStaticResources(): Router {
     ),
   )
   router.use(
-    '/assets/js/jquery.min.js',
-    express.static(path.join(process.cwd(), '/node_modules/jquery/dist/jquery.min.js'), staticResourcesConfig),
+    '/assets/ext/chart.js',
+    express.static(path.join(process.cwd(), '/node_modules/chart.js/dist/chart.umd.js'), staticResourcesConfig),
+  )
+  router.use(
+    '/assets/ext/chartjs-datalabels.js',
+    express.static(
+      path.join(process.cwd(), '/node_modules/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.min.js'),
+      staticResourcesConfig,
+    ),
+  )
+  router.use(
+    '/assets/ext/day.js',
+    express.static(path.join(process.cwd(), '/node_modules/dayjs/dayjs.min.js'), staticResourcesConfig),
+  )
+  router.use(
+    '/assets/ext/dayjs/plugin/customParseFormat.js',
+    express.static(path.join(process.cwd(), '/node_modules/dayjs/plugin/customParseFormat.js'), staticResourcesConfig),
   )
 
   // Don't cache dynamic resources
