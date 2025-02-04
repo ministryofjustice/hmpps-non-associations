@@ -43,10 +43,12 @@ export default function nunjucksSetup(app: express.Express, services: Services):
 
   const njkEnv = nunjucks.configure(
     [
-      path.join(__dirname, '../../server/views'),
+      path.resolve(__dirname, '../../server/views'),
+      // GOV.UK Frontend
       'node_modules/govuk-frontend/dist/',
+      // MoJ Frontend
       'node_modules/@ministryofjustice/frontend/',
-      // Digital Prison Reporting configuration
+      // Digital Prison Reporting
       'node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/',
       'node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/',
     ],

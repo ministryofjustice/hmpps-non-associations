@@ -5,11 +5,11 @@
   color: govuk-colour('white');
 
   &__container {
-    @include govuk-width-container;
     display: flex;
     justify-content: space-between;
     align-items: center;
     min-height: 40px;
+    @include govuk-width-container;
   }
 
   &__logo {
@@ -25,10 +25,10 @@
     align-items: center;
 
     &__organisation-name {
-      @include govuk-responsive-margin(2, 'right');
-      @include govuk-font($size: 24, $weight: '300');
       display: flex;
       align-items: center;
+      @include govuk-responsive-margin(2, 'right');
+      @include govuk-font($size: 24, $weight: '300');
     }
 
     &__service-name {
@@ -42,9 +42,9 @@
   }
 
   &__link {
+    text-underline-offset: .1em;
     @include govuk-link-common;
     @include govuk-link-style-default;
-    text-underline-offset: .1em;
 
     &:link,
     &:visited,
@@ -71,8 +71,8 @@
     }
 
     &__sub-text {
-      @include govuk-font(16);
       display: none;
+      @include govuk-font(16);
 
       @include govuk-media-query($from: tablet) {
         display: block;
@@ -98,11 +98,11 @@
     }
 
     &__item {
-      @include govuk-font(16);
       margin-bottom: govuk-spacing(1);
       display: flex;
       align-items: center;
       text-align: right;
+      @include govuk-font(16);
 
       @include govuk-media-query($from: tablet) {
         @include govuk-responsive-margin(4, 'right');
@@ -139,6 +139,6 @@
 }
 
 .govuk-phase-banner {
-  @include govuk-width-container;
   border: none;
+  @include govuk-width-container;
 }

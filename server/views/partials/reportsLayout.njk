@@ -1,7 +1,16 @@
 {% extends "./layout.njk" %}
 
+{% block pageStylesheets %}
+  <link href="/assets/dpr/css/all.css" rel="stylesheet" />
+{% endblock %}
+
 {% block bodyEnd %}
   {{ super() }}
+
+  <script type="module" src="/assets/ext/day.js"></script>
+  <script type="module" src="/assets/ext/dayjs/plugin/customParseFormat.js"></script>
+  <script type="module" src="/assets/ext/chart.js"></script>
+  <script type="module" src="/assets/ext/chartjs-datalabels.js"></script>
 
   <script type="module" src="/assets/dpr/js/all.mjs"></script>
   <script type="module" nonce="{{ cspNonce }}">
