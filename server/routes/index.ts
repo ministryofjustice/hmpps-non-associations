@@ -51,6 +51,14 @@ export default function routes(services: Services): Router {
     }
   })
 
+  router.use(urlTemplates.list, listRoutes(services))
+  router.use(urlTemplates.prisonerSearch, prisonerSearchRoutes(services))
+  router.use(urlTemplates.add, addRoutes(services))
+  router.use(urlTemplates.view, viewRoutes(services))
+  router.use(urlTemplates.close, closeRoutes(services))
+  router.use(urlTemplates.update, updateRoutes(services))
+
+  // Digital Prison Reporting
   get(
     '/reports',
     ReportListUtils.createReportListRequestHandler({
@@ -63,18 +71,6 @@ export default function routes(services: Services): Router {
       tokenProvider: defaultTokenProvider,
     }),
   )
-
-  router.use(urlTemplates.list, listRoutes(services))
-
-  router.use(urlTemplates.prisonerSearch, prisonerSearchRoutes(services))
-
-  router.use(urlTemplates.add, addRoutes(services))
-
-  router.use(urlTemplates.view, viewRoutes(services))
-
-  router.use(urlTemplates.close, closeRoutes(services))
-
-  router.use(urlTemplates.update, updateRoutes(services))
 
   return router
 }
