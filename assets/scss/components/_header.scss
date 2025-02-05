@@ -14,9 +14,6 @@
 
   &__logo {
     @include govuk-responsive-margin(3, 'right');
-    position: relative;
-    top: -1px;
-    fill: govuk-colour('white');
   }
 
   &__title {
