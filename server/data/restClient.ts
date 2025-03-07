@@ -1,8 +1,9 @@
 import { Readable } from 'stream'
 
-import Agent, { HttpsAgent } from 'agentkeepalive'
+import { HttpAgent, HttpsAgent } from 'agentkeepalive'
 import superagent from 'superagent'
 
+import type { Agent } from 'http'
 import logger from '../../logger'
 import type { ApiConfig } from '../config'
 import type { UnsanitisedError } from '../sanitisedError'
@@ -35,7 +36,7 @@ export default class RestClient {
     private readonly config: ApiConfig,
     private readonly token: string,
   ) {
-    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new Agent(config.agent)
+    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
   }
 
   private apiUrl() {
