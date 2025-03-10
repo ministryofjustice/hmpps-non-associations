@@ -141,7 +141,7 @@
     "cookie-session": "^2.1.0",
     "cypress": "^14.1.0",
     "cypress-multi-reporters": "^2.0.5",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.25.1",
     "esbuild-plugin-clean": "^1.0.1",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-manifest": "^1.0.5",
@@ -159,6 +159,6 @@
     "prettier-plugin-jinja-template": "^2.0.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.6",
-    "typescript": "^5.8.2"
+    "typescript": "^5.7.3"
   }
 }
