@@ -80,5 +80,8 @@ generic-service:
       - prisons
       - private_prisons
 
+  scheduledDowntime:
+    timeZone: Europe/London
+
 generic-prometheus-alerts:
   targetApplication: hmpps-non-associations
