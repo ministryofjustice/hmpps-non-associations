@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import cookieSession from 'cookie-session'
 import express, { type Express } from 'express'
 import { NotFound } from 'http-errors'
+import { AuthenticationClient } from '@ministryofjustice/hmpps-auth-clients'
 
 import nunjucksSetup from '../../utils/nunjucksSetup'
 import applicationInfo from '../../applicationInfo'
@@ -16,14 +17,13 @@ import {
   userRoleInactiveBookings,
   userRoleManageNonAssociations,
 } from '../../data/constants'
-import HmppsAuthClient from '../../data/hmppsAuthClient'
 
 import routes from '../index'
 import type { Caseload } from '../../data/nomisUserRolesApi'
 import type { Services } from '../../services'
 import routeUrls from '../../services/routeUrls'
 
-jest.mock('../../data/hmppsAuthClient')
+jest.mock('@ministryofjustice/hmpps-auth-clients')
 
 export const mockActiveCaseload: Caseload = {
   id: 'MDI',
@@ -110,6 +110,6 @@ export function appWithAllRoutes({
   // eslint-disable-next-line no-param-reassign
   services.routeUrls = routeUrls
   // eslint-disable-next-line no-param-reassign
-  services.hmppsAuthClient = new HmppsAuthClient(undefined) // NB: this class is mocked
+  services.hmppsAuthClient = new AuthenticationClient(undefined, undefined, undefined) // NB: this class is mocked
   return appSetup(services as Services, production, userSupplier)
 }

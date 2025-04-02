@@ -23,7 +23,7 @@ export default function viewRoutes(service: Services): Router {
       throw new NotFound(`User ${user.username} does not have read permissions`)
     }
 
-    const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
+    const systemToken = await hmppsAuthClient.getToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
     const api = new NonAssociationsApi(systemToken)
 
