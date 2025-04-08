@@ -8,8 +8,8 @@ import {
 } from '@ministryofjustice/hmpps-non-associations-api'
 import type { Express } from 'express'
 import request from 'supertest'
+import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
-import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes, mockReadOnlyUser, mockUserWithoutGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { transferPrisonId, outsidePrisonId } from '../data/constants'
@@ -82,7 +82,7 @@ describe('Non-associations list page', () => {
     beforeEach(() => {
       const error: SanitisedError = {
         name: 'Error',
-        status: 404,
+        responseStatus: 404,
         message: 'Not Found',
         stack: 'Not Found',
       }
@@ -1229,7 +1229,7 @@ describe('Non-associations list page', () => {
     beforeEach(() => {
       const error: SanitisedError = {
         name: 'Error',
-        status: 500,
+        responseStatus: 500,
         message: 'Internal Server Error',
         stack: 'Error: Internal Server Error',
       }

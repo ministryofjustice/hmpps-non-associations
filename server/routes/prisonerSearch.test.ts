@@ -1,7 +1,7 @@
 import type { Express } from 'express'
 import request from 'supertest'
+import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
-import { SanitisedError } from '../sanitisedError'
 import {
   appWithAllRoutes,
   mockUser,
@@ -102,7 +102,7 @@ describe('Search for a prisoner page', () => {
   it('should return 404 if prisoner is not found', () => {
     const error: SanitisedError = {
       name: 'Error',
-      status: 404,
+      responseStatus: 404,
       message: 'Not Found',
       stack: 'Not Found',
     }

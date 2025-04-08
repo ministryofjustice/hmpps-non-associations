@@ -1,6 +1,8 @@
+import { asSystem, RestClient } from '@ministryofjustice/hmpps-rest-client'
+
 import config from '../config'
 import { TransferPrisonId, OutsidePrisonId, transferPrisonId, outsidePrisonId } from './constants'
-import RestClient from './restClient'
+import logger from '../../logger'
 
 interface BaseOffenderSearchResult {
   bookingId: number
@@ -66,16 +68,21 @@ export class OffenderSearchClient extends RestClient {
   static readonly PAGE_SIZE = 20
 
   constructor(token: string) {
-    super('Offender Search API', config.apis.offenderSearchApi, token)
+    super('Offender Search API', config.apis.offenderSearchApi, logger, {
+      getToken: async () => token,
+    })
   }
 
   /**
    * Find a single person by prisoner number
    */
   getPrisoner(prisonerNumber: string): Promise<OffenderSearchResult> {
-    return this.get<OffenderSearchResult>({
-      path: `/prisoner/${encodeURIComponent(prisonerNumber)}`,
-    })
+    return this.get<OffenderSearchResult>(
+      {
+        path: `/prisoner/${encodeURIComponent(prisonerNumber)}`,
+      },
+      asSystem(),
+    )
   }
 
   /**
@@ -88,15 +95,18 @@ export class OffenderSearchClient extends RestClient {
     sort: Sort = 'lastName',
     order: Order = 'ASC',
   ): Promise<OffenderSearchResults> {
-    return this.get<OffenderSearchResults>({
-      path: `/prison/${encodeURIComponent(prisonId)}/prisoners`,
-      query: {
-        term,
-        size: OffenderSearchClient.PAGE_SIZE,
-        page,
-        sort: `${sort},${order}`,
+    return this.get<OffenderSearchResults>(
+      {
+        path: `/prison/${encodeURIComponent(prisonId)}/prisoners`,
+        query: {
+          term,
+          size: OffenderSearchClient.PAGE_SIZE,
+          page,
+          sort: `${sort},${order}`,
+        },
       },
-    })
+      asSystem(),
+    )
   }
 
   /**
@@ -121,13 +131,16 @@ export class OffenderSearchClient extends RestClient {
       // eslint-disable-next-line no-param-reassign
       filters.includeAliases = true
     }
-    return this.post<OffenderSearchResults>({
-      path: '/global-search',
-      query: {
-        size: OffenderSearchClient.PAGE_SIZE,
-        page: encodeURIComponent(page),
+    return this.post<OffenderSearchResults>(
+      {
+        path: '/global-search',
+        query: {
+          size: OffenderSearchClient.PAGE_SIZE,
+          page: encodeURIComponent(page),
+        },
+        data: filters,
       },
-      data: filters,
-    })
+      asSystem(),
+    )
   }
 }
