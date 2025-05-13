@@ -30,7 +30,7 @@ export default function updateRoutes(service: Services): Router {
           throw new NotFound(`User ${user.username} does not have write permissions`)
         }
 
-        const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
+        const systemToken = await hmppsAuthClient.getToken(user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const nonAssociationsApi = new NonAssociationsApi(systemToken)
         const nonAssociation = await nonAssociationsApi.getNonAssociation(nonAssociationId)

@@ -33,7 +33,7 @@ export default function addRoutes(service: Services): Router {
           throw new NotFound('Cannot add a non-association to the same person')
         }
 
-        const systemToken = await hmppsAuthClient.getSystemClientToken(user.username)
+        const systemToken = await hmppsAuthClient.getToken(user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const [prisoner, otherPrisoner] = await Promise.all([
           offenderSearchClient.getPrisoner(prisonerNumber),

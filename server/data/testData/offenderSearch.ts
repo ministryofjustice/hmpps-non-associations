@@ -1,5 +1,6 @@
+import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
+
 import { transferPrisonId, outsidePrisonId, type TransferPrisonId, type OutsidePrisonId } from '../constants'
-import { SanitisedError } from '../../sanitisedError'
 import type {
   OffenderSearchClient,
   OffenderSearchResult,
@@ -99,7 +100,7 @@ export const mockGetPrisoner: OffenderSearchClient['getPrisoner'] = prisonerNumb
 
   const error: SanitisedError = {
     name: 'Error',
-    status: 404,
+    responseStatus: 404,
     message: 'Not Found',
     stack: 'Not Found',
   }

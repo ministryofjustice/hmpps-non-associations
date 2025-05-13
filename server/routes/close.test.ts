@@ -1,7 +1,7 @@
 import type { Express } from 'express'
 import request from 'supertest'
+import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
-import { SanitisedError } from '../sanitisedError'
 import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
@@ -102,7 +102,7 @@ describe('Close non-association page', () => {
   it('should return 404 if non-association is not found', () => {
     const error: SanitisedError = {
       name: 'Error',
-      status: 404,
+      responseStatus: 404,
       message: 'Not Found',
       stack: 'Not Found',
     }
@@ -275,7 +275,7 @@ describe('Close non-association page', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
     const error: SanitisedError = {
       name: 'Error',
-      status: 400,
+      responseStatus: 400,
       message: 'Bad Request',
       stack: 'Error: Bad Request',
     }
