@@ -1,6 +1,5 @@
-import { asSystem } from '@ministryofjustice/hmpps-rest-client'
+import { RestClient, asSystem } from '@ministryofjustice/hmpps-rest-client'
 
-import ConcreteRestClient from './concreteRestClient'
 import config from '../config'
 import logger from '../../logger'
 
@@ -16,10 +15,8 @@ export interface User {
 }
 
 export default class ManageUsersApiClient {
-  constructor() {}
-
-  private static restClient(token: string): ConcreteRestClient {
-    return new ConcreteRestClient('Manage Users Api Client', config.apis.manageUsersApi, logger, {
+  private static restClient(token: string): RestClient {
+    return new RestClient('Manage Users Api Client', config.apis.manageUsersApi, logger, {
       getToken: async () => token,
     })
   }
