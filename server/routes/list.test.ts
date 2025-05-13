@@ -1,7 +1,6 @@
 import {
   type NonAssociationsList,
-  type OpenNonAssociationsListItem,
-  type ClosedNonAssociationsListItem,
+  type NonAssociationsListItem,
   sortDirectionOptions,
   type SortBy,
   type SortDirection,
@@ -800,20 +799,18 @@ describe('Non-associations list page', () => {
       ]
       return {
         ...nonAssociations,
-        nonAssociations: nonAssociations.nonAssociations.map(
-          (nonAssociation): OpenNonAssociationsListItem | ClosedNonAssociationsListItem => {
-            const { prisonId, prisonName } = prisons.pop()
-            return {
-              ...nonAssociation,
-              otherPrisonerDetails: {
-                ...nonAssociation.otherPrisonerDetails,
-                prisonId,
-                prisonName,
-                cellLocation: undefined,
-              },
-            }
-          },
-        ),
+        nonAssociations: nonAssociations.nonAssociations.map((nonAssociation): NonAssociationsListItem => {
+          const { prisonId, prisonName } = prisons.pop()
+          return {
+            ...nonAssociation,
+            otherPrisonerDetails: {
+              ...nonAssociation.otherPrisonerDetails,
+              prisonId,
+              prisonName,
+              cellLocation: undefined,
+            },
+          }
+        }),
       }
     }
 

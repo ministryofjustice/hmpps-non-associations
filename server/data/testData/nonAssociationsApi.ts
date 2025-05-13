@@ -1,5 +1,6 @@
 import type {
   NonAssociationsList,
+  NonAssociationsListItem,
   OpenNonAssociationsListItem,
   ClosedNonAssociationsListItem,
   NonAssociation,
@@ -175,74 +176,66 @@ export function mockMoveOtherPrisonersInNonAssociationsList(
   if (prisonId === transferPrisonId) {
     return {
       ...nonAssociations,
-      nonAssociations: nonAssociations.nonAssociations.map(
-        (nonAssociation): OpenNonAssociationsListItem | ClosedNonAssociationsListItem => {
-          return {
-            ...nonAssociation,
-            otherPrisonerDetails: {
-              ...nonAssociation.otherPrisonerDetails,
-              prisonId,
-              prisonName: 'Transfer',
-              cellLocation: undefined,
-            },
-          }
-        },
-      ),
+      nonAssociations: nonAssociations.nonAssociations.map((nonAssociation): NonAssociationsListItem => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName: 'Transfer',
+            cellLocation: undefined,
+          },
+        }
+      }),
     }
   }
 
   if (prisonId === outsidePrisonId) {
     return {
       ...nonAssociations,
-      nonAssociations: nonAssociations.nonAssociations.map(
-        (nonAssociation): OpenNonAssociationsListItem | ClosedNonAssociationsListItem => {
-          return {
-            ...nonAssociation,
-            otherPrisonerDetails: {
-              ...nonAssociation.otherPrisonerDetails,
-              prisonId,
-              prisonName: 'Outside',
-              cellLocation: undefined,
-            },
-          }
-        },
-      ),
+      nonAssociations: nonAssociations.nonAssociations.map((nonAssociation): NonAssociationsListItem => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId,
+            prisonName: 'Outside',
+            cellLocation: undefined,
+          },
+        }
+      }),
     }
   }
 
   if (!prisonId) {
     return {
       ...nonAssociations,
-      nonAssociations: nonAssociations.nonAssociations.map(
-        (nonAssociation): OpenNonAssociationsListItem | ClosedNonAssociationsListItem => {
-          return {
-            ...nonAssociation,
-            otherPrisonerDetails: {
-              ...nonAssociation.otherPrisonerDetails,
-              prisonId: undefined,
-              prisonName: undefined,
-              cellLocation: undefined,
-            },
-          }
-        },
-      ),
+      nonAssociations: nonAssociations.nonAssociations.map((nonAssociation): NonAssociationsListItem => {
+        return {
+          ...nonAssociation,
+          otherPrisonerDetails: {
+            ...nonAssociation.otherPrisonerDetails,
+            prisonId: undefined,
+            prisonName: undefined,
+            cellLocation: undefined,
+          },
+        }
+      }),
     }
   }
 
   return {
     ...nonAssociations,
-    nonAssociations: nonAssociations.nonAssociations.map(
-      (nonAssociation): OpenNonAssociationsListItem | ClosedNonAssociationsListItem => {
-        return {
-          ...nonAssociation,
-          otherPrisonerDetails: {
-            ...nonAssociation.otherPrisonerDetails,
-            prisonId,
-            prisonName: prisonName ?? 'Some prison',
-          },
-        }
-      },
-    ),
+    nonAssociations: nonAssociations.nonAssociations.map((nonAssociation): NonAssociationsListItem => {
+      return {
+        ...nonAssociation,
+        otherPrisonerDetails: {
+          ...nonAssociation.otherPrisonerDetails,
+          prisonId,
+          prisonName: prisonName ?? 'Some prison',
+        },
+      }
+    }),
   }
 }
 

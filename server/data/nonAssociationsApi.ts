@@ -3,8 +3,7 @@ import {
   systemUsers as systemUsernames,
   type NonAssociation,
   type NonAssociationsList,
-  type OpenNonAssociationsListItem,
-  type ClosedNonAssociationsListItem,
+  type NonAssociationsListItem,
   type SortBy,
   type SortDirection,
 } from '@ministryofjustice/hmpps-non-associations-api'
@@ -16,8 +15,6 @@ import { transferPrisonId, outsidePrisonId } from './constants'
 import PrisonApi, { type StaffMember } from './prisonApi'
 
 export const maxCommentLength = 240 as const
-
-type BaseNonAssociationsListItem = OpenNonAssociationsListItem | ClosedNonAssociationsListItem
 
 export class NonAssociationsApi extends BaseApi {
   constructor(systemToken: string) {
@@ -52,7 +49,7 @@ async function makeStaffLookup(
 }
 
 /**
- * Private method to hydrate `BaseNonAssociationsListItem` and `NonAssociation` with staff names
+ * Private method to hydrate `NonAssociationsListItem` and `NonAssociation` with staff names
  */
 function lookupStaff<O extends { authorisedBy: string; updatedBy: string; closedBy: string | null }>(
   /** Made by `makeStaffLookup` */
@@ -146,20 +143,20 @@ interface NonAssociationNoGroups {
   type: 'noGroups'
 }
 
-interface NonAssociationGroupsWithPrison<Item extends BaseNonAssociationsListItem> {
+interface NonAssociationGroupsWithPrison<Item extends NonAssociationsListItem> {
   type: 'threeGroups'
   same: Item[]
   other: Item[]
   outside: Item[]
 }
 
-interface NonAssociationGroupsWithoutPrison<Item extends BaseNonAssociationsListItem> {
+interface NonAssociationGroupsWithoutPrison<Item extends NonAssociationsListItem> {
   type: 'twoGroups'
   any: Item[]
   outside: Item[]
 }
 
-export type NonAssociationGroups<Item extends BaseNonAssociationsListItem = BaseNonAssociationsListItem> =
+export type NonAssociationGroups<Item extends NonAssociationsListItem = NonAssociationsListItem> =
   | NonAssociationNoGroups
   | NonAssociationGroupsWithPrison<Item>
   | NonAssociationGroupsWithoutPrison<Item>
@@ -177,7 +174,7 @@ export type NonAssociationGroups<Item extends BaseNonAssociationsListItem = Base
  * * any establishment
  * * being transferred or outside
  */
-export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
+export function groupListByLocation<Item extends NonAssociationsListItem>(
   list: NonAssociationsList<Item>,
 ): NonAssociationGroups<Item> {
   if (list.nonAssociations.length === 0) {
@@ -231,12 +228,12 @@ export function groupListByLocation<Item extends BaseNonAssociationsListItem>(
 /**
  * Sort an array of non-association list items
  */
-export function sortList<Item extends BaseNonAssociationsListItem>(
+export function sortList<Item extends NonAssociationsListItem>(
   list: Item[],
   sort: SortBy,
   order: SortDirection,
 ): Item[] {
-  let comparator: (first: BaseNonAssociationsListItem, second: BaseNonAssociationsListItem) => number
+  let comparator: (first: NonAssociationsListItem, second: NonAssociationsListItem) => number
   const reversed = order === 'DESC' ? -1 : 1
   switch (sort) {
     case 'WHEN_CREATED':
