@@ -1,7 +1,7 @@
 import type {
   NonAssociation,
   NonAssociationsList,
-  OpenNonAssociationsListItem,
+  NonAssociationsListItem,
   ClosedNonAssociationsListItem,
   OpenNonAssociation,
   ClosedNonAssociation,
@@ -446,7 +446,7 @@ describe('Non-associations API REST client', () => {
 
     describe.each(sortByOptions)('by %s', sort => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const getter = (item: OpenNonAssociationsListItem | ClosedNonAssociationsListItem): any => {
+      const getter = (item: NonAssociationsListItem): any => {
         switch (sort) {
           case 'WHEN_CREATED':
             return item.whenCreated
