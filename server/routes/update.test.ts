@@ -1,6 +1,5 @@
 import type { Express } from 'express'
 import request from 'supertest'
-import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
 import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
@@ -9,6 +8,7 @@ import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters } from '../data/testData/offenderSearch'
+import { mockRestClientError } from '../data/testData/restClientError'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -103,13 +103,7 @@ describe('Update non-association page', () => {
   })
 
   it('should return 404 if prisoner is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    offenderSearchClient.getPrisoner.mockRejectedValue(error)
+    offenderSearchClient.getPrisoner.mockRejectedValue(mockRestClientError(404))
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
 
     return request(app)
@@ -124,13 +118,7 @@ describe('Update non-association page', () => {
   })
 
   it('should return 404 if the non-association is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    nonAssociationsApi.getNonAssociation.mockRejectedValue(error)
+    nonAssociationsApi.getNonAssociation.mockRejectedValue(mockRestClientError(404))
 
     return request(app)
       .get(routeUrls.update(prisonerNumber, nonAssociationId))
@@ -287,13 +275,7 @@ describe('Update non-association page', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
 
     const updatedComment = `${nonAssociation.comment}\n\n - IR number: 123`
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 400,
-      message: 'Bad Request',
-      stack: 'Error: Bad Request',
-    }
-    nonAssociationsApi.updateNonAssociation.mockRejectedValue(error)
+    nonAssociationsApi.updateNonAssociation.mockRejectedValue(mockRestClientError(400))
 
     return request(app)
       .post(routeUrls.update(otherPrisoner.prisonerNumber, nonAssociation.id))

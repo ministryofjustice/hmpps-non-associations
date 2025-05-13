@@ -1,7 +1,6 @@
 import { type ErrorResponse, ErrorCode } from '@ministryofjustice/hmpps-non-associations-api'
 import type { Express } from 'express'
 import request from 'supertest'
-import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
 import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
@@ -17,6 +16,7 @@ import {
   joePeters,
   mockGetPrisoner,
 } from '../data/testData/offenderSearch'
+import { mockRestClientError } from '../data/testData/restClientError'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -100,13 +100,7 @@ describe('Add non-association details page', () => {
   })
 
   it('should return 404 if prisoner is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    offenderSearchClient.getPrisoner.mockRejectedValue(error)
+    offenderSearchClient.getPrisoner.mockRejectedValue(mockRestClientError(404))
 
     return request(app)
       .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
@@ -119,13 +113,7 @@ describe('Add non-association details page', () => {
 
   it('should return 404 if other prisoner is not found', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    offenderSearchClient.getPrisoner.mockRejectedValueOnce(error)
+    offenderSearchClient.getPrisoner.mockRejectedValueOnce(mockRestClientError(404))
 
     return request(app)
       .get(routeUrls.add(prisonerNumber, otherPrisonerNumber))
@@ -235,20 +223,15 @@ describe('Add non-association details page', () => {
   it('should an error when api indicates there is an open non-association already', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
-    const error: SanitisedError<ErrorResponse> = {
-      name: 'Error',
-      responseStatus: 409,
-      message: 'Bad Request',
-      stack: 'Error: Bad Request',
-      data: {
+    nonAssociationsApi.createNonAssociation.mockRejectedValue(
+      mockRestClientError<ErrorResponse>(409, {
         status: 409,
         errorCode: ErrorCode.OpenNonAssociationAlreadyExist,
         userMessage: `Non-association already exists for these prisoners that is open: Prisoners [${prisonerNumber}, ${otherPrisonerNumber}] already have open non-associations`,
         developerMessage: `Prisoners [${prisonerNumber}, ${otherPrisonerNumber}] already have open non-associations`,
         moreInfo: null,
-      },
-    }
-    nonAssociationsApi.createNonAssociation.mockRejectedValue(error)
+      }),
+    )
     const openNonassociation = mockNonAssociation(prisonerNumber, otherPrisonerNumber)
     openNonassociation.id = 1231
     nonAssociationsApi.listNonAssociationsBetween.mockResolvedValueOnce([openNonassociation])
@@ -285,13 +268,7 @@ describe('Add non-association details page', () => {
   it('should an error when api returns a generic error', () => {
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(otherPrisoner)
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 400,
-      message: 'Bad Request',
-      stack: 'Error: Bad Request',
-    }
-    nonAssociationsApi.createNonAssociation.mockRejectedValue(error)
+    nonAssociationsApi.createNonAssociation.mockRejectedValue(mockRestClientError(400))
 
     return request(app)
       .post(routeUrls.add(prisonerNumber, otherPrisonerNumber))
