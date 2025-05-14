@@ -1,6 +1,5 @@
 import type { Express } from 'express'
 import request from 'supertest'
-import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
 import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
@@ -9,6 +8,7 @@ import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import { davidJones, fredMills, oscarJones, andrewBrown, maxClarke, joePeters } from '../data/testData/offenderSearch'
+import { mockRestClientError } from '../data/testData/restClientError'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -100,13 +100,7 @@ describe('Close non-association page', () => {
   })
 
   it('should return 404 if non-association is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    nonAssociationsApi.getNonAssociation.mockRejectedValue(error)
+    nonAssociationsApi.getNonAssociation.mockRejectedValue(mockRestClientError(404))
 
     return request(app)
       .get(routeUrls.close(prisonerNumber, openNonAssociation.id))
@@ -273,13 +267,7 @@ describe('Close non-association page', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(openNonAssociation)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(prisoner)
     offenderSearchClient.getPrisoner.mockResolvedValueOnce(fredMills)
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 400,
-      message: 'Bad Request',
-      stack: 'Error: Bad Request',
-    }
-    nonAssociationsApi.closeNonAssociation.mockRejectedValueOnce(error)
+    nonAssociationsApi.closeNonAssociation.mockRejectedValueOnce(mockRestClientError(400))
 
     return request(app)
       .post(routeUrls.close(prisonerNumber, openNonAssociation.id))

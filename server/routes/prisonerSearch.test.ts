@@ -1,6 +1,5 @@
 import type { Express } from 'express'
 import request from 'supertest'
-import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
 import {
   appWithAllRoutes,
@@ -22,6 +21,7 @@ import {
   joePeters,
   sampleOffenderSearchResults,
 } from '../data/testData/offenderSearch'
+import { mockRestClientError } from '../data/testData/restClientError'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -100,13 +100,7 @@ describe('Search for a prisoner page', () => {
   })
 
   it('should return 404 if prisoner is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    offenderSearchClient.getPrisoner.mockRejectedValueOnce(error)
+    offenderSearchClient.getPrisoner.mockRejectedValueOnce(mockRestClientError(404))
 
     return request(app)
       .get(routeUrls.prisonerSearch(prisonerNumber))

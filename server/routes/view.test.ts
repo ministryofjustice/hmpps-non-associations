@@ -1,6 +1,5 @@
 import type { Express } from 'express'
 import request from 'supertest'
-import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
 import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
@@ -19,6 +18,7 @@ import {
   mockGetPrisoner,
 } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
+import { mockRestClientError } from '../data/testData/restClientError'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
   // ensures that constants are preserved
@@ -67,13 +67,7 @@ afterEach(() => {
 
 describe('View non-association details page', () => {
   it('should return 404 if prisoner is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    offenderSearchClient.getPrisoner.mockRejectedValue(error)
+    offenderSearchClient.getPrisoner.mockRejectedValue(mockRestClientError(404))
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
 
     return request(app)
@@ -87,13 +81,7 @@ describe('View non-association details page', () => {
   })
 
   it('should return 404 if the non-association is not found', () => {
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 404,
-      message: 'Not Found',
-      stack: 'Not Found',
-    }
-    nonAssociationsApi.getNonAssociation.mockRejectedValue(error)
+    nonAssociationsApi.getNonAssociation.mockRejectedValue(mockRestClientError(404))
 
     return request(app)
       .get(routeUrls.view(prisonerNumber, nonAssociationId))
@@ -461,13 +449,7 @@ describe('View non-association details page', () => {
   it('should show authoriser username when prison api returned an error', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
     offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-    const error: SanitisedError = {
-      name: 'Error',
-      responseStatus: 500,
-      message: 'Internal Server Error',
-      stack: 'Internal Server Error',
-    }
-    prisonApi.getStaffDetails.mockRejectedValueOnce(error)
+    prisonApi.getStaffDetails.mockRejectedValueOnce(mockRestClientError(500))
 
     return request(app)
       .get(routeUrls.view(otherPrisonerNumber, nonAssociation.id))

@@ -1,6 +1,5 @@
-import { asSystem } from '@ministryofjustice/hmpps-rest-client'
+import { RestClient, asUser } from '@ministryofjustice/hmpps-rest-client'
 
-import ConcreteRestClient from './concreteRestClient'
 import config from '../config'
 import logger from '../../logger'
 
@@ -15,17 +14,12 @@ export interface User {
   activeCaseLoadId?: string // deprecated, use user roles api
 }
 
-export default class ManageUsersApiClient {
-  constructor() {}
-
-  private static restClient(token: string): ConcreteRestClient {
-    return new ConcreteRestClient('Manage Users Api Client', config.apis.manageUsersApi, logger, {
-      getToken: async () => token,
-    })
+export default class ManageUsersApiClient extends RestClient {
+  constructor() {
+    super('Manage Users Api Client', config.apis.manageUsersApi, logger)
   }
 
   getUser(token: string): Promise<User> {
-    logger.info('Getting user details: calling HMPPS Manage Users Api')
-    return ManageUsersApiClient.restClient(token).get<User>({ path: '/users/me' }, asSystem())
+    return this.get<User>({ path: '/users/me' }, asUser(token))
   }
 }

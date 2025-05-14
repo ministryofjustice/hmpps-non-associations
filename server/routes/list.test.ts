@@ -7,7 +7,6 @@ import {
 } from '@ministryofjustice/hmpps-non-associations-api'
 import type { Express } from 'express'
 import request from 'supertest'
-import type { SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 
 import { appWithAllRoutes, mockReadOnlyUser, mockUserWithoutGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
@@ -36,6 +35,7 @@ import {
   mockMovePrisoner,
 } from '../data/testData/offenderSearch'
 import { mockGetStaffDetails } from '../data/testData/prisonApi'
+import { mockRestClientError } from '../data/testData/restClientError'
 import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
@@ -79,13 +79,7 @@ afterEach(() => {
 describe('Non-associations list page', () => {
   describe('should return 404 if prisoner is not found', () => {
     beforeEach(() => {
-      const error: SanitisedError = {
-        name: 'Error',
-        responseStatus: 404,
-        message: 'Not Found',
-        stack: 'Not Found',
-      }
-      offenderSearchClient.getPrisoner.mockRejectedValue(error)
+      offenderSearchClient.getPrisoner.mockRejectedValue(mockRestClientError(404))
     })
 
     it('when listing open non-associations', () => {
@@ -1224,13 +1218,7 @@ describe('Non-associations list page', () => {
 
   describe('should show generic error page when api returns an error', () => {
     beforeEach(() => {
-      const error: SanitisedError = {
-        name: 'Error',
-        responseStatus: 500,
-        message: 'Internal Server Error',
-        stack: 'Error: Internal Server Error',
-      }
-      nonAssociationsApi.listNonAssociations.mockRejectedValue(error)
+      nonAssociationsApi.listNonAssociations.mockRejectedValue(mockRestClientError(500))
     })
 
     it('when listing open non-associations', () => {
