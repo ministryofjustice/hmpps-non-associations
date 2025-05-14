@@ -38,7 +38,7 @@ async function makeStaffLookup(
   prisonApi: PrisonApi,
   staffUsernameSet: Set<string>,
 ): Promise<(username: string | null | undefined) => StaffMember | undefined> {
-  const staffUsernames = Array.from(staffUsernameSet)
+  const staffUsernames = Array.from(staffUsernameSet).filter(username => username)
   const staffUsers: StaffMember[] = [
     ...systemUsers,
     ...(await Promise.allSettled(staffUsernames.map(username => prisonApi.getStaffDetails(username))))
