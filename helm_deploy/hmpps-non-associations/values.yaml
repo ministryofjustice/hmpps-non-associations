@@ -8,7 +8,7 @@ generic-service:
   replicaCount: 4
 
   image:
-    repository: quay.io/hmpps/hmpps-non-associations
+    repository: ghcr.io/ministryofjustice/hmpps-non-associations
     tag: app_version    # override at deployment time
     port: 3000
 
@@ -63,7 +63,7 @@ generic-service:
     - secretRef:
         name: hmpps-non-associations
     - secretRef:
-        name: application-insights
+        name: hmpps-non-associations-application-insights
 
   namespace_secrets:
     elasticache-redis:
