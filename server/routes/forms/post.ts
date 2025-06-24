@@ -93,8 +93,8 @@ function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>
     }
 
     // if submitted with invalid formId, propagate 400 error
-    if (!req?.body?.formId || !Object.keys(formConstructors).some(formId => formId === req.body.formId)) {
-      next(new BadRequest(`POST with invalid formId: "${req.body.formId}"`))
+    if (!req.body?.formId || !Object.keys(formConstructors).some(formId => formId === req.body.formId)) {
+      next(new BadRequest(`POST with invalid formId: "${req.body?.formId}"`))
       return
     }
 
