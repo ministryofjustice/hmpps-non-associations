@@ -2,7 +2,6 @@ import type { Router, Request, RequestHandler, Response, NextFunction } from 'ex
 import type { ParamsDictionary, PathParams, Query } from 'express-serve-static-core'
 import { BadRequest, MethodNotAllowed } from 'http-errors'
 
-import asyncMiddleware from '../../middleware/asyncMiddleware'
 import type { BaseData, BaseForm } from '../../forms'
 
 /**
@@ -67,7 +66,7 @@ export default function formPostRoute<Forms extends Record<string, BaseForm<Base
 function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>(formConstructors: {
   [Name in keyof Forms]: FormPostConstructor<Forms, Name>
 }): FormPostRequestHandler<Forms> {
-  return asyncMiddleware(async (req, res, next: NextFunction): Promise<void> => {
+  return async (req, res, next: NextFunction): Promise<void> => {
     // limit request methods to GET or POST
     if (req.method !== 'GET' && req.method !== 'POST') {
       next(new MethodNotAllowed('Only GET or POST methods are allowed'))
@@ -107,5 +106,5 @@ function makeSubmissionHandler<Forms extends Record<string, BaseForm<BaseData>>>
 
     // handle valid or invalid form
     next()
-  })
+  }
 }

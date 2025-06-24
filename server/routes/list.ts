@@ -3,13 +3,11 @@ import {
   type SortBy,
   type SortDirection,
 } from '@ministryofjustice/hmpps-non-associations-api'
-import { type RequestHandler, Router } from 'express'
-import type { PathParams } from 'express-serve-static-core'
+import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import {
   NonAssociationsApi,
   type NonAssociationGroups,
@@ -117,9 +115,8 @@ function makeTableHead(
 export default function listRoutes(service: Services): Router {
   const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
-  const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
-  get(['/', '/closed'], async (req, res) => {
+  router.get(['/', '/closed'], async (req, res) => {
     const { user } = res.locals
     const listing: Listing = req.path.includes('/closed') ? 'closed' : 'open'
     const { prisonerNumber } = req.params

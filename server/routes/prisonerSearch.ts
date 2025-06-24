@@ -2,7 +2,6 @@ import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import { NonAssociationsApi } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResults } from '../data/offenderSearch'
 import type { Services } from '../services'
@@ -53,7 +52,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
     {
       [formId]: () => new PrisonerSearchForm(),
     },
-    asyncMiddleware(async (req, res) => {
+    async (req, res) => {
       const { user } = res.locals
       const { id: prisonId, name: prisonName } = user.activeCaseload
       const { prisonerNumber } = req.params
@@ -196,7 +195,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
         tableHead,
         paginationParams,
       })
-    }),
+    },
   )
 
   return router

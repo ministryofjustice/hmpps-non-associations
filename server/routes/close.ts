@@ -4,7 +4,6 @@ import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import { NonAssociationsApi, maxCommentLength } from '../data/nonAssociationsApi'
 import type { Services } from '../services'
@@ -22,7 +21,7 @@ export default function addRoutes(service: Services): Router {
     {
       [formId]: () => new CloseForm(),
     },
-    asyncMiddleware(async (req, res) => {
+    async (req, res) => {
       const { user } = res.locals
       const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
       const nonAssociationId = parseInt(nonAssociationIdStr, 10)
@@ -99,7 +98,7 @@ export default function addRoutes(service: Services): Router {
         form,
         maxCommentLength,
       })
-    }),
+    },
   )
 
   return router

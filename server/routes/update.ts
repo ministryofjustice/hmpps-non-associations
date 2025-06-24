@@ -4,7 +4,6 @@ import { NotFound } from 'http-errors'
 
 import logger from '../../logger'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import { NonAssociationsApi, maxCommentLength } from '../data/nonAssociationsApi'
 import { OffenderSearchClient, type OffenderSearchResult } from '../data/offenderSearch'
 import type { Services } from '../services'
@@ -73,7 +72,7 @@ export default function updateRoutes(service: Services): Router {
         return new UpdateForm(prisonerName, otherPrisonerName, nonAssociation)
       },
     },
-    asyncMiddleware(async (req, res) => {
+    async (req, res) => {
       const { user } = res.locals
       const { prisonerNumber } = req.params
       const { systemToken, nonAssociation, prisoner, prisonerName, otherPrisoner, otherPrisonerName } =
@@ -156,7 +155,7 @@ export default function updateRoutes(service: Services): Router {
         maxCommentLength,
         ...formChoices(),
       })
-    }),
+    },
   )
 
   return router
