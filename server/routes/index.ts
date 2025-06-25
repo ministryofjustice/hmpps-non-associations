@@ -1,11 +1,9 @@
 import flash from 'connect-flash'
-import { type RequestHandler, Router } from 'express'
-import type { PathParams } from 'express-serve-static-core'
+import { Router } from 'express'
 import defaultTokenProvider from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/report-list/defaultTokenProvider'
 import ReportListUtils from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/report-list/utils'
 
 import config from '../config'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import flashMessages from '../middleware/flashMessages'
 import type { Services } from '../services'
 import PrisonApi from '../data/prisonApi'
@@ -18,14 +16,13 @@ import updateRoutes from './update'
 
 export default function routes(services: Services): Router {
   const router = Router({ mergeParams: true })
-  const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
   router.use(flash())
   router.use(flashMessages())
 
   const urlTemplates = services.routeUrls.templates
 
-  get(urlTemplates.home, (req, res) => {
+  router.get(urlTemplates.home, (req, res) => {
     if (process.env.NO_HOME_REDIRECT) {
       res.send('')
       return
@@ -33,7 +30,7 @@ export default function routes(services: Services): Router {
     res.redirect(config.dpsUrl)
   })
 
-  get(urlTemplates.prisonerPhoto, async (req, res) => {
+  router.get(urlTemplates.prisonerPhoto, async (req, res) => {
     const { user } = res.locals
     const { prisonerNumber } = req.params
 
@@ -59,7 +56,7 @@ export default function routes(services: Services): Router {
   router.use(urlTemplates.update, updateRoutes(services))
 
   // Digital Prison Reporting
-  get(
+  router.get(
     '/reports',
     ReportListUtils.createReportListRequestHandler({
       title: 'Non-associations reports',

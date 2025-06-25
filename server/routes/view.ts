@@ -1,9 +1,7 @@
-import { RequestHandler, Router } from 'express'
-import type { PathParams } from 'express-serve-static-core'
+import { Router } from 'express'
 import { NotFound } from 'http-errors'
 
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
-import asyncMiddleware from '../middleware/asyncMiddleware'
 import { NonAssociationsApi, lookupStaffInNonAssociation } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
 import PrisonApi from '../data/prisonApi'
@@ -12,9 +10,8 @@ import type { Services } from '../services'
 export default function viewRoutes(service: Services): Router {
   const { hmppsAuthClient } = service
   const router = Router({ mergeParams: true })
-  const get = (path: PathParams, handler: RequestHandler) => router.get(path, asyncMiddleware(handler))
 
-  get('/', async (req, res) => {
+  router.get('/' as string, async (req, res) => {
     const { user } = res.locals
     const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
     const nonAssociationId = parseInt(nonAssociationIdStr, 10)
