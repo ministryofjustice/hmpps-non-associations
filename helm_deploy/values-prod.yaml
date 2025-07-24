@@ -2,6 +2,9 @@ generic-service:
   ingress:
     host: non-associations.hmpps.service.justice.gov.uk
 
+  scheduledDowntime:
+    enabled: false
+
   env:
     ENVIRONMENT: prod
 
