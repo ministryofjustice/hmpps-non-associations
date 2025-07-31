@@ -59,13 +59,20 @@ generic-service:
     AUDIT_SQS_REGION: "eu-west-2"
     AUDIT_SERVICE_NAME: "UNASSIGNED"
 
-  envFrom:
-    - secretRef:
-        name: hmpps-non-associations
-    - secretRef:
-        name: hmpps-non-associations-application-insights
-
   namespace_secrets:
+    hmpps-non-associations:
+      GOOGLE_ANALYTICS_MEASUREMENT_ID: "GOOGLE_ANALYTICS_MEASUREMENT_ID"
+      TEAM_EMAIL: "TEAM_EMAIL"
+    hmpps-non-associations-application-insights:
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "APPLICATIONINSIGHTS_CONNECTION_STRING"
+    hmpps-non-associations-auth-code:
+      API_CLIENT_ID: "AUTH_CODE_CLIENT_ID"
+      API_CLIENT_SECRET: "AUTH_CODE_CLIENT_SECRET"
+    hmpps-non-associations-client-creds:
+      SYSTEM_CLIENT_ID: "CLIENT_CREDS_CLIENT_ID"
+      SYSTEM_CLIENT_SECRET: "CLIENT_CREDS_CLIENT_SECRET"
+    hmpps-non-associations-session-secret:
+      SESSION_SECRET: 'SESSION_SECRET'
     elasticache-redis:
       REDIS_HOST: "primary_endpoint_address"
       REDIS_AUTH_TOKEN: "auth_token"
