@@ -11,15 +11,15 @@
     {
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "hmpps-digital-prison-reporting-frontend",
-      "groupSlug": "hmpps-digital-prison-reporting-frontend"
+      "groupName": "all non major NPM dependencies",
+      "groupSlug": "all-npm-minor-patch",
+      "stabilityDays": 3
     },
     {
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "all non major NPM dependencies",
-      "groupSlug": "all-npm-minor-patch",
-      "stabilityDays": 3
+      "groupName": "hmpps-digital-prison-reporting-frontend",
+      "groupSlug": "hmpps-digital-prison-reporting-frontend"
     },
     {
       "matchDepTypes": ["engines"],
