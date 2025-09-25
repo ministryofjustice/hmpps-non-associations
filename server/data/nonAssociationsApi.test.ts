@@ -59,7 +59,8 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        expect(processedNonAssociation.authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociation.authorisedBy).toEqual('Someone from security')
         expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociation.closedBy).toBeNull()
       })
@@ -69,7 +70,8 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-        expect(processedNonAssociation.authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociation.authorisedBy).toEqual('Someone from security')
         expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociation.closedBy).toEqual('Mary Johnson')
       })
@@ -84,7 +86,8 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockResolvedValueOnce(null)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        expect(processedNonAssociation.authorisedBy).toEqual('System')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociation.authorisedBy).toEqual('NON_ASSOCIATIONS_API')
         expect(processedNonAssociation.updatedBy).toEqual('System')
         expect(processedNonAssociation.closedBy).toEqual('System')
       })
@@ -95,10 +98,12 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2OpenNonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('abc12a')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toBeNull()
-        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('cde87s')
         expect(processedNonAssociations.nonAssociations[1].updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociations.nonAssociations[1].closedBy).toBeNull()
       })
@@ -107,10 +112,12 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2ClosedNonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
-        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('abc12a')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('Barry Harrison')
-        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('cde87s')
         expect(processedNonAssociations.nonAssociations[1].updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociations.nonAssociations[1].closedBy).toEqual('Barry Harrison')
       })
@@ -133,7 +140,8 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockResolvedValueOnce(null)
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('System')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('NON_ASSOCIATIONS_API')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('System')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('System')
       })
@@ -149,7 +157,8 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         processedNonAssociations.forEach(nonAssociation => {
-          expect(nonAssociation.authorisedBy).toEqual('Mark Simmons')
+          // authorisedBy was free text, not looked up
+          expect(nonAssociation.authorisedBy).toEqual('Someone from security')
           expect(nonAssociation.updatedBy).toEqual('Mark Simmons')
           expect(nonAssociation.closedBy).toBeNull()
         })
@@ -164,7 +173,8 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
         processedNonAssociations.forEach(nonAssociation => {
-          expect(nonAssociation.authorisedBy).toEqual('Mark Simmons')
+          // authorisedBy was free text, not looked up
+          expect(nonAssociation.authorisedBy).toEqual('Someone from security')
           expect(nonAssociation.updatedBy).toEqual('Mark Simmons')
           expect(nonAssociation.closedBy).toEqual('Mary Johnson')
         })
@@ -188,7 +198,8 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         processedNonAssociations.forEach((nonAssociation, index) => {
-          expect(nonAssociation.authorisedBy).toEqual('System')
+          // authorisedBy was free text, not looked up
+          expect(nonAssociation.authorisedBy).toEqual('NON_ASSOCIATIONS_API')
           expect(nonAssociation.updatedBy).toEqual('System')
           if (index === 0) {
             expect(nonAssociation.closedBy).toBeNull()

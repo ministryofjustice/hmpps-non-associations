@@ -51,19 +51,14 @@ async function makeStaffLookup(
 /**
  * Private method to hydrate `NonAssociationsListItem` and `NonAssociation` with staff names
  */
-function lookupStaff<O extends { authorisedBy: string; updatedBy: string; closedBy: string | null }>(
+function lookupStaff<O extends { updatedBy: string; closedBy: string | null }>(
   /** Made by `makeStaffLookup` */
   findStaffUser: (username: string | null | undefined) => StaffMember | undefined,
   nonAssociation: O,
 ): O {
-  let { authorisedBy, updatedBy, closedBy } = nonAssociation
+  let { updatedBy, closedBy } = nonAssociation
 
-  let staffUser = findStaffUser(authorisedBy)
-  if (staffUser) {
-    authorisedBy = nameOfPerson(staffUser)
-  }
-
-  staffUser = findStaffUser(updatedBy)
+  let staffUser = findStaffUser(updatedBy)
   if (staffUser) {
     updatedBy = nameOfPerson(staffUser)
   }
@@ -75,7 +70,6 @@ function lookupStaff<O extends { authorisedBy: string; updatedBy: string; closed
 
   return {
     ...nonAssociation,
-    authorisedBy,
     updatedBy,
     closedBy,
   }
@@ -90,7 +84,6 @@ export async function lookupStaffInNonAssociations<List extends NonAssociationsL
 ): Promise<List> {
   const staffUsernameSet = new Set<string>()
   nonAssociationsList.nonAssociations.forEach(nonAssociation => {
-    staffUsernameSet.add(nonAssociation.authorisedBy)
     staffUsernameSet.add(nonAssociation.updatedBy)
     if (nonAssociation.closedBy) {
       staffUsernameSet.add(nonAssociation.closedBy)
@@ -112,7 +105,7 @@ export async function lookupStaffInNonAssociation<N extends NonAssociation>(
   prisonApi: PrisonApi,
   nonAssociation: N,
 ): Promise<N> {
-  const staffUsernameSet = new Set<string>([nonAssociation.authorisedBy, nonAssociation.updatedBy])
+  const staffUsernameSet = new Set<string>([nonAssociation.updatedBy])
   if (nonAssociation.closedBy) {
     staffUsernameSet.add(nonAssociation.closedBy)
   }
@@ -129,7 +122,6 @@ export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociati
 ): Promise<N[]> {
   const staffUsernameSet = new Set<string>()
   nonAssociations.forEach(nonAssociation => {
-    staffUsernameSet.add(nonAssociation.authorisedBy)
     staffUsernameSet.add(nonAssociation.updatedBy)
     if (nonAssociation.closedBy) {
       staffUsernameSet.add(nonAssociation.closedBy)
