@@ -36,7 +36,7 @@ export default class PrisonApi extends RestClient {
   getStaffDetails(username: string): Promise<StaffMember | null> {
     return this.get<StaffMember>(
       {
-        path: `/api/users/${username}`,
+        path: `/api/users/${encodeURIComponent(username)}`,
       },
       asSystem(),
     ).catch((error: SanitisedError): null => {
