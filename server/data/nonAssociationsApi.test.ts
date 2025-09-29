@@ -54,27 +54,29 @@ describe('Non-associations API REST client', () => {
     })
 
     describe('of non-associations', () => {
-      it('should work for open non-associations', async () => {
+      it('works for open non-associations', async () => {
         const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        expect(processedNonAssociation.authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociation.authorisedBy).toEqual('Someone from security')
         expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociation.closedBy).toBeNull()
       })
 
-      it('should work for closed non-associations', async () => {
+      it('works for closed non-associations', async () => {
         const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-        expect(processedNonAssociation.authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociation.authorisedBy).toEqual('Someone from security')
         expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociation.closedBy).toEqual('Mary Johnson')
       })
 
-      it('should work for system users', async () => {
+      it('works for system users', async () => {
         const nonAssociation: ClosedNonAssociation = {
           ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true),
           authorisedBy: 'NON_ASSOCIATIONS_API',
@@ -84,38 +86,43 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockResolvedValueOnce(null)
         const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        expect(processedNonAssociation.authorisedBy).toEqual('System')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociation.authorisedBy).toEqual('NON_ASSOCIATIONS_API')
         expect(processedNonAssociation.updatedBy).toEqual('System')
         expect(processedNonAssociation.closedBy).toEqual('System')
       })
     })
 
     describe('of non-association lists', () => {
-      it('should work for open non-associations', async () => {
+      it('works for open non-associations', async () => {
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2OpenNonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('abc12a')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toBeNull()
-        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('cde87s')
         expect(processedNonAssociations.nonAssociations[1].updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociations.nonAssociations[1].closedBy).toBeNull()
       })
 
-      it('should work for closed non-associations', async () => {
+      it('works for closed non-associations', async () => {
         prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2ClosedNonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
-        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('Mary Johnson')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('abc12a')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('Barry Harrison')
-        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('Mark Simmons')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[1].authorisedBy).toEqual('cde87s')
         expect(processedNonAssociations.nonAssociations[1].updatedBy).toEqual('Mark Simmons')
         expect(processedNonAssociations.nonAssociations[1].closedBy).toEqual('Barry Harrison')
       })
 
-      it('should work for system users', async () => {
+      it('works for system users', async () => {
         const nonAssociationsList: NonAssociationsList = {
           ...davidJones1OpenNonAssociation,
           nonAssociations: davidJones1OpenNonAssociation.nonAssociations.map(nonAssociation => {
@@ -133,14 +140,15 @@ describe('Non-associations API REST client', () => {
         prisonApi.getStaffDetails.mockResolvedValueOnce(null)
         const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('System')
+        // authorisedBy was free text, not looked up
+        expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('NON_ASSOCIATIONS_API')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('System')
         expect(processedNonAssociations.nonAssociations[0].closedBy).toEqual('System')
       })
     })
 
     describe('of non-associations between a group of prisoners', () => {
-      it('should work for open non-associations', async () => {
+      it('works for open non-associations', async () => {
         const nonAssociations: OpenNonAssociation[] = [
           mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
           mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber),
@@ -149,13 +157,14 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         processedNonAssociations.forEach(nonAssociation => {
-          expect(nonAssociation.authorisedBy).toEqual('Mark Simmons')
+          // authorisedBy was free text, not looked up
+          expect(nonAssociation.authorisedBy).toEqual('Someone from security')
           expect(nonAssociation.updatedBy).toEqual('Mark Simmons')
           expect(nonAssociation.closedBy).toBeNull()
         })
       })
 
-      it('should work for closed non-associations', async () => {
+      it('works for closed non-associations', async () => {
         const nonAssociations: ClosedNonAssociation[] = [
           mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true),
           mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, true),
@@ -164,13 +173,14 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
         processedNonAssociations.forEach(nonAssociation => {
-          expect(nonAssociation.authorisedBy).toEqual('Mark Simmons')
+          // authorisedBy was free text, not looked up
+          expect(nonAssociation.authorisedBy).toEqual('Someone from security')
           expect(nonAssociation.updatedBy).toEqual('Mark Simmons')
           expect(nonAssociation.closedBy).toEqual('Mary Johnson')
         })
       })
 
-      it('should work for system users', async () => {
+      it('works for system users', async () => {
         const nonAssociations: NonAssociation[] = [
           {
             ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
@@ -188,7 +198,8 @@ describe('Non-associations API REST client', () => {
         const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
         expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
         processedNonAssociations.forEach((nonAssociation, index) => {
-          expect(nonAssociation.authorisedBy).toEqual('System')
+          // authorisedBy was free text, not looked up
+          expect(nonAssociation.authorisedBy).toEqual('NON_ASSOCIATIONS_API')
           expect(nonAssociation.updatedBy).toEqual('System')
           if (index === 0) {
             expect(nonAssociation.closedBy).toBeNull()
@@ -472,12 +483,12 @@ describe('Non-associations API REST client', () => {
       }
 
       describe.each(sortDirectionOptions)('%s', order => {
-        it('should accept an empty list', () => {
+        it('accepts an empty list', () => {
           const sorted = sortList([], sort, order)
           expect(sorted).toEqual([])
         })
 
-        it('should work for longer lists', () => {
+        it('works for longer lists', () => {
           const items = sortList(nonAssociations, sort, order)
           const properties = items.map(getter)
           properties.reduce((first, second) => {
@@ -507,42 +518,42 @@ describe('Non-associations API REST client', () => {
         }
       })
 
-      it('should work by prison ID, ascending', () => {
+      it('works by prison ID, ascending', () => {
         const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_ID', 'ASC').map(
           item => item.otherPrisonerDetails.prisonId,
         )
         expect(sortedValues).toStrictEqual([undefined, 'MDI'])
       })
 
-      it('should work by prison ID, descending', () => {
+      it('works by prison ID, descending', () => {
         const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_ID', 'DESC').map(
           item => item.otherPrisonerDetails.prisonId,
         )
         expect(sortedValues).toStrictEqual(['MDI', undefined])
       })
 
-      it('should work by prison name, ascending', () => {
+      it('works by prison name, ascending', () => {
         const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_NAME', 'ASC').map(
           item => item.otherPrisonerDetails.prisonName,
         )
         expect(sortedValues).toStrictEqual([undefined, 'Moorland (HMP)'])
       })
 
-      it('should work by prison name, descending', () => {
+      it('works by prison name, descending', () => {
         const sortedValues = sortList(nonAssociationsWithMissingLocations, 'PRISON_NAME', 'DESC').map(
           item => item.otherPrisonerDetails.prisonName,
         )
         expect(sortedValues).toStrictEqual(['Moorland (HMP)', undefined])
       })
 
-      it('should work by cell location, ascending', () => {
+      it('works by cell location, ascending', () => {
         const sortedValues = sortList(nonAssociationsWithMissingLocations, 'CELL_LOCATION', 'ASC').map(
           item => item.otherPrisonerDetails.cellLocation,
         )
         expect(sortedValues).toStrictEqual([undefined, '1-1-003'])
       })
 
-      it('should work by cell location, descending', () => {
+      it('works by cell location, descending', () => {
         const sortedValues = sortList(nonAssociationsWithMissingLocations, 'CELL_LOCATION', 'DESC').map(
           item => item.otherPrisonerDetails.cellLocation,
         )

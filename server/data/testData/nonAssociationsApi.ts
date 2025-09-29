@@ -340,7 +340,7 @@ export function mockNonAssociation(
     restrictionType: 'CELL',
     restrictionTypeDescription: 'Cell only',
     comment: 'See IR 12133100',
-    authorisedBy: 'cde87s',
+    authorisedBy: 'Someone from security', // this was free text
     updatedBy: 'cde87s',
     whenCreated: new Date('2023-07-21T08:14:21'),
     whenUpdated: new Date('2023-07-21T08:14:21'),
