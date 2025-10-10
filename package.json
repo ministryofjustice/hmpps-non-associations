@@ -80,7 +80,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.901.0",
-    "@ministryofjustice/frontend": "^5.2.1",
+    "@ministryofjustice/frontend": "^6.0.0",
     "@ministryofjustice/hmpps-auth-clients": "^0.0.3",
     "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^4.13.0",
     "@ministryofjustice/hmpps-monitoring": "^0.0.2",
