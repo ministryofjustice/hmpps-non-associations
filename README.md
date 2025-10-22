@@ -4,6 +4,9 @@ This application is a front-end application used by staff in HMPPS prisons to vi
 
 It is backed by [hmpps-non-associations-api](https://github.com/ministryofjustice/hmpps-non-associations-api).
 
+[![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/hmpps-non-associations/badge?style=flat)](https://github-community.service.justice.gov.uk/repository-standards/hmpps-non-associations)
+[![Docker Repository on ghcr](https://img.shields.io/badge/ghcr.io-repository-2496ED.svg?logo=docker)](https://github.com/ministryofjustice/hmpps-non-associations/pkgs/container/hmpps-non-associations)
+
 ## Running locally
 
 The application needs a suite of services to work:
