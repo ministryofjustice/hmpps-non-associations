@@ -56,6 +56,7 @@ export default function nunjucksSetup(app: express.Express, services: Services):
     {
       autoescape: true,
       express: app,
+      noCache: process.env.NODE_ENV !== 'production',
     },
   )
 
