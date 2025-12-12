@@ -48,8 +48,8 @@ export function isInPrison(prisonerOrNonAssociation: { prisonId: string }): bool
 export function isInPrison(prisonerOrNonAssociation: { prisonId: string }): boolean {
   return Boolean(
     !isBeingTransferred(prisonerOrNonAssociation) &&
-      !isOutside(prisonerOrNonAssociation) &&
-      prisonerOrNonAssociation.prisonId,
+    !isOutside(prisonerOrNonAssociation) &&
+    prisonerOrNonAssociation.prisonId,
   )
 }
 
