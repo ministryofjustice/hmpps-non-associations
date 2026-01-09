@@ -108,7 +108,7 @@
     "passport": "^0.7.0",
     "passport-oauth2": "^1.8.0",
     "redis": "^5.10.0",
-    "superagent": "^10.2.3",
+    "superagent": "^10.3.0",
     "url-value-parser": "^2.2.0"
   },
   "devDependencies": {
@@ -158,7 +158,7 @@
     "nock": "^14.0.10",
     "prettier": "^3.7.4",
     "prettier-plugin-jinja-template": "^2.1.0",
-    "supertest": "^7.1.4",
+    "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "typescript": "^5.9.3"
   },
