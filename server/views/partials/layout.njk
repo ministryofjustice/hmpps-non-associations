@@ -2,7 +2,7 @@
 
 {% block head %}
   {% block pageStylesheets %}
-    <link href="{{ '/assets/css/app.css' | assetMap }}" rel="stylesheet" />
+    <link href="{{ '/assets/css/application.css' | assetMap }}" rel="stylesheet" />
   {% endblock %}
 
   {% if googleAnalyticsMeasurementId %}
@@ -61,5 +61,5 @@
 
 {% block bodyEnd %}
   <script src="/assets/js/jquery.min.js"></script>
-  <script type="module" src="{{ '/assets/js/app.js' | assetMap }}"></script>
+  <script type="module" src="{{ '/assets/js/application.js' | assetMap }}"></script>
 {% endblock %}

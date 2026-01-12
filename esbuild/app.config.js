@@ -12,6 +12,7 @@ const getAppConfig = buildConfig => ({
   bundle: false,
   sourcemap: true,
   platform: 'node',
+  target: 'node24',
   format: 'cjs',
   plugins: [
     typecheckPlugin({ watch: buildConfig.isWatchMode }),
