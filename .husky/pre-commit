@@ -1,5 +1,5 @@
-#!/usr/bin/env sh
-
-export NODE_ENV=dev
-npx lint-staged
-npm run typecheck
+#!/bin/bash
+NODE_ENV=dev \
+npm run precommit:secrets \
+&& npm run precommit:lint \
+&& npm run precommit:verify

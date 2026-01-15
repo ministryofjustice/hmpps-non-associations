@@ -58,6 +58,7 @@ export default function setUpWebSecurity(): Router {
             '*.google.com',
             '*.google.co.uk',
           ],
+          ...(config.production ? {} : { upgradeInsecureRequests: null }),
         },
       },
       crossOriginEmbedderPolicy: { policy: 'require-corp' },
