@@ -37,7 +37,7 @@
     "node": "^24"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.971.0",
+    "@aws-sdk/client-sqs": "^3.974.0",
     "@ministryofjustice/frontend": "^8.0.0",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.1",
     "@ministryofjustice/hmpps-digital-prison-reporting-frontend": "^4.26.8",
@@ -52,7 +52,7 @@
     "connect-redis": "^9.0.0",
     "csrf-sync": "^4.2.1",
     "express": "^5.2.1",
-    "express-session": "^1.18.2",
+    "express-session": "^1.19.0",
     "govuk-frontend": "^5.14.0",
     "helmet": "^8.1.0",
     "http-errors": "^2.0.1",
