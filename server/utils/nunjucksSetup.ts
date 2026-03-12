@@ -4,8 +4,6 @@ import path from 'node:path'
 
 import express from 'express'
 import nunjucks from 'nunjucks'
-// eslint-disable-next-line import/no-named-as-default
-import setUpNunjucksFilters from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/setUpNunjucksFilters'
 
 import logger from '../../logger'
 import config from '../config'
@@ -49,9 +47,6 @@ export default function nunjucksSetup(app: express.Express, services: Services):
       'node_modules/govuk-frontend/dist/',
       // MoJ Frontend
       'node_modules/@ministryofjustice/frontend/',
-      // Digital Prison Reporting
-      'node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/',
-      'node_modules/@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/',
     ],
     {
       autoescape: true,
@@ -59,9 +54,6 @@ export default function nunjucksSetup(app: express.Express, services: Services):
       noCache: process.env.NODE_ENV !== 'production',
     },
   )
-
-  // Digital Prison Reporting configuration
-  setUpNunjucksFilters(njkEnv)
 
   // static asset
   njkEnv.addFilter('assetMap', (url: string) => assetManifest[url] || url)
