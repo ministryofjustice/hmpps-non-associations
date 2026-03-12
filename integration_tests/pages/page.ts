@@ -71,7 +71,7 @@ export default abstract class Page {
   }
 
   get footer(): PageElement {
-    return cy.get('footer.govuk-footer')
+    return cy.get('.govuk-footer')
   }
 
   get footerLinks(): PageElement<HTMLLIElement> {
