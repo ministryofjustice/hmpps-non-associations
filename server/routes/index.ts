@@ -1,7 +1,5 @@
 import flash from 'connect-flash'
 import { Router } from 'express'
-import defaultTokenProvider from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/report-list/defaultTokenProvider'
-import ReportListUtils from '@ministryofjustice/hmpps-digital-prison-reporting-frontend/dpr/components/report-list/utils'
 
 import config from '../config'
 import flashMessages from '../middleware/flashMessages'
@@ -54,20 +52,6 @@ export default function routes(services: Services): Router {
   router.use(urlTemplates.view, viewRoutes(services))
   router.use(urlTemplates.close, closeRoutes(services))
   router.use(urlTemplates.update, updateRoutes(services))
-
-  // Digital Prison Reporting
-  router.get(
-    '/reports',
-    ReportListUtils.createReportListRequestHandler({
-      title: 'Non-associations reports',
-      definitionName: 'non-associations',
-      variantName: 'all',
-      apiUrl: config.apis.hmppsNonAssociationsApi.url,
-      apiTimeout: config.apis.hmppsNonAssociationsApi.timeout.deadline,
-      layoutTemplate: 'partials/reportsLayout.njk',
-      tokenProvider: defaultTokenProvider,
-    }),
-  )
 
   return router
 }
