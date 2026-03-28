@@ -34,12 +34,12 @@
     "node": "^24"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.1015.0",
+    "@aws-sdk/client-sqs": "^3.1016.0",
     "@ministryofjustice/frontend": "^9.0.0",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
     "@ministryofjustice/hmpps-monitoring": "^1.0.2",
     "@ministryofjustice/hmpps-non-associations-api": "^0.7.2",
-    "@ministryofjustice/hmpps-rest-client": "^1.1.0",
+    "@ministryofjustice/hmpps-rest-client": "^1.2.0",
     "applicationinsights": "^2.9.8",
     "bunyan": "^1.8.15",
     "bunyan-format": "^0.2.1",
@@ -112,7 +112,7 @@
   "overrides": {
     "mocha": {
       "diff": ">=8.0.4",
-      "serialize-javascript": "^7.0.4"
+      "serialize-javascript": "^7.0.5"
     }
   }
 }
