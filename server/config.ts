@@ -143,6 +143,7 @@ export default {
   teamEmail: get('TEAM_EMAIL', 'info@digital.justice.gov.uk'),
   ingressUrl: get('INGRESS_URL', 'http://localhost:3000', requiredInProduction),
   dpsUrl: get('DPS_URL', 'http://dps.local', requiredInProduction),
+  newDpsUrl: get('NEW_DPS_URL', 'http://dps.local', requiredInProduction),
   feedbackSurveyUrl: get('FEEDBACK_SURVEY_URL', 'http://feedback.dps.local'),
   supportUrl: get('SUPPORT_URL', 'http://support.dps.local', requiredInProduction),
 }

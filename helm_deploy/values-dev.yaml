@@ -23,6 +23,7 @@ generic-service:
 
     INGRESS_URL: "https://non-associations-dev.hmpps.service.justice.gov.uk"
     DPS_URL: "https://digital-dev.prison.service.justice.gov.uk"
+    NEW_DPS_URL: "https://dps-dev.prison.service.justice.gov.uk"
     SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk"
 
 generic-prometheus-alerts:
