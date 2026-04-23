@@ -1,30 +1,17 @@
-import jwt from 'jsonwebtoken'
 import type { Request, Response } from 'express'
 
-import authorisationMiddleware, { type AuthToken } from './authorisationMiddleware'
-
-function createToken(authorities: string[]) {
-  const payload: AuthToken = {
-    user_name: 'USER1',
-    scope: ['read', 'write'],
-    auth_source: 'NOMIS',
-    authorities,
-    jti: 'a610a10-cca6-41db-985f-e87efb303aaf',
-    client_id: 'clientid',
-  }
-
-  return jwt.sign(payload, 'secret', { expiresIn: '1h' })
-}
+import authorisationMiddleware from './authorisationMiddleware'
+import { createTestToken } from '../utils/auth'
 
 describe('authorisationMiddleware', () => {
   let req: Request
   const next = jest.fn()
 
-  function createResWithToken({ authorities }: { authorities: string[] }): Response {
+  async function createResWithToken({ authorities }: { authorities: string[] }): Promise<Response> {
     return {
       locals: {
         user: {
-          token: createToken(authorities),
+          token: await createTestToken(authorities),
         },
       },
       redirect: jest.fn(),
@@ -35,8 +22,8 @@ describe('authorisationMiddleware', () => {
     jest.resetAllMocks()
   })
 
-  it('should return next when no required roles', () => {
-    const res = createResWithToken({ authorities: [] })
+  it('should return next when no required roles', async () => {
+    const res = await createResWithToken({ authorities: [] })
 
     authorisationMiddleware()(req, res, next)
 
@@ -45,8 +32,8 @@ describe('authorisationMiddleware', () => {
     expect(res.locals.user.roles).toEqual([])
   })
 
-  it('should redirect when user has no authorised roles', () => {
-    const res = createResWithToken({ authorities: [] })
+  it('should redirect when user has no authorised roles', async () => {
+    const res = await createResWithToken({ authorities: [] })
 
     authorisationMiddleware(['SOME_REQUIRED_ROLE'])(req, res, next)
 
@@ -55,8 +42,8 @@ describe('authorisationMiddleware', () => {
     expect(res.locals.user.roles).toEqual([])
   })
 
-  it('should return next when user has authorised role', () => {
-    const res = createResWithToken({ authorities: ['ROLE_SOME_REQUIRED_ROLE'] })
+  it('should return next when user has authorised role', async () => {
+    const res = await createResWithToken({ authorities: ['ROLE_SOME_REQUIRED_ROLE'] })
 
     authorisationMiddleware(['SOME_REQUIRED_ROLE'])(req, res, next)
 
@@ -65,8 +52,8 @@ describe('authorisationMiddleware', () => {
     expect(res.locals.user.roles).toEqual(['ROLE_SOME_REQUIRED_ROLE'])
   })
 
-  it('should return next when user has authorised role and middleware created with ROLE_ prefix', () => {
-    const res = createResWithToken({ authorities: ['ROLE_SOME_REQUIRED_ROLE'] })
+  it('should return next when user has authorised role and middleware created with ROLE_ prefix', async () => {
+    const res = await createResWithToken({ authorities: ['ROLE_SOME_REQUIRED_ROLE'] })
 
     authorisationMiddleware(['ROLE_SOME_REQUIRED_ROLE'])(req, res, next)
 
