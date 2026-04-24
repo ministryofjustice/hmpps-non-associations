@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken'
 import type { Response } from 'superagent'
 
 import {
@@ -6,15 +7,22 @@ import {
   userRoleInactiveBookings,
   userRoleManageNonAssociations,
 } from '../../server/data/constants'
-import { createTestToken } from '../../server/utils/auth'
 import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
 
-const createToken = async (roles: string[]) => {
+const createToken = (roles: string[]) => {
   // authorities in the session are always prefixed by ROLE.
-
   const authorities = roles.map(role => (role.startsWith('ROLE_') ? role : `ROLE_${role}`))
-  return createTestToken(authorities)
+  const payload = {
+    user_name: 'USER1',
+    scope: ['read', 'write'],
+    auth_source: 'NOMIS',
+    authorities,
+    jti: '83b50a10-cca6-41db-985f-e87efb303ddb',
+    client_id: 'clientid',
+  }
+
+  return jwt.sign(payload, 'secret', { expiresIn: '1h' })
 }
 
 const mockHtmlResponse = (title: string) => `
@@ -106,7 +114,7 @@ const manageDetails = () =>
     },
   })
 
-const token = async (roles: string[]) =>
+const token = (roles: string[]) =>
   stubFor({
     request: {
       method: 'POST',
@@ -119,7 +127,7 @@ const token = async (roles: string[]) =>
         Location: 'http://localhost:3007/sign-in/callback?code=codexxxx&state=stateyyyy',
       },
       jsonBody: {
-        access_token: await createToken(roles),
+        access_token: createToken(roles),
         token_type: 'bearer',
         user_name: 'USER1',
         expires_in: 599,
