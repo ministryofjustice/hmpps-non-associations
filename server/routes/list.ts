@@ -127,7 +127,7 @@ export default function listRoutes(service: Services): Router {
 
     const systemToken = await hmppsAuthClient.getToken(user.username)
     const offenderSearchClient = new OffenderSearchClient(systemToken)
-    const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+    const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber as string)
     const prisonerName = nameOfPerson(prisoner)
 
     const tableHeads: Partial<Record<Table, HeaderCell[]>> = {}
@@ -140,7 +140,7 @@ export default function listRoutes(service: Services): Router {
       const api = new NonAssociationsApi(systemToken)
       const prisonApi = new PrisonApi(systemToken)
       try {
-        nonAssociationsList = await api.listNonAssociations(prisonerNumber, {
+        nonAssociationsList = await api.listNonAssociations(prisonerNumber as string, {
           includeOpen: listing === 'open',
           includeClosed: listing === 'closed',
           includeOtherPrisons: true,
