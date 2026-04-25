@@ -35,8 +35,8 @@ export default function addRoutes(service: Services): Router {
         const systemToken = await hmppsAuthClient.getToken(user.username)
         const offenderSearchClient = new OffenderSearchClient(systemToken)
         const [prisoner, otherPrisoner] = await Promise.all([
-          offenderSearchClient.getPrisoner(prisonerNumber),
-          offenderSearchClient.getPrisoner(otherPrisonerNumber),
+          offenderSearchClient.getPrisoner(prisonerNumber as string),
+          offenderSearchClient.getPrisoner(otherPrisonerNumber as string),
         ])
 
         if (!user.permissions?.canWriteNonAssociation(prisoner, otherPrisoner)) {
@@ -67,13 +67,13 @@ export default function addRoutes(service: Services): Router {
 
       res.locals.breadcrumbs.addItems(
         { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
-        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
+        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber as string) },
       )
 
       if (form.submitted && !form.hasErrors) {
         const request: CreateNonAssociationRequest = {
-          firstPrisonerNumber: prisonerNumber,
-          secondPrisonerNumber: otherPrisonerNumber,
+          firstPrisonerNumber: prisonerNumber as string,
+          secondPrisonerNumber: otherPrisonerNumber as string,
           firstPrisonerRole: form.fields.prisonerRole.value,
           secondPrisonerRole: form.fields.otherPrisonerRole.value,
           reason: form.fields.reason.value,
@@ -100,10 +100,13 @@ export default function addRoutes(service: Services): Router {
           const errorResponse = error.data
           if (isErrorResponse(errorResponse) && errorResponse.errorCode === ErrorCode.OpenNonAssociationAlreadyExist) {
             let errorMessage = 'There is already an open non-association between these 2 prisoners'
-            const openNonAssociations = await api.listNonAssociationsBetween([prisonerNumber, otherPrisonerNumber])
+            const openNonAssociations = await api.listNonAssociationsBetween([
+              prisonerNumber as string,
+              otherPrisonerNumber as string,
+            ])
             if (openNonAssociations.length === 1) {
               const [openNonAssociation] = openNonAssociations
-              const link = routeUrls.view(prisonerNumber, openNonAssociation.id)
+              const link = routeUrls.view(prisonerNumber as string, openNonAssociation.id)
               errorMessage = `${errorMessage}. <a href="${link}">View the existing non-association</a>`
             }
             req.flash('warningHtml', errorMessage)

@@ -24,7 +24,7 @@ export default function addRoutes(service: Services): Router {
     async (req, res) => {
       const { user } = res.locals
       const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
-      const nonAssociationId = parseInt(nonAssociationIdStr, 10)
+      const nonAssociationId = parseInt(nonAssociationIdStr as string, 10)
 
       if (!user.permissions?.write) {
         throw new NotFound(`User ${user.username} does not have write permissions`)

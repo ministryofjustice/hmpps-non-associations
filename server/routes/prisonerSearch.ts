@@ -59,7 +59,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
 
       const systemToken = await hmppsAuthClient.getToken(user.username)
       const offenderSearchClient = new OffenderSearchClient(systemToken)
-      const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber)
+      const prisoner = await offenderSearchClient.getPrisoner(prisonerNumber as string)
 
       if (!user.permissions?.canWriteNonAssociation(prisoner, prisoner)) {
         throw new NotFound(
@@ -144,7 +144,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
 
           const api = new NonAssociationsApi(systemToken)
           const openNonAssociations = await api.listNonAssociationsBetween([
-            prisonerNumber,
+            prisonerNumber as string,
             ...response.content.map(somePrisoner => somePrisoner.prisonerNumber),
           ])
           openNonAssociations?.forEach(nonAssociation => {
@@ -181,7 +181,7 @@ export default function prisonerSearchRoutes(service: Services): Router {
 
       res.locals.breadcrumbs.addItems(
         { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
-        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
+        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber as string) },
       )
       res.render('pages/prisonerSearch.njk', {
         prisoner,

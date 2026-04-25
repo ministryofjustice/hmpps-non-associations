@@ -23,7 +23,7 @@ export default function updateRoutes(service: Services): Router {
       [formId]: async (req, res) => {
         const { user } = res.locals
         const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
-        const nonAssociationId = parseInt(nonAssociationIdStr, 10)
+        const nonAssociationId = parseInt(nonAssociationIdStr as string, 10)
 
         if (!user.permissions?.write) {
           throw new NotFound(`User ${user.username} does not have write permissions`)
@@ -90,7 +90,7 @@ export default function updateRoutes(service: Services): Router {
 
       res.locals.breadcrumbs.addItems(
         { text: reversedNameOfPerson(prisoner), href: `${res.app.locals.dpsUrl}/prisoner/${prisonerNumber}` },
-        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber) },
+        { text: 'Non-associations', href: service.routeUrls.list(prisonerNumber as string) },
       )
 
       if (form.submitted && !form.hasErrors) {

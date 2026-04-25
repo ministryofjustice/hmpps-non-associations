@@ -14,7 +14,7 @@ export default function viewRoutes(service: Services): Router {
   router.get('/' as string, async (req, res) => {
     const { user } = res.locals
     const { prisonerNumber, nonAssociationId: nonAssociationIdStr } = req.params
-    const nonAssociationId = parseInt(nonAssociationIdStr, 10)
+    const nonAssociationId = parseInt(nonAssociationIdStr as string, 10)
 
     if (!user.permissions?.read) {
       throw new NotFound(`User ${user.username} does not have read permissions`)
