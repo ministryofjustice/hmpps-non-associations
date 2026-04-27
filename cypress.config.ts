@@ -1,5 +1,4 @@
 import { defineConfig } from 'cypress'
-import webpackPreprocessor from '@cypress/webpack-batteries-included-preprocessor'
 import { resetStubs } from './integration_tests/mockApis/wiremock'
 
 import auth from './integration_tests/mockApis/auth'
@@ -10,16 +9,6 @@ import prisonApi from './integration_tests/mockApis/prisonApi'
 import offenderSearchApi from './integration_tests/mockApis/offenderSearchApi'
 import nonAssociationsApi from './integration_tests/mockApis/nonAssociationsApi'
 import frontendComponents from './integration_tests/mockApis/frontendComponents'
-
-function getWebpackOptions() {
-  const options = webpackPreprocessor.getFullWebpackOptions()
-
-  // Shim Node.js `util` built-in. Used by `jsonwebtoken` to generate
-  // test JWT tokens.
-  options.resolve.fallback.util = require.resolve('util/')
-
-  return options
-}
 
 export default defineConfig({
   chromeWebSecurity: false,
@@ -47,13 +36,6 @@ export default defineConfig({
         ...nonAssociationsApi,
         ...frontendComponents,
       })
-      on(
-        'file:preprocessor',
-        webpackPreprocessor({
-          typescript: true,
-          webpackOptions: getWebpackOptions(),
-        }),
-      )
     },
     baseUrl: 'http://localhost:3007',
     excludeSpecPattern: '**/!(*.cy).ts',
