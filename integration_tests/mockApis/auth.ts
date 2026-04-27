@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken'
 import type { Response } from 'superagent'
 
 import {
@@ -9,21 +8,6 @@ import {
 } from '../../server/data/constants'
 import { stubFor, getMatchingRequests } from './wiremock'
 import tokenVerification from './tokenVerification'
-
-const createToken = (roles: string[]) => {
-  // authorities in the session are always prefixed by ROLE.
-  const authorities = roles.map(role => (role.startsWith('ROLE_') ? role : `ROLE_${role}`))
-  const payload = {
-    user_name: 'USER1',
-    scope: ['read', 'write'],
-    auth_source: 'NOMIS',
-    authorities,
-    jti: '83b50a10-cca6-41db-985f-e87efb303ddb',
-    client_id: 'clientid',
-  }
-
-  return jwt.sign(payload, 'secret', { expiresIn: '1h' })
-}
 
 const mockHtmlResponse = (title: string) => `
 <html lang="en">
@@ -114,7 +98,7 @@ const manageDetails = () =>
     },
   })
 
-const token = (roles: string[]) =>
+const token = (accessToken: string) =>
   stubFor({
     request: {
       method: 'POST',
@@ -127,7 +111,7 @@ const token = (roles: string[]) =>
         Location: 'http://localhost:3007/sign-in/callback?code=codexxxx&state=stateyyyy',
       },
       jsonBody: {
-        access_token: createToken(roles),
+        access_token: accessToken,
         token_type: 'bearer',
         user_name: 'USER1',
         expires_in: 599,
@@ -148,7 +132,6 @@ export default {
   getSignInUrl,
   stubAuthPing: ping,
   stubAuthManageDetails: manageDetails,
-  stubSignIn: ({ roles = defaultRoles }: { roles?: string[] } = {}): Promise<
-    [Response, Response, Response, Response, Response]
-  > => Promise.all([favicon(), redirect(), signOut(), token(roles), tokenVerification.stubVerifyToken()]),
+  stubSignIn: (accessToken: string): Promise<[Response, Response, Response, Response, Response]> =>
+    Promise.all([favicon(), redirect(), signOut(), token(accessToken), tokenVerification.stubVerifyToken()]),
 }
