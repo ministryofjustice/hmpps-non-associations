@@ -22,7 +22,9 @@ Cypress.Commands.add('trackGoogleAnalyticsCalls', (): Cypress.Chainable<GoogleAn
 
 Cypress.Commands.add('resetBasicStubs', ({ roles = defaultRoles }: { roles?: string[] } = {}) => {
   cy.task('resetStubs')
-  cy.task('stubSignIn', { roles })
+  cy.task('createToken', { roles }).then(accessToken => {
+    cy.task('stubSignIn', accessToken)
+  })
   cy.task('stubManageUser')
   cy.task('stubNomisUserCaseloads')
   cy.task('stubFallbackHeaderAndFooter')
