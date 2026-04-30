@@ -1,6 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/tsconfig",
   "compilerOptions": {
+    "strict": true,
     "target": "es2020",
     "noEmit": true,
     "lib": ["dom", "dom.iterable", "es2020"],
