@@ -9,7 +9,7 @@ mojFrontend.initAll()
  * @param {string} eventName
  * @param {Record<string, string | null>} [eventParameters]
  */
-function sendGoogleAnalyticsEvent(eventName, eventParameters) {
+function sendGoogleAnalyticsEvent(eventName: string, eventParameters: Record<string, string>) {
   if (typeof gtag === 'function') {
     if (eventParameters) {
       gtag('event', eventName, eventParameters)
@@ -19,7 +19,7 @@ function sendGoogleAnalyticsEvent(eventName, eventParameters) {
   }
 }
 
-function gaEventHandler() {
+function gaEventHandler(this: HTMLElement) {
   const elem = $(this)
 
   const gaCategory = elem.data('ga-category') || null
@@ -38,7 +38,7 @@ $(function pageLoaded() {
   $('a[data-ga-category]').on('click', gaEventHandler)
 
   // add GA toggle handler to help-with-roles component
-  $('details.app-help-with-roles').on('toggle', event => {
+  $<HTMLDetailsElement>('details.app-help-with-roles').on('toggle', event => {
     sendGoogleAnalyticsEvent('non_associations_event', {
       category: event.target.open ? 'Help with roles > Opened box' : 'Help with roles > Closed box',
     })
