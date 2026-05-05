@@ -34,7 +34,7 @@
     "node": "^24"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.1034.0",
+    "@aws-sdk/client-sqs": "^3.1038.0",
     "@ministryofjustice/frontend": "^9.0.0",
     "@ministryofjustice/hmpps-auth-clients": "^1.0.2",
     "@ministryofjustice/hmpps-monitoring": "^1.0.2",
@@ -91,7 +91,7 @@
     "audit-ci": "^7.1.0",
     "aws-sdk-client-mock": "^4.1.0",
     "cookie-session": "^2.1.1",
-    "cypress": "^15.13.1",
+    "cypress": "^15.14.1",
     "cypress-multi-reporters": "^2.0.5",
     "del": "8.0.1",
     "esbuild": "^0.28.0",
