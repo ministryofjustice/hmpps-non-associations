@@ -28,6 +28,8 @@ function createToken({ roles }: { roles: string[] }) {
 }
 
 export default defineConfig({
+  // See: https://docs.cypress.io/app/references/migration-guide
+  allowCypressEnv: false,
   chromeWebSecurity: false,
   fixturesFolder: 'integration_tests/fixtures',
   screenshotsFolder: 'integration_tests/screenshots',
