@@ -4,7 +4,6 @@ import { Router } from 'express'
 import config from '../config'
 import flashMessages from '../middleware/flashMessages'
 import type { Services } from '../services'
-import PrisonApi from '../data/prisonApi'
 import prisonerSearchRoutes from './prisonerSearch'
 import addRoutes from './add'
 import closeRoutes from './close'
@@ -29,11 +28,9 @@ export default function routes(services: Services): Router {
   })
 
   router.get(urlTemplates.prisonerPhoto, async (req, res) => {
-    const { user } = res.locals
     const { prisonerNumber } = req.params
 
-    const prisonApi = new PrisonApi(user.token)
-    const photoData = await prisonApi.getPhoto(prisonerNumber)
+    const photoData = await res.locals.apis.prisonApi.getPhoto(prisonerNumber)
 
     const oneDay = 86400 as const
     res.setHeader('Cache-Control', `private, max-age=${oneDay}`)
