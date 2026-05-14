@@ -2,6 +2,7 @@ import flash from 'connect-flash'
 import { Router } from 'express'
 
 import config from '../config'
+import PrisonApi from '../data/prisonApi'
 import flashMessages from '../middleware/flashMessages'
 import type { Services } from '../services'
 import prisonerSearchRoutes from './prisonerSearch'
@@ -12,6 +13,7 @@ import viewRoutes from './view'
 import updateRoutes from './update'
 
 export default function routes(services: Services): Router {
+  const { hmppsAuthClient } = services
   const router = Router({ mergeParams: true })
 
   router.use(flash())
@@ -30,7 +32,10 @@ export default function routes(services: Services): Router {
   router.get(urlTemplates.prisonerPhoto, async (req, res) => {
     const { prisonerNumber } = req.params
 
-    const photoData = await res.locals.apis.prisonApi.getPhoto(prisonerNumber)
+    const { user } = res.locals
+    const systemToken = await hmppsAuthClient.getToken(user.username)
+    const prisonApi = new PrisonApi(systemToken)
+    const photoData = await prisonApi.getPhoto(prisonerNumber)
 
     const oneDay = 86400 as const
     res.setHeader('Cache-Control', `private, max-age=${oneDay}`)
