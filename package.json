@@ -39,7 +39,7 @@
     "@ministryofjustice/hmpps-auth-clients": "^2.0.0",
     "@ministryofjustice/hmpps-monitoring": "^2.1.0",
     "@ministryofjustice/hmpps-non-associations-api": "^0.7.2",
-    "@ministryofjustice/hmpps-rest-client": "^2.1.0",
+    "@ministryofjustice/hmpps-rest-client": "^2.2.0",
     "applicationinsights": "^2.9.8",
     "bunyan": "^1.8.15",
     "bunyan-format": "^0.2.1",
@@ -111,7 +111,7 @@
   },
   "overrides": {
     "@cypress/request": {
-      "qs": "~6.15.2"
+      "qs": "~6.15.3"
     },
     "mocha": {
       "diff": ">=8.0.4",
