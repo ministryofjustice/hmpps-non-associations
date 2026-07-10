@@ -110,9 +110,6 @@
     "typescript": "^6.0.3"
   },
   "overrides": {
-    "@cypress/request": {
-      "qs": "~6.15.3"
-    },
     "mocha": {
       "diff": ">=8.0.4",
       "serialize-javascript": "^7.1.0"
