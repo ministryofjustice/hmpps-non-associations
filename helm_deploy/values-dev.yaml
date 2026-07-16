@@ -7,8 +7,6 @@ generic-service:
   ingress:
     host: non-associations-dev.hmpps.service.justice.gov.uk
 
-  allowlist: null
-
   env:
     ENVIRONMENT: dev
 
