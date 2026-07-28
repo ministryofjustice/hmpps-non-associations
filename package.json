@@ -116,6 +116,7 @@
     "mocha": {
       "diff": ">=8.0.4",
       "serialize-javascript": "^7.0.7"
-    }
+    },
+    "@opentelemetry/core": "^2.9.0"
   }
 }
