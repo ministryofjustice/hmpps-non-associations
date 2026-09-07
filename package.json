@@ -35,7 +35,7 @@
     "npm": "^12"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.1120.0",
+    "@aws-sdk/client-sqs": "^3.1121.0",
     "@ministryofjustice/frontend": "^10.0.1",
     "@ministryofjustice/hmpps-auth-clients": "^3.0.0",
     "@ministryofjustice/hmpps-azure-telemetry": "^1.0.2",
@@ -112,7 +112,7 @@
   "overrides": {
     "mocha": {
       "diff": ">=8.0.4",
-      "serialize-javascript": "^7.1.0"
+      "serialize-javascript": "^7.1.1"
     },
     "@opentelemetry/core": "^2.10.0",
     "brace-expansion": "^5.0.9"
