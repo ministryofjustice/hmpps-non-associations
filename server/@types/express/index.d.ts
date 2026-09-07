@@ -26,6 +26,14 @@ export declare global {
     }
 
     interface Locals {
+      auditEvent?: {
+        who: string
+        correlationId?: string
+        details?: {
+          pageUrl?: string
+          [key: string]: unknown
+        }
+      }
       breadcrumbs: Breadcrumbs
       readonly messages: Partial<
         Record<'information' | 'informationHtml' | 'success' | 'successHtml' | 'warning' | 'warningHtml', string[]>
