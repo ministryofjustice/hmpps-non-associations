@@ -1,8 +1,7 @@
+import type { AuditService, SubjectType } from '@ministryofjustice/hmpps-audit-client'
 import type { Request, RequestHandler } from 'express'
 
 import logger from '../../logger'
-import type AuditService from '../services/auditService'
-import type { PageViewSubject } from '../services/auditService'
 
 /**
  * Requests that are not page views: the home redirect into DPS and the prisoner photo asset.
@@ -12,6 +11,11 @@ const notPageViews = [/^\/(?:\?.*)?$/, /^\/prisoner\/[^/]+\/photo\.jpeg(?:\?.*)?
 
 /** Prisoner numbers appear in the path of every audited page */
 const prisonerNumberInPath = /\/prisoner\/([A-Z][0-9]{4}[A-Z]{2})\b/
+
+/** HMPPS Audit rejects subject ids longer than this */
+const maxSubjectIdLength = 80
+
+type Subject = { subjectType: SubjectType; subjectId?: string }
 
 /**
  * Audits page views to HMPPS Audit.
@@ -35,11 +39,11 @@ export default function auditPageView(auditService: AuditService): RequestHandle
       who,
       correlationId: req.id,
       details: { pageUrl: req.originalUrl },
+      ...subjectOfRequest(req),
     }
-    const subject = subjectOfRequest(req)
 
     res.prependOnceListener('close', () => {
-      logPageView(auditService, res.locals.auditEvent, subject, true)
+      logPageView(auditService, res.locals.auditEvent, true)
     })
 
     type ResRender = (view: string, options?: object, callback?: (err: Error, html: string) => void) => void
@@ -52,7 +56,7 @@ export default function auditPageView(auditService: AuditService): RequestHandle
         }
         // send the page first: auditing must never delay or break rendering
         res.send(html)
-        logPageView(auditService, res.locals.auditEvent, subject)
+        logPageView(auditService, res.locals.auditEvent)
       })
     }
 
@@ -60,20 +64,27 @@ export default function auditPageView(auditService: AuditService): RequestHandle
   }
 }
 
-function subjectOfRequest(req: Request): PageViewSubject {
+function subjectOfRequest(req: Request): Subject {
   const prisonerNumber = req.originalUrl.match(prisonerNumberInPath)?.[1]
+  if (prisonerNumber) {
+    return { subjectType: 'PRISONER_ID', subjectId: prisonerNumber }
+  }
   const searchTerm = typeof req.query?.q === 'string' ? req.query.q : undefined
-  return { prisonerNumber, searchTerm }
+  if (searchTerm) {
+    return { subjectType: 'SEARCH_TERM', subjectId: searchTerm.substring(0, maxSubjectIdLength) }
+  }
+  return { subjectType: 'NOT_APPLICABLE' }
 }
 
-function logPageView(
-  auditService: AuditService,
-  auditEvent: Express.Locals['auditEvent'],
-  subject: PageViewSubject,
-  isAttempt = false,
-): void {
+function logPageView(auditService: AuditService, auditEvent: Express.Locals['auditEvent'], isAttempt = false): void {
   if (!auditEvent) return
-  auditService.logPageView(auditEvent, subject, isAttempt).catch(error => {
-    logger.error(error, 'Failed to audit page view')
-  })
+  // auditing must not be able to break page rendering, so never throw
+  auditService
+    .logAuditEvent(
+      { ...auditEvent, action: isAttempt ? 'PAGE_VIEW_ACCESS_ATTEMPT' : 'PAGE_VIEW' },
+      { throwOnError: false, logOnError: true },
+    )
+    .catch(error => {
+      logger.error(error, 'Failed to audit page view')
+    })
 }

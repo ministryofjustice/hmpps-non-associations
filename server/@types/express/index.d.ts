@@ -1,3 +1,4 @@
+import type { AuditEvent } from '@ministryofjustice/hmpps-audit-client'
 import type { Breadcrumbs } from '../../middleware/breadcrumbs'
 import type { UserPermissions } from '../../middleware/userPermissions'
 import type { UserDetails } from '../../services/userService'
@@ -26,14 +27,7 @@ export declare global {
     }
 
     interface Locals {
-      auditEvent?: {
-        who: string
-        correlationId?: string
-        details?: {
-          pageUrl?: string
-          [key: string]: unknown
-        }
-      }
+      auditEvent?: Omit<AuditEvent, 'action'>
       breadcrumbs: Breadcrumbs
       readonly messages: Partial<
         Record<'information' | 'informationHtml' | 'success' | 'successHtml' | 'warning' | 'warningHtml', string[]>
