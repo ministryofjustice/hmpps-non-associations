@@ -11,6 +11,27 @@ context('List non-associations page', () => {
     })
   })
 
+  it('sends page view events to HMPPS Audit', () => {
+    cy.verifyAuditEvents([
+      {
+        what: 'PAGE_VIEW',
+        who: 'USER1',
+        service: 'hmpps-non-associations',
+        subjectId: davidJones.prisonerNumber,
+        subjectType: 'PRISONER_ID',
+        details: JSON.stringify({ pageUrl: `/prisoner/${davidJones.prisonerNumber}/non-associations` }),
+      },
+      {
+        what: 'PAGE_VIEW_ACCESS_ATTEMPT',
+        who: 'USER1',
+        service: 'hmpps-non-associations',
+        subjectId: davidJones.prisonerNumber,
+        subjectType: 'PRISONER_ID',
+        details: JSON.stringify({ pageUrl: `/prisoner/${davidJones.prisonerNumber}/non-associations` }),
+      },
+    ])
+  })
+
   it('shows username in fallback header', () => {
     listPage.headerUserName.should('contain.text', 'J. Smith')
   })

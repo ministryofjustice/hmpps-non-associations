@@ -28,6 +28,11 @@ Cypress.Commands.add('resetBasicStubs', ({ roles = defaultRoles }: { roles?: str
   cy.task('stubManageUser')
   cy.task('stubNomisUserCaseloads')
   cy.task('stubFallbackHeaderAndFooter')
+  cy.task('stubAuditSqs')
+})
+
+Cypress.Commands.add('verifyAuditEvents', (events: object[]) => {
+  return cy.task('getSentAuditEvents', events.length).should('deep.equal', events)
 })
 
 Cypress.Commands.add('navigateToDavidJonesNonAssociations', () => {

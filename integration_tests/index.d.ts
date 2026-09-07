@@ -17,6 +17,11 @@ declare namespace Cypress {
     resetBasicStubs(options?: { roles?: string[] }): Chainable<AUTWindow>
 
     /**
+     * Asserts on the audit events sent to HMPPS Audit so far
+     */
+    verifyAuditEvents(events: object[]): Chainable<unknown>
+
+    /**
      * Set up stubs needed for listing non-associations for David Jones
      * and navigate to list page
      */

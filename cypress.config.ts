@@ -1,7 +1,7 @@
 import { defineConfig } from 'cypress'
 import jwt from 'jsonwebtoken'
 
-import { resetStubs } from './integration_tests/mockApis/wiremock'
+import { resetStubs, getSentAuditEvents } from './integration_tests/mockApis/wiremock'
 
 import auth from './integration_tests/mockApis/auth'
 import manageUsersApi from './integration_tests/mockApis/manageUsersApi'
@@ -46,6 +46,7 @@ export default defineConfig({
     setupNodeEvents(on) {
       on('task', {
         resetStubs,
+        getSentAuditEvents,
         createToken,
         ...auth,
         ...manageUsersApi,
