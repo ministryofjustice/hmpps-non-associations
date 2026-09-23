@@ -61,7 +61,7 @@ function appWithAuditing({
 function loggedEvents() {
   return auditService.logAuditEvent.mock.calls.map(([event]) => ({
     subject: { subjectType: event.subjectType, subjectId: event.subjectId },
-    what: event.action,
+    what: event.what,
   }))
 }
 

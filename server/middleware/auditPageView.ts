@@ -38,6 +38,7 @@ export default function auditPageView(auditService: AuditService): RequestHandle
     res.locals.auditEvent = {
       who,
       correlationId: req.id,
+      what: 'PAGE_VIEW',
       details: { pageUrl: req.originalUrl },
       ...subjectOfRequest(req),
     }
@@ -81,7 +82,7 @@ function logPageView(auditService: AuditService, auditEvent: Express.Locals['aud
   // auditing must not be able to break page rendering, so never throw
   auditService
     .logAuditEvent(
-      { ...auditEvent, action: isAttempt ? 'PAGE_VIEW_ACCESS_ATTEMPT' : 'PAGE_VIEW' },
+      { ...auditEvent, what: isAttempt ? 'PAGE_VIEW_ACCESS_ATTEMPT' : 'PAGE_VIEW' },
       { throwOnError: false, logOnError: true },
     )
     .catch(error => {
