@@ -34,6 +34,7 @@ export const mockCaseloads: Caseload[] = [mockActiveCaseload]
 export const mockUser: Express.User = {
   name: 'FIRST LAST',
   userId: 'id',
+  userUuid: '11111111-1111-1111-1111-111111111111',
   token: 'token',
   username: 'user1',
   displayName: 'First Last',

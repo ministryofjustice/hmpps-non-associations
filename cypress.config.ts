@@ -17,6 +17,8 @@ function createToken({ roles }: { roles: string[] }) {
   const authorities = roles.map(role => (role.startsWith('ROLE_') ? role : `ROLE_${role}`))
   const payload = {
     user_name: 'USER1',
+    user_id: '231232',
+    user_uuid: '11111111-1111-1111-1111-111111111111',
     scope: ['read', 'write'],
     auth_source: 'NOMIS',
     authorities,
