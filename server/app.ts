@@ -10,6 +10,7 @@ import breadcrumbs from './middleware/breadcrumbs'
 import setUpAuthentication from './middleware/setUpAuthentication'
 import setUpCsrf from './middleware/setUpCsrf'
 import setUpCurrentUser from './middleware/setUpCurrentUser'
+import userTelemetry from './middleware/userTelemetry'
 import setUpHealthChecks from './middleware/setUpHealthChecks'
 import setUpStaticResources from './middleware/setUpStaticResources'
 import setUpWebRequestParsing from './middleware/setUpRequestParsing'
@@ -40,6 +41,7 @@ export default function createApp(services: Services): express.Application {
   app.use(authorisationMiddleware([userRolePrison]))
   app.use(setUpCsrf())
   app.use(setUpCurrentUser(services))
+  app.use(userTelemetry())
 
   app.use(breadcrumbs())
   app.use(frontendComponents(services))
