@@ -22,6 +22,3 @@ generic-service:
     NEW_DPS_URL: "https://dps.prison.service.justice.gov.uk"
     SUPPORT_URL: "https://support.hmpps.service.justice.gov.uk"
     FEEDBACK_SURVEY_URL: "https://www.smartsurvey.co.uk/s/H10VXN/"
-
-generic-prometheus-alerts:
-  alertSeverity: hmpps-non-associations-prod
