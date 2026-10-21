@@ -12,6 +12,7 @@
     "checkJs": true,
     "resolveJsonModule": true,
     "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules",
