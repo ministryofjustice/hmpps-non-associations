@@ -49,7 +49,7 @@ describe('manageUsersApiClient', () => {
     })
 
     it('returns null if not found', async () => {
-      fakeManageUsersApiClient.get(`/users/${username}`).thrice().reply(404)
+      fakeManageUsersApiClient.get(`/users/${username}`).reply(404)
 
       const output = await manageUsersApiClient.getUserByUsername(systemToken, username)
       expect(output).toBeNull()
