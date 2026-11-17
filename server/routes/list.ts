@@ -16,7 +16,7 @@ import {
   sortList,
 } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
-import PrisonApi from '../data/prisonApi'
+import ManageUsersApiClient from '../data/manageUsersApiClient'
 import type { Services } from '../services'
 import { type HeaderCell, type SortableTableColumns, sortableTableHead } from '../utils/sortableTable'
 import ListForm, { type ListData, type Table } from '../forms/list'
@@ -138,14 +138,14 @@ export default function listRoutes(service: Services): Router {
     form.submit(req.query)
     if (!form.hasErrors) {
       const api = new NonAssociationsApi(systemToken)
-      const prisonApi = new PrisonApi(systemToken)
+      const manageUsersApi = new ManageUsersApiClient()
       try {
         nonAssociationsList = await api.listNonAssociations(prisonerNumber, {
           includeOpen: listing === 'open',
           includeClosed: listing === 'closed',
           includeOtherPrisons: true,
         })
-        nonAssociationsList = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
+        nonAssociationsList = await lookupStaffInNonAssociations(manageUsersApi, systemToken, nonAssociationsList)
         nonAssociationGroups = groupListByLocation(nonAssociationsList)
 
         if (nonAssociationGroups.type === 'threeGroups') {

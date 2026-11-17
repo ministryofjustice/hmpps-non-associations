@@ -8,12 +8,12 @@ import {
 import type { Express } from 'express'
 import request from 'supertest'
 
-import { appWithAllRoutes, mockReadOnlyUser, mockUserWithoutGlobalSearch } from './testutils/appSetup'
+import { appWithAllRoutes, mockReadOnlyUser, mockSystemToken, mockUserWithoutGlobalSearch } from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { transferPrisonId, outsidePrisonId } from '../data/constants'
-import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import { NonAssociationsApi, clearStaffNameCache } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
-import PrisonApi from '../data/prisonApi'
+import ManageUsersApiClient from '../data/manageUsersApiClient'
 import {
   davidJones0NonAssociations,
   davidJones1OpenNonAssociation,
@@ -34,7 +34,7 @@ import {
   nathanLost,
   mockMovePrisoner,
 } from '../data/testData/offenderSearch'
-import { mockGetStaffDetails } from '../data/testData/prisonApi'
+import { mockGetUserByUsername } from '../data/testData/manageUsers'
 import { mockRestClientError } from '../data/testData/restClientError'
 import { type ListData, type Table, threeTables, twoTables } from '../forms/list'
 
@@ -52,7 +52,7 @@ jest.mock('../data/offenderSearch', () => {
   const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
   return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
 })
-jest.mock('../data/prisonApi')
+jest.mock('../data/manageUsersApiClient')
 
 // mock "key" prisoner
 const { prisonerNumber } = davidJones
@@ -61,7 +61,7 @@ const prisoner = davidJones
 let app: Express
 let nonAssociationsApi: jest.Mocked<NonAssociationsApi>
 let offenderSearchClient: jest.Mocked<OffenderSearchClient>
-let prisonApi: jest.Mocked<PrisonApi>
+let manageUsersApi: jest.Mocked<ManageUsersApiClient>
 
 beforeEach(() => {
   app = appWithAllRoutes({})
@@ -69,7 +69,8 @@ beforeEach(() => {
   nonAssociationsApi = NonAssociationsApi.prototype as jest.Mocked<NonAssociationsApi>
   offenderSearchClient = OffenderSearchClient.prototype as jest.Mocked<OffenderSearchClient>
   offenderSearchClient.getPrisoner.mockResolvedValue(prisoner)
-  prisonApi = PrisonApi.prototype as jest.Mocked<PrisonApi>
+  manageUsersApi = ManageUsersApiClient.prototype as jest.Mocked<ManageUsersApiClient>
+  clearStaffNameCache()
 })
 
 afterEach(() => {
@@ -90,7 +91,7 @@ describe('Non-associations list page', () => {
           expect(res.text).not.toContain('Jones, David')
           expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
           expect(nonAssociationsApi.listNonAssociations).not.toHaveBeenCalled()
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
         })
     })
 
@@ -102,14 +103,14 @@ describe('Non-associations list page', () => {
           expect(res.text).not.toContain('Jones, David')
           expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
           expect(nonAssociationsApi.listNonAssociations).not.toHaveBeenCalled()
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
         })
     })
   })
 
   describe('link to key prisoner profile', () => {
     beforeEach(() => {
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
     })
 
     it('should show when the user has permission', () => {
@@ -147,7 +148,7 @@ describe('Non-associations list page', () => {
 
   describe('should show key prisoner location', () => {
     beforeEach(() => {
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
     })
 
     describe('when they’re being transferred', () => {
@@ -335,7 +336,7 @@ describe('Non-associations list page', () => {
 
   describe('listing non-associations for a prisoner', () => {
     beforeEach(() => {
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
     })
 
     class ExpectNonAssociationList {
@@ -390,14 +391,14 @@ describe('Non-associations list page', () => {
 
         // staff lookups
         if (!this.closed) {
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'abc12a')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'cde87s')
         } else {
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('lev79n')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(3)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'abc12a')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'cde87s')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'lev79n')
         }
 
         // table
@@ -712,7 +713,7 @@ describe('Non-associations list page', () => {
 
   describe('sorting non-associations for a prisoner', () => {
     beforeEach(() => {
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
     })
 
     type SortBySubset = Exclude<SortBy, 'WHEN_CREATED' | 'FIRST_NAME' | 'PRISONER_NUMBER' | 'PRISON_ID'>
@@ -895,7 +896,7 @@ describe('Non-associations list page', () => {
     })
 
     it('should preserve other tables’ sorting options', () => {
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(
         mockNonAssociationsList(prisoner, [
           { prisoner: fredMills },
@@ -952,7 +953,7 @@ describe('Non-associations list page', () => {
   describe('should show count of non-associations in tabs', () => {
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2OpenNonAssociations)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber))
@@ -960,7 +961,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
 
           expect(res.text).toContain('Open (2 records)')
           expect(res.text).toContain('Closed (0 records)')
@@ -969,7 +970,7 @@ describe('Non-associations list page', () => {
 
     it('when listing closed non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones2ClosedNonAssociations)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
@@ -977,7 +978,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(3)
 
           expect(res.text).toContain('Open (1 record)')
           expect(res.text).toContain('Closed (2 records)')
@@ -995,7 +996,7 @@ describe('Non-associations list page', () => {
 
     it('when listing open non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1OpenNonAssociation)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber))
@@ -1014,7 +1015,7 @@ describe('Non-associations list page', () => {
 
     it('when listing closed non-associations', () => {
       nonAssociationsApi.listNonAssociations.mockResolvedValueOnce(davidJones1ClosedNonAssociation)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
@@ -1041,7 +1042,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).not.toHaveBeenCalled()
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
 
           expect(res.text).toContain('There is a problem')
           expect(res.text).not.toContain('app-sortable-table')
@@ -1056,7 +1057,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).not.toHaveBeenCalled()
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
 
           expect(res.text).toContain('There is a problem')
           expect(res.text).not.toContain('app-sortable-table')
@@ -1077,7 +1078,7 @@ describe('Non-associations list page', () => {
           }
         }),
       })
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber))
@@ -1085,9 +1086,9 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('NON_ASSOCIATIONS_API')
+          // system usernames are not looked up
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(1)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'abc12a')
         })
     })
 
@@ -1103,7 +1104,7 @@ describe('Non-associations list page', () => {
           }
         }),
       })
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
@@ -1111,10 +1112,10 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('lev79n')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('NON_ASSOCIATIONS_API')
+          // system usernames are not looked up
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'abc12a')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'lev79n')
         })
     })
   })
@@ -1131,7 +1132,7 @@ describe('Non-associations list page', () => {
           }
         }),
       })
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber))
@@ -1139,8 +1140,8 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(1)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'abc12a')
         })
     })
 
@@ -1155,7 +1156,7 @@ describe('Non-associations list page', () => {
           }
         }),
       })
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
       return request(app)
         .get(routeUrls.list(prisonerNumber, true))
@@ -1163,9 +1164,9 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(() => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('abc12a')
-          expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('lev79n')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'abc12a')
+          expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'lev79n')
         })
     })
   })
@@ -1180,7 +1181,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
 
           // message
           expect(res.text).toContain('David Jones has no open non-associations')
@@ -1202,7 +1203,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
 
           // message
           expect(res.text).toContain('David Jones has no closed non-associations')
@@ -1228,7 +1229,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
 
           // message
           expect(res.text).toContain('Non-associations could not be loaded')
@@ -1246,7 +1247,7 @@ describe('Non-associations list page', () => {
         .expect('Content-Type', /html/)
         .expect(res => {
           expect(nonAssociationsApi.listNonAssociations).toHaveBeenCalledTimes(1)
-          expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+          expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
 
           // message
           expect(res.text).toContain('Non-associations could not be loaded')

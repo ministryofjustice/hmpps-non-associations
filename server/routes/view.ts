@@ -4,7 +4,7 @@ import { NotFound } from 'http-errors'
 import { nameOfPerson, reversedNameOfPerson } from '../utils/utils'
 import { NonAssociationsApi, lookupStaffInNonAssociation } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
-import PrisonApi from '../data/prisonApi'
+import ManageUsersApiClient from '../data/manageUsersApiClient'
 import type { Services } from '../services'
 
 export default function viewRoutes(service: Services): Router {
@@ -43,8 +43,8 @@ export default function viewRoutes(service: Services): Router {
     const otherPrisoner = await offenderSearchClient.getPrisoner(otherPrisonerNumber)
     const otherPrisonerName = nameOfPerson(otherPrisoner)
 
-    const prisonApi = new PrisonApi(systemToken)
-    nonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
+    const manageUsersApi = new ManageUsersApiClient()
+    nonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
 
     const canModifyNonAssociation =
       user.permissions.canWriteNonAssociation(prisoner, otherPrisoner) && !nonAssociation.isClosed

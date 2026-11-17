@@ -1,12 +1,18 @@
 import type { Express } from 'express'
 import request from 'supertest'
 
-import { appWithAllRoutes, mockUser, mockReadOnlyUser, mockUserWithGlobalSearch } from './testutils/appSetup'
+import {
+  appWithAllRoutes,
+  mockSystemToken,
+  mockUser,
+  mockReadOnlyUser,
+  mockUserWithGlobalSearch,
+} from './testutils/appSetup'
 import routeUrls from '../services/routeUrls'
 import { userRolePrison, userRoleInactiveBookings, userRoleManageNonAssociations } from '../data/constants'
-import { NonAssociationsApi } from '../data/nonAssociationsApi'
+import { NonAssociationsApi, clearStaffNameCache } from '../data/nonAssociationsApi'
 import { OffenderSearchClient } from '../data/offenderSearch'
-import PrisonApi from '../data/prisonApi'
+import ManageUsersApiClient from '../data/manageUsersApiClient'
 import { mockNonAssociation } from '../data/testData/nonAssociationsApi'
 import {
   davidJones,
@@ -17,7 +23,7 @@ import {
   joePeters,
   mockGetPrisoner,
 } from '../data/testData/offenderSearch'
-import { mockGetStaffDetails } from '../data/testData/prisonApi'
+import { mockGetUserByUsername } from '../data/testData/manageUsers'
 import { mockRestClientError } from '../data/testData/restClientError'
 
 jest.mock('@ministryofjustice/hmpps-non-associations-api', () => {
@@ -34,7 +40,7 @@ jest.mock('../data/offenderSearch', () => {
   const mockedModule = jest.createMockFromModule<Module>('../data/offenderSearch')
   return { __esModule: true, ...realModule, OffenderSearchClient: mockedModule.OffenderSearchClient }
 })
-jest.mock('../data/prisonApi')
+jest.mock('../data/manageUsersApiClient')
 
 // mock "key" prisoner
 const { prisonerNumber } = davidJones
@@ -51,14 +57,15 @@ const nonAssociationId = nonAssociation.id
 let app: Express
 let nonAssociationsApi: jest.Mocked<NonAssociationsApi>
 let offenderSearchClient: jest.Mocked<OffenderSearchClient>
-let prisonApi: jest.Mocked<PrisonApi>
+let manageUsersApi: jest.Mocked<ManageUsersApiClient>
 
 beforeEach(() => {
   app = appWithAllRoutes({})
 
   nonAssociationsApi = NonAssociationsApi.prototype as jest.Mocked<NonAssociationsApi>
   offenderSearchClient = OffenderSearchClient.prototype as jest.Mocked<OffenderSearchClient>
-  prisonApi = PrisonApi.prototype as jest.Mocked<PrisonApi>
+  manageUsersApi = ManageUsersApiClient.prototype as jest.Mocked<ManageUsersApiClient>
+  clearStaffNameCache()
 })
 
 afterEach(() => {
@@ -76,7 +83,7 @@ describe('View non-association details page', () => {
       .expect(res => {
         expect(res.text).not.toContain('Jones, David')
         expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(1)
-        expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+        expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
       })
   })
 
@@ -90,7 +97,7 @@ describe('View non-association details page', () => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
-        expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+        expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
       })
   })
 
@@ -105,20 +112,20 @@ describe('View non-association details page', () => {
         expect(res.text).not.toContain('Jones, David')
         expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledTimes(1)
         expect(offenderSearchClient.getPrisoner).not.toHaveBeenCalled()
-        expect(prisonApi.getStaffDetails).not.toHaveBeenCalled()
+        expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
       })
   })
 
   describe('details', () => {
     beforeEach(() => {
       offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
     })
 
     function expectCommonDetails(res: request.Response): void {
       expect(nonAssociationsApi.getNonAssociation).toHaveBeenCalledWith(nonAssociation.id)
       expect(offenderSearchClient.getPrisoner).toHaveBeenCalledTimes(2)
-      expect(prisonApi.getStaffDetails).toHaveBeenCalledWith('cde87s')
+      expect(manageUsersApi.getUserByUsername).toHaveBeenCalledWith(mockSystemToken, 'cde87s')
 
       expect(res.text).toContain('Jones, David')
 
@@ -270,7 +277,7 @@ describe('View non-association details page', () => {
   describe('location', () => {
     beforeEach(() => {
       offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
     })
 
     describe('of key prisoner', () => {
@@ -368,7 +375,7 @@ describe('View non-association details page', () => {
     ({ prisonerNumber: p1, otherPrisonerNumber: p2 }) => {
       const na = mockNonAssociation(p1, p2)
       offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
       nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(na)
 
       return request(app)
@@ -409,7 +416,7 @@ describe('View non-association details page', () => {
         userSupplier: () => user,
       })
       offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-      prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+      manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
       nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(na)
 
       return request(app)
@@ -434,7 +441,7 @@ describe('View non-association details page', () => {
       updatedBy: 'NON_ASSOCIATIONS_API',
     })
     offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-    prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
+    manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
 
     return request(app)
       .get(routeUrls.view(otherPrisonerNumber, nonAssociation.id))
@@ -449,7 +456,7 @@ describe('View non-association details page', () => {
   it('should show authoriser username when prison api returned an error', () => {
     nonAssociationsApi.getNonAssociation.mockResolvedValueOnce(nonAssociation)
     offenderSearchClient.getPrisoner.mockImplementation(mockGetPrisoner)
-    prisonApi.getStaffDetails.mockRejectedValueOnce(mockRestClientError(500))
+    manageUsersApi.getUserByUsername.mockRejectedValueOnce(mockRestClientError(500))
 
     return request(app)
       .get(routeUrls.view(otherPrisonerNumber, nonAssociation.id))

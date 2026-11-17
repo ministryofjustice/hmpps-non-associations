@@ -1,7 +1,6 @@
 import nock from 'nock'
 
 import config from '../config'
-import { staffMary } from './testData/prisonApi'
 import PrisonApi from './prisonApi'
 
 describe('PrisonApi', () => {
@@ -67,40 +66,6 @@ describe('PrisonApi', () => {
         .reply(500)
 
       await expect(prisonApiClient.getPhoto(prisonerNumber)).rejects.toThrow('Internal Server Error')
-    })
-  })
-
-  describe('getStaffDetails()', () => {
-    const { username } = staffMary
-
-    it('should return an object', async () => {
-      prisonApi
-        .get(`/api/users/${username}`)
-        .matchHeader('authorization', `Bearer ${systemToken}`)
-        .reply(200, staffMary)
-
-      const response = await prisonApiClient.getStaffDetails(username)
-      expect(response).toEqual(staffMary)
-    })
-
-    it('should return null if not found', async () => {
-      prisonApi.get(`/api/users/${username}`).matchHeader('authorization', `Bearer ${systemToken}`).thrice().reply(404)
-
-      const response = await prisonApiClient.getStaffDetails(username)
-      expect(response).toBeNull()
-    })
-
-    it('should return null if unauthorised', async () => {
-      prisonApi.get(`/api/users/${username}`).matchHeader('authorization', `Bearer ${systemToken}`).thrice().reply(403)
-
-      const response = await prisonApiClient.getStaffDetails(username)
-      expect(response).toBeNull()
-    })
-
-    it('should throw when it receives another error', async () => {
-      prisonApi.get(`/api/users/${username}`).matchHeader('authorization', `Bearer ${systemToken}`).thrice().reply(500)
-
-      await expect(prisonApiClient.getStaffDetails(username)).rejects.toThrow('Internal Server Error')
     })
   })
 })

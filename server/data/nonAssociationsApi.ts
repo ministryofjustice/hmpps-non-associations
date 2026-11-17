@@ -10,9 +10,9 @@ import {
 
 import logger from '../../logger'
 import config from '../config'
-import { nameOfPerson } from '../utils/utils'
+import { convertToTitleCase } from '../utils/utils'
 import { transferPrisonId, outsidePrisonId } from './constants'
-import PrisonApi, { type StaffMember } from './prisonApi'
+import type ManageUsersApiClient from './manageUsersApiClient'
 
 export const maxCommentLength = 240 as const
 
@@ -22,30 +22,72 @@ export class NonAssociationsApi extends BaseApi {
   }
 }
 
-const systemUsers: ReadonlyArray<StaffMember> = systemUsernames.map(username => {
-  return {
-    username,
-    firstName: 'System',
-    lastName: '',
-  }
-})
+/** Display name for internal system usernames, which are not real users */
+const systemUserName = 'System'
+
+/** How long a staff member’s name is remembered for */
+const staffNameCacheMilliseconds = 60 * 60 * 1000
+/** Most staff names remembered at once; the oldest is forgotten first */
+const staffNameCacheMaxSize = 10_000
 
 /**
- * Makes a function to lookup usernames from a set of staff member objects loaded from prison-api
+ * Staff display names by username, shared across requests to avoid looking up the same people on every page.
+ * Users that are not found are remembered as null.
+ */
+const staffNameCache = new Map<string, { name: string | null; expires: number }>()
+
+/** Forget all remembered staff names; for use in tests */
+export function clearStaffNameCache(): void {
+  staffNameCache.clear()
+}
+
+async function lookupStaffName(
+  manageUsersApi: ManageUsersApiClient,
+  systemToken: string,
+  username: string,
+): Promise<string | null> {
+  const now = Date.now()
+  const cached = staffNameCache.get(username)
+  if (cached && cached.expires > now) {
+    return cached.name
+  }
+
+  const user = await manageUsersApi.getUserByUsername(systemToken, username)
+  const name = user?.name ? convertToTitleCase(user.name) : null
+
+  staffNameCache.delete(username)
+  if (staffNameCache.size >= staffNameCacheMaxSize) {
+    // Map keeps insertion order so the first key is the oldest
+    staffNameCache.delete(staffNameCache.keys().next().value)
+  }
+  staffNameCache.set(username, { name, expires: now + staffNameCacheMilliseconds })
+  return name
+}
+
+/**
+ * Makes a function to look up staff display names by username from Manage Users
  * Used as argument to `lookupStaff`
  */
 async function makeStaffLookup(
-  prisonApi: PrisonApi,
+  manageUsersApi: ManageUsersApiClient,
+  systemToken: string,
   staffUsernameSet: Set<string>,
-): Promise<(username: string | null | undefined) => StaffMember | undefined> {
+): Promise<(username: string | null | undefined) => string | undefined> {
+  const staffNames = new Map<string, string>()
   const staffUsernames = Array.from(staffUsernameSet).filter(username => username)
-  const staffUsers: StaffMember[] = [
-    ...systemUsers,
-    ...(await Promise.allSettled(staffUsernames.map(username => prisonApi.getStaffDetails(username))))
-      .map(promise => (promise.status === 'fulfilled' ? promise.value : null))
-      .filter(user => user),
-  ]
-  return username => username && staffUsers.find(user => user.username === username)
+  await Promise.allSettled(
+    staffUsernames.map(async username => {
+      if (systemUsernames.includes(username)) {
+        staffNames.set(username, systemUserName)
+        return
+      }
+      const name = await lookupStaffName(manageUsersApi, systemToken, username)
+      if (name) {
+        staffNames.set(username, name)
+      }
+    }),
+  )
+  return username => (username ? staffNames.get(username) : undefined)
 }
 
 /**
@@ -53,25 +95,13 @@ async function makeStaffLookup(
  */
 function lookupStaff<O extends { updatedBy: string; closedBy: string | null }>(
   /** Made by `makeStaffLookup` */
-  findStaffUser: (username: string | null | undefined) => StaffMember | undefined,
+  findStaffName: (username: string | null | undefined) => string | undefined,
   nonAssociation: O,
 ): O {
-  let { updatedBy, closedBy } = nonAssociation
-
-  let staffUser = findStaffUser(updatedBy)
-  if (staffUser) {
-    updatedBy = nameOfPerson(staffUser)
-  }
-
-  staffUser = findStaffUser(closedBy)
-  if (staffUser) {
-    closedBy = nameOfPerson(staffUser)
-  }
-
   return {
     ...nonAssociation,
-    updatedBy,
-    closedBy,
+    updatedBy: findStaffName(nonAssociation.updatedBy) ?? nonAssociation.updatedBy,
+    closedBy: findStaffName(nonAssociation.closedBy) ?? nonAssociation.closedBy,
   }
 }
 
@@ -79,7 +109,8 @@ function lookupStaff<O extends { updatedBy: string; closedBy: string | null }>(
  * Hydrates `NonAssociationsList` with staff names
  */
 export async function lookupStaffInNonAssociations<List extends NonAssociationsList>(
-  prisonApi: PrisonApi,
+  manageUsersApi: ManageUsersApiClient,
+  systemToken: string,
   nonAssociationsList: List,
 ): Promise<List> {
   const staffUsernameSet = new Set<string>()
@@ -89,11 +120,11 @@ export async function lookupStaffInNonAssociations<List extends NonAssociationsL
       staffUsernameSet.add(nonAssociation.closedBy)
     }
   })
-  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
+  const findStaffName = await makeStaffLookup(manageUsersApi, systemToken, staffUsernameSet)
   return {
     ...nonAssociationsList,
     nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation =>
-      lookupStaff(findStaffUser, nonAssociation),
+      lookupStaff(findStaffName, nonAssociation),
     ),
   }
 }
@@ -102,33 +133,16 @@ export async function lookupStaffInNonAssociations<List extends NonAssociationsL
  * Hydrates `NonAssociation` with staff names
  */
 export async function lookupStaffInNonAssociation<N extends NonAssociation>(
-  prisonApi: PrisonApi,
+  manageUsersApi: ManageUsersApiClient,
+  systemToken: string,
   nonAssociation: N,
 ): Promise<N> {
   const staffUsernameSet = new Set<string>([nonAssociation.updatedBy])
   if (nonAssociation.closedBy) {
     staffUsernameSet.add(nonAssociation.closedBy)
   }
-  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
-  return lookupStaff(findStaffUser, nonAssociation)
-}
-
-/**
- * Hydrates an array of `NonAssociation` with staff names
- */
-export async function lookupStaffInArrayOfNonAssociations<N extends NonAssociation>(
-  prisonApi: PrisonApi,
-  nonAssociations: N[],
-): Promise<N[]> {
-  const staffUsernameSet = new Set<string>()
-  nonAssociations.forEach(nonAssociation => {
-    staffUsernameSet.add(nonAssociation.updatedBy)
-    if (nonAssociation.closedBy) {
-      staffUsernameSet.add(nonAssociation.closedBy)
-    }
-  })
-  const findStaffUser = await makeStaffLookup(prisonApi, staffUsernameSet)
-  return nonAssociations.map(nonAssociation => lookupStaff(findStaffUser, nonAssociation))
+  const findStaffName = await makeStaffLookup(manageUsersApi, systemToken, staffUsernameSet)
+  return lookupStaff(findStaffName, nonAssociation)
 }
 
 interface NonAssociationNoGroups {

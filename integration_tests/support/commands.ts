@@ -39,7 +39,7 @@ Cypress.Commands.add('navigateToDavidJonesNonAssociations', () => {
   cy.signIn()
 
   cy.task('stubPrisonApiGetPhoto')
-  cy.task('stubPrisonApiGetStaffDetails')
+  cy.task('stubManageUsersGetStaff')
   cy.task('stubOffenderSearchGetPrisoner')
   cy.task('stubListNonAssociations')
 

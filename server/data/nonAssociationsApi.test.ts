@@ -1,9 +1,7 @@
 import type {
-  NonAssociation,
   NonAssociationsList,
   NonAssociationsListItem,
   ClosedNonAssociationsListItem,
-  OpenNonAssociation,
   ClosedNonAssociation,
 } from '@ministryofjustice/hmpps-non-associations-api'
 import { sortByOptions, sortDirectionOptions } from '@ministryofjustice/hmpps-non-associations-api'
@@ -12,12 +10,12 @@ import { transferPrisonId, outsidePrisonId } from './constants'
 import {
   lookupStaffInNonAssociation,
   lookupStaffInNonAssociations,
-  lookupStaffInArrayOfNonAssociations,
+  clearStaffNameCache,
   groupListByLocation,
   sortList,
 } from './nonAssociationsApi'
 import type { NonAssociationGroups } from './nonAssociationsApi'
-import PrisonApi from './prisonApi'
+import ManageUsersApiClient from './manageUsersApiClient'
 import {
   davidJones0NonAssociations,
   davidJones1OpenNonAssociation,
@@ -30,35 +28,39 @@ import {
 import {
   davidJones,
   fredMills,
-  oscarJones,
   andrewBrown,
   walterSmith,
   maxClarke,
   joePeters,
   nathanLost,
 } from './testData/offenderSearch'
-import { mockGetStaffDetails } from './testData/prisonApi'
+import { mockGetUserByUsername } from './testData/manageUsers'
 
-jest.mock('./prisonApi')
+jest.mock('./manageUsersApiClient')
 
 describe('Non-associations API REST client', () => {
   describe('staff member lookups', () => {
-    let prisonApi: jest.Mocked<PrisonApi>
+    const systemToken = 'test-system-token'
+    let manageUsersApi: jest.Mocked<ManageUsersApiClient>
 
     beforeAll(() => {
-      prisonApi = PrisonApi.prototype as jest.Mocked<PrisonApi>
+      manageUsersApi = ManageUsersApiClient.prototype as jest.Mocked<ManageUsersApiClient>
+    })
+
+    beforeEach(() => {
+      clearStaffNameCache()
     })
 
     afterEach(() => {
-      prisonApi.getStaffDetails.mockReset()
+      manageUsersApi.getUserByUsername.mockReset()
     })
 
     describe('of non-associations', () => {
       it('works for open non-associations', async () => {
         const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
-        prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-        const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        const processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(1)
         // authorisedBy was free text, not looked up
         expect(processedNonAssociation.authorisedBy).toEqual('Someone from security')
         expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
@@ -67,9 +69,9 @@ describe('Non-associations API REST client', () => {
 
       it('works for closed non-associations', async () => {
         const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
-        prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-        const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        const processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
         // authorisedBy was free text, not looked up
         expect(processedNonAssociation.authorisedBy).toEqual('Someone from security')
         expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
@@ -83,9 +85,8 @@ describe('Non-associations API REST client', () => {
           updatedBy: 'NON_ASSOCIATIONS_API',
           closedBy: 'NON_ASSOCIATIONS_API',
         }
-        prisonApi.getStaffDetails.mockResolvedValueOnce(null)
-        const processedNonAssociation = await lookupStaffInNonAssociation(prisonApi, nonAssociation)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+        const processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
         // authorisedBy was free text, not looked up
         expect(processedNonAssociation.authorisedBy).toEqual('NON_ASSOCIATIONS_API')
         expect(processedNonAssociation.updatedBy).toEqual('System')
@@ -95,9 +96,13 @@ describe('Non-associations API REST client', () => {
 
     describe('of non-association lists', () => {
       it('works for open non-associations', async () => {
-        prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-        const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2OpenNonAssociations)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        const processedNonAssociations = await lookupStaffInNonAssociations(
+          manageUsersApi,
+          systemToken,
+          davidJones2OpenNonAssociations,
+        )
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
         // authorisedBy was free text, not looked up
         expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('abc12a')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
@@ -109,9 +114,13 @@ describe('Non-associations API REST client', () => {
       })
 
       it('works for closed non-associations', async () => {
-        prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-        const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, davidJones2ClosedNonAssociations)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(3)
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        const processedNonAssociations = await lookupStaffInNonAssociations(
+          manageUsersApi,
+          systemToken,
+          davidJones2ClosedNonAssociations,
+        )
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(3)
         // authorisedBy was free text, not looked up
         expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('abc12a')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('Mary Johnson')
@@ -137,9 +146,12 @@ describe('Non-associations API REST client', () => {
             }
           }),
         }
-        prisonApi.getStaffDetails.mockResolvedValueOnce(null)
-        const processedNonAssociations = await lookupStaffInNonAssociations(prisonApi, nonAssociationsList)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
+        const processedNonAssociations = await lookupStaffInNonAssociations(
+          manageUsersApi,
+          systemToken,
+          nonAssociationsList,
+        )
+        expect(manageUsersApi.getUserByUsername).not.toHaveBeenCalled()
         // authorisedBy was free text, not looked up
         expect(processedNonAssociations.nonAssociations[0].authorisedBy).toEqual('NON_ASSOCIATIONS_API')
         expect(processedNonAssociations.nonAssociations[0].updatedBy).toEqual('System')
@@ -147,66 +159,39 @@ describe('Non-associations API REST client', () => {
       })
     })
 
-    describe('of non-associations between a group of prisoners', () => {
-      it('works for open non-associations', async () => {
-        const nonAssociations: OpenNonAssociation[] = [
-          mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
-          mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber),
-        ]
-        prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-        const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        processedNonAssociations.forEach(nonAssociation => {
-          // authorisedBy was free text, not looked up
-          expect(nonAssociation.authorisedBy).toEqual('Someone from security')
-          expect(nonAssociation.updatedBy).toEqual('Mark Simmons')
-          expect(nonAssociation.closedBy).toBeNull()
-        })
+    describe('caching', () => {
+      it('remembers names between lookups', async () => {
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true)
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        const processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
+        expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
+        expect(processedNonAssociation.closedBy).toEqual('Mary Johnson')
       })
 
-      it('works for closed non-associations', async () => {
-        const nonAssociations: ClosedNonAssociation[] = [
-          mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber, true),
-          mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, true),
-        ]
-        prisonApi.getStaffDetails.mockImplementation(mockGetStaffDetails)
-        const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(2)
-        processedNonAssociations.forEach(nonAssociation => {
-          // authorisedBy was free text, not looked up
-          expect(nonAssociation.authorisedBy).toEqual('Someone from security')
-          expect(nonAssociation.updatedBy).toEqual('Mark Simmons')
-          expect(nonAssociation.closedBy).toEqual('Mary Johnson')
-        })
+      it('remembers users that were not found', async () => {
+        const nonAssociation = {
+          ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
+          updatedBy: 'unknown',
+        }
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        const processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(1)
+        expect(processedNonAssociation.updatedBy).toEqual('unknown')
       })
 
-      it('works for system users', async () => {
-        const nonAssociations: NonAssociation[] = [
-          {
-            ...mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber),
-            authorisedBy: 'NON_ASSOCIATIONS_API',
-            updatedBy: 'NON_ASSOCIATIONS_API',
-          },
-          {
-            ...mockNonAssociation(oscarJones.prisonerNumber, davidJones.prisonerNumber, true),
-            authorisedBy: 'NON_ASSOCIATIONS_API',
-            updatedBy: 'NON_ASSOCIATIONS_API',
-            closedBy: 'NON_ASSOCIATIONS_API',
-          },
-        ]
-        prisonApi.getStaffDetails.mockResolvedValueOnce(null)
-        const processedNonAssociations = await lookupStaffInArrayOfNonAssociations(prisonApi, nonAssociations)
-        expect(prisonApi.getStaffDetails).toHaveBeenCalledTimes(1)
-        processedNonAssociations.forEach((nonAssociation, index) => {
-          // authorisedBy was free text, not looked up
-          expect(nonAssociation.authorisedBy).toEqual('NON_ASSOCIATIONS_API')
-          expect(nonAssociation.updatedBy).toEqual('System')
-          if (index === 0) {
-            expect(nonAssociation.closedBy).toBeNull()
-          } else {
-            expect(nonAssociation.closedBy).toEqual('System')
-          }
-        })
+      it('does not remember errors', async () => {
+        const nonAssociation = mockNonAssociation(davidJones.prisonerNumber, fredMills.prisonerNumber)
+        manageUsersApi.getUserByUsername.mockRejectedValueOnce(new Error('Internal Server Error'))
+        let processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(processedNonAssociation.updatedBy).toEqual('cde87s')
+
+        manageUsersApi.getUserByUsername.mockImplementation(mockGetUserByUsername)
+        processedNonAssociation = await lookupStaffInNonAssociation(manageUsersApi, systemToken, nonAssociation)
+        expect(manageUsersApi.getUserByUsername).toHaveBeenCalledTimes(2)
+        expect(processedNonAssociation.updatedBy).toEqual('Mark Simmons')
       })
     })
   })
