@@ -1,3 +1,4 @@
+import { staffMary, staffMark, staffBarry } from '../../server/data/testData/manageUsers'
 import { stubFor } from './wiremock'
 
 const stubUser = (name: string = 'john smith') =>
@@ -20,6 +21,28 @@ const stubUser = (name: string = 'john smith') =>
     },
   })
 
+/**
+ * Stub looking up all 3 mock staff by username
+ */
+const stubStaff = () =>
+  Promise.all(
+    [staffMary, staffMark, staffBarry].map(staff =>
+      stubFor({
+        request: {
+          method: 'GET',
+          urlPath: `/manage-users-api/users/${staff.username}`,
+        },
+        response: {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+          },
+          jsonBody: staff,
+        },
+      }),
+    ),
+  )
+
 const ping = () =>
   stubFor({
     request: {
@@ -33,5 +56,6 @@ const ping = () =>
 
 export default {
   stubManageUser: stubUser,
+  stubManageUsersGetStaff: stubStaff,
   stubManageUsersPing: ping,
 }

@@ -99,6 +99,9 @@ function appSetup(services: Services, production: boolean, userSupplier: () => E
   return app
 }
 
+/** System token returned by the mocked HMPPS Auth client */
+export const mockSystemToken = 'test-system-token'
+
 export function appWithAllRoutes({
   production = false,
   services = {},
@@ -112,5 +115,6 @@ export function appWithAllRoutes({
   services.routeUrls = routeUrls
   // eslint-disable-next-line no-param-reassign
   services.hmppsAuthClient = new AuthenticationClient(undefined, undefined, undefined) // NB: this class is mocked
+  ;(services.hmppsAuthClient.getToken as jest.Mock).mockResolvedValue(mockSystemToken)
   return appSetup(services as Services, production, userSupplier)
 }
