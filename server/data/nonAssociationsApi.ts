@@ -69,41 +69,41 @@ async function lookupStaffName(
  * Looks up staff display names from Manage Users
  * @returns map of username to display name; usernames that could not be found are missing
  */
-async function lookupStaffNames(
+async function getStaffNamesMap(
   manageUsersApi: ManageUsersApiClient,
   systemToken: string,
   staffUsernameSet: Set<string>,
 ): Promise<Map<string, string>> {
-  const staffNames = new Map<string, string>()
+  const staffNamesMap = new Map<string, string>()
   const staffUsernames = Array.from(staffUsernameSet).filter(username => username)
   await Promise.allSettled(
     staffUsernames.map(async username => {
       if (systemUsernames.includes(username)) {
-        staffNames.set(username, systemUserName)
+        staffNamesMap.set(username, systemUserName)
         return
       }
       const name = await lookupStaffName(manageUsersApi, systemToken, username)
       if (name) {
-        staffNames.set(username, name)
+        staffNamesMap.set(username, name)
       }
     }),
   )
-  return staffNames
+  return staffNamesMap
 }
 
 /**
  * Private method to hydrate `NonAssociationsListItem` and `NonAssociation` with staff names
  */
 function lookupStaff<O extends { updatedBy: string; closedBy: string | null }>(
-  /** Made by `lookupStaffNames` */
-  staffNames: Map<string, string>,
+  /** Made by `getStaffNamesMap` */
+  staffNamesMap: Map<string, string>,
   nonAssociation: O,
 ): O {
   const { updatedBy, closedBy } = nonAssociation
   return {
     ...nonAssociation,
-    updatedBy: staffNames.get(updatedBy) ?? updatedBy,
-    closedBy: closedBy && (staffNames.get(closedBy) ?? closedBy),
+    updatedBy: staffNamesMap.get(updatedBy) ?? updatedBy,
+    closedBy: closedBy && (staffNamesMap.get(closedBy) ?? closedBy),
   }
 }
 
@@ -122,10 +122,12 @@ export async function lookupStaffInNonAssociations<List extends NonAssociationsL
       staffUsernameSet.add(nonAssociation.closedBy)
     }
   })
-  const staffNames = await lookupStaffNames(manageUsersApi, systemToken, staffUsernameSet)
+  const staffNamesMap = await getStaffNamesMap(manageUsersApi, systemToken, staffUsernameSet)
   return {
     ...nonAssociationsList,
-    nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation => lookupStaff(staffNames, nonAssociation)),
+    nonAssociations: nonAssociationsList.nonAssociations.map(nonAssociation =>
+      lookupStaff(staffNamesMap, nonAssociation),
+    ),
   }
 }
 
@@ -141,8 +143,8 @@ export async function lookupStaffInNonAssociation<N extends NonAssociation>(
   if (nonAssociation.closedBy) {
     staffUsernameSet.add(nonAssociation.closedBy)
   }
-  const staffNames = await lookupStaffNames(manageUsersApi, systemToken, staffUsernameSet)
-  return lookupStaff(staffNames, nonAssociation)
+  const staffNamesMap = await getStaffNamesMap(manageUsersApi, systemToken, staffUsernameSet)
+  return lookupStaff(staffNamesMap, nonAssociation)
 }
 
 interface NonAssociationNoGroups {
