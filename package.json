@@ -35,7 +35,7 @@
     "npm": "^12"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.1165.0",
+    "@aws-sdk/client-sqs": "^3.1168.0",
     "@ministryofjustice/frontend": "^11.1.0",
     "@ministryofjustice/hmpps-audit-client": "2.0.0",
     "@ministryofjustice/hmpps-auth-clients": "^3.0.0",
@@ -70,7 +70,7 @@
     "@ministryofjustice/eslint-config-hmpps": "^1.0.4",
     "@ministryofjustice/frontend-types": "^2.0.3",
     "@ministryofjustice/hmpps-precommit-hooks": "^3.0.2",
-    "@tsconfig/node24": "^24.0.5",
+    "@tsconfig/node24": "^24.0.6",
     "@types/bunyan": "^1.8.11",
     "@types/bunyan-format": "^0.2.9",
     "@types/compression": "^1.8.1",
@@ -92,7 +92,7 @@
     "audit-ci": "^7.1.0",
     "aws-sdk-client-mock": "^4.1.0",
     "cookie-session": "^2.1.1",
-    "cypress": "^16.2.1",
+    "cypress": "^16.3.0",
     "cypress-multi-reporters": "^2.1.0",
     "del": "^9.0.1",
     "esbuild": "^0.28.2",
@@ -112,11 +112,11 @@
   },
   "overrides": {
     "@opentelemetry/core": "^2.12.1",
-    "brace-expansion": "^5.0.12"
+    "brace-expansion": "^5.0.13"
   },
   "allowScripts": {
     "@parcel/watcher@2.6.0": true,
-    "cypress@16.2.1": true,
+    "cypress@16.3.0": true,
     "dtrace-provider@0.8.8": false,
     "esbuild@0.28.2": true,
     "fsevents@2.3.3": true,
